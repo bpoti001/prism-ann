@@ -10,7 +10,7 @@ ARXIV SUBMISSION METADATA CARD (ENGRAMRAG)
    EngramRAG: Dynamic Usage-Weighted Topology and Synaptic Consolidation for Multi-Hop Agentic Memory
 
 3. AUTHORS:
-   Bhavyateja Potineni, Lohit Giri, Vadim Kutsyy, Rajasekhar Pentakota
+   Bhavyateja Potineni, Lohit Giri, Anu Jain, Vadim Kutsyy, Rajasekhar Pentakota
 
 4. PRIMARY CLASSIFICATION:
    cs.AI (Artificial Intelligence)
