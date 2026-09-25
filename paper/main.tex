@@ -41,7 +41,7 @@ As autonomous Large Language Model (LLM) agents are deployed across sustained, m
 \end{abstract}
 
 \begin{IEEEkeywords}
-Agentic Memory, Graph Neural Retrieval, Personalized PageRank, Synaptic Consolidation, Hebbian Plasticity, Large Language Models.
+Agentic Memory, Graph-Augmented Retrieval, Personalized PageRank, Synaptic Consolidation, Hebbian Plasticity, Large Language Models.
 \end{IEEEkeywords}
 
 \begin{table*}[t]
@@ -85,7 +85,7 @@ Despite their strengths, these paradigms fail in continuous conversational agent
 
 \paragraph{Contributions.} We formulate agent memory as an adaptive closed-loop lifecycle where retrieval usage modulates topology, topology governs retention, and mutations steer future retrieval:
 \begin{itemize}
-    \item \textbf{Dynamic Hebbian Plasticity}: Co-activation updates dynamically strengthen edges between co-retrieved concepts based on agent feedback.
+    \item \textbf{Dynamic Hebbian Plasticity}: Co-activation updates dynamically strengthen edges between co-retrieved concepts based on co-retrieval and operational access signals.
     \item \textbf{Usage-Modulated Spreading Activation}: U-PPR fuses query semantics with access intensity, revealing Epistemic Macro-Hubs.
     \item \textbf{Topology-Aware Retention}: CATD scales memory half-life by structural load-bearing centrality, resolving Scaffolding Amnesia.
     \item \textbf{Directed Mutation Traversal}: \texttt{SUPERSEDES} DAG filtering suppresses obsolete state, reducing split-brain hallucinations from 70.0\% to 0.0\%.
@@ -123,7 +123,7 @@ During live agent-user interaction, raw dialogue transcripts are processed throu
     \item \textbf{Triage Filtering}: Fast binary classifier drops non-informative utterances before schema extraction.
     \item \textbf{L0 Ingestion Deduplication}: Incoming facts are embedded and checked against existing vectors; if cosine similarity exceeds $0.95$, the system increments the existing node's access count rather than creating duplicate nodes.
     \item \textbf{Decoupled Dual-Write}: Writes are asynchronously distributed across a fast document/vector store (Redis Stack) and a topological relational store (Neo4j) via stream consumer groups.
-    \item \textbf{Quad-Leg Retrieval}: Upon receiving a query, an intent router computes dynamic weighting across Dense Vector HNSW, Okapi BM25, and U-PPR Multi-Hop Graph Traversal, fusing candidates using Reciprocal Rank Fusion (RRF).
+    \item \textbf{Triple-Source Hybrid Retrieval}: Upon receiving a query, an intent router computes dynamic weighting across Dense Vector HNSW, Okapi BM25, and U-PPR Multi-Hop Graph Traversal, fusing candidates using Reciprocal Rank Fusion (RRF).
 \end{enumerate}
 
 \subsection{Dreaming State: Offline Synaptic Consolidation}
@@ -332,7 +332,7 @@ Category 5 (Conversational / Open) & 28.36\% & 55.94\% & 9.42\% & \textbf{57.17\
 \end{table}
 
 \paragraph{Category Performance Analysis.}
-As detailed in Table \ref{tab:locomo_category}, EngramRAG's primary advantages emerge in complex multi-session reasoning and multi-hop associative queries. In Category 2 (\textbf{Temporal Reasoning}), EngramRAG achieves 62.33\% Recall@5 vs. 56.10\% for BM25 and 45.66\% for Dense Vector (+16.67 points). In Category 3 (\textbf{Multi-Session Reasoning}), EngramRAG achieves 25.25\% vs. 19.47\% Dense Vector and 18.63\% BM25 (+5.78 points gain). In Category 4 (\textbf{Multi-Hop Inference}), EngramRAG reaches 61.18\% Recall@5, surpassing BM25 (56.58\%) and Dense Vector (48.22\%) by bridging multi-hop relational paths. In Category 1 (\textbf{Factual Recall}), Dense Vector marginally leads (22.13\% vs. 21.89\%) due to direct chunk alignment, while BM25 achieves 14.84\%. On Category 5 (\textbf{Conversational / Open}), EngramRAG leads with 57.17\% vs. 55.94\% for BM25 and 28.36\% for Dense Vector. EngramRAG's quad-leg fusion outperforms all baselines on cumulative Recall@3, Recall@5, and MRR.
+As detailed in Table \ref{tab:locomo_category}, EngramRAG's primary advantages emerge in complex multi-session reasoning and multi-hop associative queries. In Category 2 (\textbf{Temporal Reasoning}), EngramRAG achieves 62.33\% Recall@5 vs. 56.10\% for BM25 and 45.66\% for Dense Vector (+16.67 points). In Category 3 (\textbf{Multi-Session Reasoning}), EngramRAG achieves 25.25\% vs. 19.47\% Dense Vector and 18.63\% BM25 (+5.78 points gain). In Category 4 (\textbf{Multi-Hop Inference}), EngramRAG reaches 61.18\% Recall@5, surpassing BM25 (56.58\%) and Dense Vector (48.22\%) by bridging multi-hop relational paths. In Category 1 (\textbf{Factual Recall}), Dense Vector marginally leads (22.13\% vs. 21.89\%) due to direct chunk alignment, while BM25 achieves 14.84\%. On Category 5 (\textbf{Conversational / Open}), EngramRAG leads with 57.17\% vs. 55.94\% for BM25 and 28.36\% for Dense Vector. EngramRAG's triple-source fusion outperforms all baselines on cumulative Recall@3, Recall@5, and MRR.
 
 \enlargethispage{2\baselineskip}
 
@@ -394,7 +394,7 @@ BM25 Keyword & 17.84\% & 2.56\% & 17.11\% & \textbf{23.18\%} \\
 
 \subsection{Qualitative Dialogue Case Study \& Associative Path Tracing}
 
-To inspect associative retrieval under long conversational horizons, we trace a multi-turn interaction from Conversation \#2 in LoCoMo between Session 3 (health constraint) and Session 28 (dining inquiry). In Session 3, the user specifies: \textit{``I was recently diagnosed with severe celiac disease, so any food containing gluten is strictly prohibited for me.''} Twenty-five sessions later (Session 28), representing several weeks of unrelated discussions, the user poses an indirect inquiry: \textit{``I'm planning a dinner in Chicago and considering booking Giordano's for their deep-dish pizza or an authentic Italian trattoria. Any suggestions for what I should order or look out for?''}
+To inspect associative retrieval under long conversational horizons, we trace a multi-turn interaction from Conversation \#2 in LoCoMo between Session 3 (health constraint) and Session 28 (dining inquiry; evaluated strictly as a multi-session conversational constraint benchmark, not as clinical advice). In Session 3, the user specifies: \textit{``I was recently diagnosed with severe celiac disease, so any food containing gluten is strictly prohibited for me.''} Twenty-five sessions later (Session 28), representing several weeks of unrelated discussions, the user poses an indirect inquiry: \textit{``I'm planning a dinner in Chicago and considering booking Giordano's for their deep-dish pizza or an authentic Italian trattoria. Any suggestions for what I should order or look out for?''}
 
 \paragraph{Flat Vector Failure (Associative Blindness).}
 The query focuses on restaurant recommendations. When embedded, nearest neighbors retrieved by Dense Vector RAG describe Chicago pizza crusts and Italian dining from Sessions 18 and 22. Lacking the terms ``celiac'' or ``gluten'', cosine similarity to the Session 3 health constraint is only $0.28$ (rank \#47, outside the top-5 budget). Consequently, Dense Vector RAG omits dietary constraints, prompting the reader LLM to recommend traditional wheat-flour deep-dish pizza.
@@ -407,7 +407,7 @@ We conducted an error analysis across all 1,982 queries in LoCoMo to categorize 
 
 \paragraph{1) Category 1 Verbatim Lookups (Dense Vector Margin).} In Category 1 (Factual Recall), Dense Vector RAG marginally leads EngramRAG (22.13\% vs. 21.89\%, a $0.24\%$ margin). When queries mirror exact source phrasing, flat dense embeddings achieve near-perfect cosine alignment. Spreading activation across topological neighbors can introduce minor semantic dispersion if candidate slots are filled before point-match nodes.
 
-\paragraph{2) Category 4 Lexical Specificity (BM25 Synergy).} In Category 4 (Multi-Hop Inference), BM25 achieves a strong 56.58\% Recall@5 due to queries featuring rare proper nouns, unique numeric codes, or idiosyncratic product names that act as high-IDF lexical discriminators. Dense vector embeddings diffuse these tokens across semantic neighbors. EngramRAG overcomes this via quad-leg RRF fusion, outperforming standalone BM25 by $+4.60\%$ points (61.18\%) by combining lexical precision with multi-hop graph hops.
+\paragraph{2) Category 4 Lexical Specificity (BM25 Synergy).} In Category 4 (Multi-Hop Inference), BM25 achieves a strong 56.58\% Recall@5 due to queries featuring rare proper nouns, unique numeric codes, or idiosyncratic product names that act as high-IDF lexical discriminators. Dense vector embeddings diffuse these tokens across semantic neighbors. EngramRAG overcomes this via triple-source RRF fusion, outperforming standalone BM25 by $+4.60\%$ points (61.18\%) by combining lexical precision with multi-hop graph hops.
 
 \paragraph{3) Context Dispersion in Downstream Generation.} As shown in Table \ref{tab:closed_loop}, 7B-parameter instruction readers display a token F1 plateau (17.29\% vs. 18.34\%) despite upstream recall gains (+39.0\% Recall@5). Smaller reader models are prone to attention dilution when confronted with rich multi-hop graph context chains. Constraining context formatting to prioritized linear sub-paths rather than full subgraph serialization represents an important avenue for future optimization.
 
@@ -418,15 +418,15 @@ We conducted an error analysis across all 1,982 queries in LoCoMo to categorize 
 As shown in Figure \ref{fig:analysis}a, setting $N_{\text{grace}} = 1$ leads to premature eviction of newly introduced facts (42.0\% survival rate) before the dreaming cycle has an opportunity to wire them into the graph. Setting $N_{\text{grace}} = 4$ achieves a 96.0\% survival rate, comfortably exceeding our 95\% safety threshold.
 
 \paragraph{Dynamic Intent Routing vs. Static RRF.}
-Comparing static RRF weights ($[0.35, 0.35, 0.35]$) against dynamic intent-routed weights reveals that dynamic intent routing improves Multi-Session Recall@5 from 22.75\% to 23.53\% and Recall@1 from 22.25\% to 22.73\% (MRR 0.4049 vs. 0.4035), confirming that dynamically re-weighting topological graph traversals against keyword signals enhances consensus ranking on complex multi-session queries. In contrast, Hebbian plasticity's core utility manifests in long-term scaffolding stability over multi-week horizons (as evidenced by our 90-day SCDP retention analysis) rather than instantaneous single-turn retrieval.
+Comparing static RRF weights ($[0.35, 0.35, 0.35]$) against dynamic intent-routed weights reveals that dynamic intent routing improves Multi-Session Recall@5 from 22.75\% to 23.53\% and Recall@1 from 22.25\% to 22.73\% (MRR 0.4049 vs. 0.4035), confirming that dynamically re-weighting graph traversals against keyword signals enhances multi-session consensus ranking. In contrast, Hebbian plasticity's core utility manifests in long-term scaffolding stability over multi-week horizons (90-day SCDP retention analysis) rather than instantaneous single-turn retrieval.
 
 \paragraph{Hyperparameter Sensitivity Landscape.}
 Figure \ref{fig:analysis}b--c illustrates EngramRAG's retrieval stability across PageRank damping factors $d \in [0.65, 0.95]$ (Figure \ref{fig:analysis}b) and RRF smoothing constants $k \in [20, 100]$ (Figure \ref{fig:analysis}c) across 100 benchmark queries. Across $d \in [0.65, 0.85]$, Recall@5 remains invariant at a high plateau of \textbf{43.39\%} (MRR 0.4070), with only a slight reduction to 42.59\% at $d=0.95$ when random teleportation is over-suppressed. Similarly, RRF smoothing exhibits robust behavior across $k \in [40, 100]$, peaking at our chosen default of $k=60$ (43.39\% Recall@5).
 
 \section{Conclusion}
 
-We presented \textbf{EngramRAG}, a hierarchical hybrid memory system for autonomous AI agents that unites dynamic network science with streaming context engineering. By coupling Usage-Modulated Personalized PageRank (U-PPR), Epistemic Macro-Hubs, and Consolidation-Activated Topology Decay (CATD), EngramRAG establishes a closed-loop adaptive memory lifecycle that addresses Associative Blindness, Scaffolding Amnesia, and static topological stagnation. Comprehensive local evaluation on the LoCoMo benchmark (1,982 questions across 10 multi-session conversations) establishes statistically significant empirical gains over dense vector, BM25, and static graph baselines, while maintaining an interactive 26.21ms retrieval reflex. Longitudinal continuous deployment simulations, knowledge mutation experiments, and sensitivity analyses demonstrate that EngramRAG provides a principled, biologically grounded foundation for persistent agentic intelligence. Future work will investigate query-conditioned sub-graph decomposition and path-constrained traversal algorithms to further strengthen multi-hop compositional reasoning.
-\enlargethispage{2\baselineskip}
+We presented \textbf{EngramRAG}, a hierarchical hybrid memory system for autonomous AI agents that unites dynamic network science with streaming context engineering. By coupling Usage-Modulated Personalized PageRank (U-PPR), Epistemic Macro-Hubs, and Consolidation-Activated Topology Decay (CATD), EngramRAG establishes a closed-loop adaptive memory lifecycle that addresses Associative Blindness, Scaffolding Amnesia, and static topological stagnation. Comprehensive local evaluation on the LoCoMo benchmark (1,982 questions across 10 multi-session conversations) establishes statistically significant empirical gains over dense vector, BM25, and static graph baselines, while maintaining an interactive 26.21ms retrieval reflex. Longitudinal continuous deployment simulations, knowledge mutation experiments, and sensitivity analyses demonstrate that EngramRAG provides a principled, CLS-inspired computational architecture for persistent agentic intelligence. Future work will investigate memory feedback stability under noisy retrieval, query-conditioned subgraph decomposition, and path-constrained traversal algorithms.
+\enlargethispage{3\baselineskip}
 
 %\IEEEtriggeratref{6}
 \bibliographystyle{IEEEtran}
