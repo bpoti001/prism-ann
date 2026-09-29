@@ -1,12 +1,13 @@
 # EngramRAG: Dynamic Usage-Weighted Topology and Synaptic Consolidation for Multi-Hop Agentic Memory
 
+[![arXiv](https://img.shields.io/badge/arXiv-2609.32049-b31b1b.svg)](https://arxiv.org/abs/2609.32049)
 [![Verification](https://img.shields.io/badge/Verification-68%2F68%20Checks%20Passed-brightgreen.svg)](#empirical-verification)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Benchmark](https://img.shields.io/badge/Benchmark-LoCoMo%20%7C%20LongMemEval-orange.svg)](#empirical-evaluation)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-Official implementation and evaluation suite for the research paper:  
-**"EngramRAG: Dynamic Usage-Weighted Topology and Synaptic Consolidation for Multi-Hop Agentic Memory"** (arXiv pre-print, `cs.AI` / `cs.IR` / `cs.CL`).
+Official implementation and evaluation suite for the published research paper:  
+**["EngramRAG: Dynamic Usage-Weighted Topology and Synaptic Consolidation for Multi-Hop Agentic Memory"](https://arxiv.org/abs/2609.32049)** (arXiv:2609.32049, `cs.AI`, `cs.CL`, `cs.IR`, `cs.MA`).
 
 ---
 
@@ -139,12 +140,13 @@ docker compose up -d
 ---
 
 ## 📄 Citation
-
+ 
 ```bibtex
-@article{epigraph2026,
-  title   = {EpiGraph: Dynamic Usage-Weighted Topology and Synaptic Consolidation for Multi-Hop Agentic Memory},
-  author  = {Potineni, Bhavyateja and Giri, Lohit and Kutsyy, Vadim and Pentakota, Rajasekhar},
-  journal = {arXiv preprint arXiv:2609.xxxxx},
-  year    = {2026}
+@article{potineni2026engramrag,
+  title   = {EngramRAG: Dynamic Usage-Weighted Topology and Synaptic Consolidation for Multi-Hop Agentic Memory},
+  author  = {Potineni, Bhavyateja and Giri, Lohit and Jain, Anu and Kutsyy, Vadim and Pentakota, Rajasekhar},
+  journal = {arXiv preprint arXiv:2609.32049},
+  year    = {2026},
+  url     = {https://arxiv.org/abs/2609.32049}
 }
 ```
