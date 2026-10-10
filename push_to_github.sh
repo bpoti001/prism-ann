@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-REPO_NAME="epigraph"
+REPO_NAME="engramrag"
 GITHUB_USER="bpoti001"
 PAT="${1:-${GITHUB_PAT}}"
 
@@ -12,7 +12,7 @@ if [ -z "$PAT" ]; then
 fi
 
 echo "=========================================================="
-echo "    Pushing EpiGraph to GitHub: ${GITHUB_USER}/${REPO_NAME}"
+echo "    Pushing EngramRAG to GitHub: ${GITHUB_USER}/${REPO_NAME}"
 echo "=========================================================="
 
 # Check if remote repository exists
@@ -23,7 +23,7 @@ if [ "$HTTP_CODE" -eq 404 ]; then
     echo "GitHub fine-grained PATs require the repository to be created on GitHub web first."
     echo ""
     echo "👉 Please create the empty repository in 1 click here:"
-    echo "   https://github.com/new?name=${REPO_NAME}&description=EpiGraph%3A+Dynamic+Usage-Weighted+Topology+and+Synaptic+Consolidation+for+Multi-Hop+Agentic+Memory"
+    echo "   https://github.com/new?name=${REPO_NAME}&description=EngramRAG%3A+Dynamic+Usage-Weighted+Topology+and+Synaptic+Consolidation+for+Multi-Hop+Agentic+Memory"
     echo ""
     echo "(Leave 'Initialize with README' UNCHECKED, then run this script again)"
     exit 1

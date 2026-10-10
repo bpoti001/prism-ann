@@ -21,7 +21,7 @@ ARXIV SUBMISSION METADATA CARD (ENGRAMRAG)
    cs.MA (Multi-Agent Systems)
 
 6. COMMENTS:
-   8 pages, 6 figures, 4 tables. Code and reproduction suite: https://github.com/bpoti001/epigraph
+   8 pages, 6 figures, 4 tables. Code and reproduction suite: https://github.com/bpoti001/engramrag
 
 7. LICENSE:
    arXiv.org perpetual, non-exclusive license to distribute this article
