@@ -37,6 +37,7 @@ All research and systems modules enforce **Deep Module boundaries** (small publi
 | **ADR-0001** | Subtractive-Aware Upward Boundary Pruning (UBP) over SpiceDB / Zanzibar ReBAC DAGs | `accepted` | `src/modules/prism_ann/ubp_resolver.py` | [`docs/adr/0001-spicedb-subtractive-upward-boundary-pruning.md`](./docs/adr/0001-spicedb-subtractive-upward-boundary-pruning.md) | Section 3.1 — **Theorem 1** & **Corollary 1** |
 | **ADR-0002** | Ancestor-Stitched Express Bridges (`H-HNSW`) and Bitmask-`POPCNT` Adaptive `ACORN-GLS` Traversal | `accepted` | `src/modules/prism_ann/hnsw_gls.py` | [`docs/adr/0002-ancestor-stitched-filtered-hnsw-and-acorn-gls.md`](./docs/adr/0002-ancestor-stitched-filtered-hnsw-and-acorn-gls.md) | Section 3.2 — **Theorem 2** & **Theorem 3** |
 | **ADR-0003** | Lexicographic Ancestor-Magnet Z-Order Layout & Shard-Coupled Tri-Modal Query Planner | `accepted` | `src/modules/prism_ann/trimodal_planner.py` | [`docs/adr/0003-z-ordered-roaring-simd-tri-modal-planner.md`](./docs/adr/0003-z-ordered-roaring-simd-tri-modal-planner.md) | Section 3.3 — **Theorem 4** |
+| **ADR-0004** | Provenance-Verified, Real-Baseline Evaluation Protocol (Prism-ANN v2) | `accepted` | `bench/`, `results/v2/`, all Milestone 4 paper numbers | [`docs/adr/0004-provenance-verified-real-baseline-evaluation.md`](./docs/adr/0004-provenance-verified-real-baseline-evaluation.md) | Section 5 — Evaluation Methodology |
 
 ---
 
