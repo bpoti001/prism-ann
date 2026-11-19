@@ -1,7 +1,7 @@
 # PaperVizAgent (PaperBanana) Figure Evaluation & Refinement Report
 
 **Evaluation Framework**: PaperVizAgent Multi-Agent Benchmark (Google Research, arXiv:2601.23265)  
-**Date**: September 23, 2026  
+**Date**: November 19, 2026  
 **Comparison Baselines**:
 - **Human Performance Baseline**: 50.0 / 100
 - **PaperVizAgent SOTA Benchmark**: 60.2 / 100

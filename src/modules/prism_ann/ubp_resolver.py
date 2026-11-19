@@ -254,21 +254,19 @@ class ZanzibarAuthGraph:
                 resolution_time_ms=elapsed_ms,
             )
 
-        pos_descendants = self.get_descendants(g0_pos)
-        denied_descendants = self.get_descendants(v_neg)
-
-        # Compute Tainted Ancestor Set G_taint(u)
+        # Compute Tainted Ancestor Set G_taint(u) in O(m * L^2) upward walk without Theta(b^L) leaf expansion
         g_taint: Set[str] = set()
         for z in v_neg:
-            if z in pos_descendants:
-                for anc in self.get_strict_ancestors(z):
-                    if anc in pos_descendants:
+            z_anc = self.get_strict_ancestors(z)
+            if (z_anc | {z}) & g0_pos:
+                for anc in z_anc:
+                    if (self.get_strict_ancestors(anc) | {anc}) & g0_pos:
                         g_taint.add(anc)
 
         tokens_pos: Set[str] = set()
         tokens_neg: Set[str] = set(v_neg)
 
-        # Top-down boundary pruning traversal
+        # Top-down boundary pruning traversal (halts at untainted or denied boundaries)
         queue = deque(g0_pos)
         visited: Set[str] = set()
         while queue:
@@ -277,7 +275,7 @@ class ZanzibarAuthGraph:
                 continue
             visited.add(curr)
 
-            if curr in denied_descendants:
+            if curr in v_neg or (self.get_strict_ancestors(curr) & v_neg):
                 tokens_neg.add(curr)
                 continue
 

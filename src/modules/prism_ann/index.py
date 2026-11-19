@@ -21,6 +21,7 @@ from .hnsw_gls import (
     search_hnsw_gls,
     search_post_filter,
     search_1hop_prefilter,
+    search_pgvector_iterative,
 )
 from .trimodal_planner import (
     RoaringRunBitmap,
@@ -37,9 +38,9 @@ class PrismANNIndex:
     Unified Deep Module Facade for Prism-ANN.
     Hides internal Z-Ordering, SpiceDB UBP graph cutting, Ancestor-Stitched Express Bridges,
     and POPCNT local-selectivity-adaptive routing behind a clean 3-method interface:
-      - __init__(...)  (builds ZOrderedCorpus, AncestorStitchedHNSW, TriModalQueryPlanner)
+      - build(...)
       - search(query_vec, principal_id, concept_ids, k)
-      - revoke_hierarchy_edge(parent_id, child_id)
+      - revoke_document_or_container(parent_id, child_id)
     """
 
     def __init__(
@@ -108,6 +109,7 @@ __all__ = [
     "search_hnsw_gls",
     "search_post_filter",
     "search_1hop_prefilter",
+    "search_pgvector_iterative",
     "RoaringRunBitmap",
     "ZOrderedCorpus",
     "TriModalQueryPlanner",

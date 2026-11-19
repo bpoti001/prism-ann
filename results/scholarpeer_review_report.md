@@ -2,7 +2,7 @@
 
 **Paper Title**: EpiGraph: Dynamic Usage-Weighted Topology and Synaptic Consolidation for Multi-Hop Agentic Memory  
 **Evaluation Framework**: ScholarPeer (Google Research, arXiv:2601.22638)  
-**Date**: September 23, 2026  
+**Date**: November 19, 2026  
 **Target Venue**: Premier International AI / ML Conference (IEEE / ACM / NeurIPS / ICLR)  
 **Recommendation**: **STRONG ACCEPT (Score: 8 / 10)**
 

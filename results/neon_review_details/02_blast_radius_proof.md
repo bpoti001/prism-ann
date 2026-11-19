@@ -1,4 +1,4 @@
-# Detail Report 02: Blast Radius Safety Proof (`ADR-0001` / UBP Zero-Leakage)
+# Detail Report 02: Blast Radius Safety Proof — Live `ENH-0010` Build
 
 **Reviewer**: `@neon-reviewer` (`blast-radius` skill)  
 **Proof Script**: `verify_blast_radius_ubp.py`  
@@ -6,27 +6,27 @@
 
 ---
 
-## 1. The Single Safety Fact Prism-ANN Depends On
+## 1. The Single Safety Fact `Prism-ANN` Depends On
 
 > **Safety Invariant (`ADR-0001` / Theorem 1 & Corollary 1):**  
-> For any principal $u$, positive grants $G_0^+(u)$, explicit subtractive exclusions (`but not` / `ethical_wall_deny`) $V^-(u)$, and revoked subtrees, compiling the Roaring Bitmap via Subtractive-Aware Upward Boundary Pruning:
+> Even after `@hydrogen-builder`'s upgrade of `upward_boundary_prune()` (`src/modules/prism_ann/ubp_resolver.py:257-281`) from $\Theta(b^L)$ downward descendant materialization to an $O(m \cdot L^2)$ upward ancestor taint walk, compiling the Roaring Bitmap via:
 > $$B_{\text{acl}}(u) = \Big(\bigcup_{t \in T_{\text{UBP}}^+(u)} B_t\Big) \setminus \Big(\bigcup_{z \in T_{\text{UBP}}^-(u)} B_z\Big)$$
-> is **set-identical** to exhaustive leaf expansion $\bigcup_{r \in D_{\text{auth}}(u)} B_r$ (**0 false positives / 0 privilege escalation leaks** and **0 false negatives**), and downstream `PrismANNIndex.search()` never surfaces a chunk outside $D_{\text{auth}}(u) \cap \Phi_{\text{ont}}$.
+> remains **100% set-identical** to exhaustive leaf `LookupResources` ($\bigcup_{r \in D_{\text{auth}}(u)} B_r$) across both balanced trees and multi-parent diamond DAGs (**0 false positives / 0 data leaks** and **0 false negatives**), and downstream `PrismANNIndex.search()` never leaks any denied document.
 
 ---
 
-## 2. Blast Radius Threat Analysis (3 Hops Downstream)
+## 2. Blast Radius Inspection of the Upgraded $O(m \cdot L^2)$ Resolver
 
-1. **Upstream (`ubp_resolver.py:217-301`)**:
-   - **Risk checked**: Could a positive grant on a node $g$ co-occurring with an ancestor `DENY`, a redundant nested grant, an outside-cone `DENY`, or a multi-parent diamond `DENY` cause `upward_boundary_prune` to halt at an untainted container that covers a denied leaf?
-   - **Cleared via**: In single-parent trees, $G_{\text{taint}}(u)$ taints every ancestor of any $z \in V^-(u) \cap \operatorname{Desc}(G_0^+(u))$. In **multi-parent diamond DAGs** (where `folder_A -> doc_shared` and `folder_B -> doc_shared`, with `grant(folder_A)` and `deny(folder_B)`), `folder_B` is not in $\operatorname{Desc}(\text{folder\_A})$, so `T_UBP^+ = {folder_A}` alone *would* leak `doc_shared`; however, because `upward_boundary_prune` emits `V^-(u)` into `T_UBP^-(u)` (`ubp_resolver.py:268`) and `ZOrderedCorpus` stamps every chunk with its full multi-parent ancestor closure `get_ancestor_lineage(r)` (`ubp_resolver.py:141-157`), `compile_acl_bitmap_ubp` subtracts $B_{\text{folder\_B}}$ and eliminates `doc_shared` with **0 leaks**.
-   - **Scoped boundary**: `remove_hierarchy_edge(parent_id, child_id)` (`ubp_resolver.py:107-116`) revokes `child_id` globally via `self.revoked_subtrees.add(child_id)`. This preserves zero-write safety in organizational trees, and if partial multi-parent unlinking is added in future work, the unlinked parent token must be added to `tokens_neg` or chunks re-compacted.
-2. **Midstream (`trimodal_planner.py:118-139, 217-230`)**:
-   - **Risk checked**: Off-by-one interval boundary errors in `RoaringRunBitmap.difference()` or `intersect()` returning authorized/denied intervals incorrectly.
-   - **Cleared via**: Tested across 359 randomized interval algebra compositions against `lookup_resources_leaf()` bitsets with **0 discrepancies**.
-3. **Downstream (`hnsw_gls.py:255-406`, `index.py:77-92`)**:
-   - **Risk checked**: Entry seed `0` or `TELEPORT` / `2HOP` intermediate hubs leaking unauthorized nodes into `results_map` or `top_k_ids`.
-   - **Cleared via**: Every insertion into `results_map` in `_evaluate_candidates` (`hnsw_gls.py:212`) is strictly gated on `if mask[nid]:`. Live E2E queries across Modes 1, 2, 3, empty-return, and post-revocation confirmed **0 leaks**.
+1. **Tainted Set Equivalence (`ubp_resolver.py:257-264`)**:
+   - Checked whether `(z_anc | {z}) & g0_pos` and `(self.get_strict_ancestors(anc) | {anc}) & g0_pos` are mathematically equivalent to the prior `z in pos_descendants` / `anc in pos_descendants` checks across arbitrary acyclic DAGs.
+   - Because $y \in \operatorname{Desc}(S) \iff (\operatorname{StrictAnc}(y) \cup \{y\}) \cap S \neq \emptyset$ in any DAG, the upward check produces the exact same `g_taint` set without touching $\Theta(b^L)$ nodes.
+2. **Denied Branch Termination (`ubp_resolver.py:278-280`)**:
+   - `if curr in v_neg or (self.get_strict_ancestors(curr) & v_neg):` checks $\operatorname{Desc}(V^-(u))$ strictly by upward ancestors, preventing any subtree rooted under `v_neg` from entering `tokens_pos`.
+3. **Downstream `hnsw_gls.py` Search Safety (`hnsw_gls.py:233-257, 326-405`)**:
+   - Checked the new `entry_seeds` (`50` portals), `_select_upper_layer_entry`, `TELEPORT` fallback, and new `search_pgvector_iterative` (`hnsw_gls.py:518-578`):
+     - `_evaluate_candidates` inserts into `results_map` strictly when `if mask[nid]:`.
+     - `search_pgvector_iterative` inserts into `results_map` strictly when `if mask[nb_int]:` (both `entry_0` and loop neighbors).
+     - `entry_seeds` (`entry_0` from upper layer) passes `authorized_only=False` for graph traversal queuing while gating `results_map` on `if mask[nid]:`, so unauthorized entry nodes are never returned in `top_k_ids`.
 
 ---
 

@@ -119,7 +119,7 @@ def verify() -> bool:
         if line:
             for s_val in selected_s:
                 rec = f"{sweep_by_s[s_val][sys_key]['recall_at_10']:.1f}\\%"
-                lat = f"{sweep_by_s[s_val][sys_key]['p99_latency_ms']:.1f} ms"
+                lat = f"{sweep_by_s[s_val][sys_key]['p99_latency_ms']:.2f} ms"
                 check(
                     rec in line and lat in line,
                     f"Selectivity S={s_val} {sys_key}: Recall={rec}, P99={lat} exact match",
@@ -168,11 +168,11 @@ def verify() -> bool:
         line = _extract_row_line(tab5_block, pat)
         check(bool(line), f"Found Table 5 row for {sys_id}", f"Missing Table 5 row for {sys_id}")
         if line:
-            ram_s = f"{r['ram_gb']:.2f} GB"
+            ram_s = f"{r['ram_mb']:.2f} MB"
             rel_s = f"${r['relative_ram_x']:.3f}\\times$" if sys_id == "Prism_ANN_Full" else f"${r['relative_ram_x']:.2f}\\times$"
-            bld_s = f"{r['build_time_min']:.1f} min"
+            bld_s = f"{r['build_time_sec']:.2f} s"
             w_s = f"{r['vector_writes_on_1k_doc_revoke']:,}"
-            lat_s = f"{r['revoke_1k_docs_ms']:,.1f} ms" if r["revoke_1k_docs_ms"] >= 100 else f"{r['revoke_1k_docs_ms']:.2f} ms"
+            lat_s = f"{r['revoke_1k_docs_ms']:.2f} ms"
             for tok in [ram_s, rel_s, bld_s, w_s, lat_s]:
                 check(
                     tok in line,
@@ -180,21 +180,29 @@ def verify() -> bool:
                     f"Footprint {sys_id}: expected '{tok}' missing in row: {line}",
                 )
 
-    print("\n=== 6. VERIFYING HEADLINE CLAIMS, THEOREM 4 PARAMS & FIGURE CAPTIONS ===")
+    print("\n=== 6. VERIFYING HEADLINE CLAIMS, FULL-SWEEP RANGES (ENH-0011) & FIGURE CAPTIONS ===")
     crossover = data["theorem4_crossover_parameters"]
     n_flat_tex = f"{crossover['n_flat_star']:,}".replace(",", "{,}")
+    all_prism_rec = [r["systems"]["Prism_ANN_Full"]["recall_at_10"] for r in data["h2_h3_selectivity_sweep"]["sweep"]]
+    all_prism_p99 = [r["systems"]["Prism_ANN_Full"]["p99_latency_ms"] for r in data["h2_h3_selectivity_sweep"]["sweep"]]
+    full_min_rec = f"{min(all_prism_rec):.1f}\\%"
+    full_max_p99 = f"{max(all_prism_p99):.2f}"
+    full_min_p99 = f"{min(all_prism_p99):.2f}"
+
     headline_tokens = [
         ("Theorem 4 N_flat^*", n_flat_tex),
         ("Theorem 4 E_ACORN-GLS", f"{crossover['expected_graph_evals']:.1f}"),
-        ("H1 m=5 token count", "8{,}102"),
-        ("H1 m=5 speedup", "245.1"),
-        ("H1 L=6 naive ms", "184.5"),
-        ("H1 L=6 speedup", "439.3"),
-        ("Prism RAM overhead", "7.4\\%"),
-        ("H4 1K-doc Prism ms", "1.42"),
-        ("H4 1K-doc speedup", "3{,}014.1"),
-        ("H3 r=0.20 gain", "+45.2"),
-        ("H3 r=3.00 eval reduction", "2.84"),
+        ("Full-Sweep Min Recall (ENH-0011)", f"{full_min_rec}\\text{{--}}100.0\\%"),
+        ("Full-Sweep P99 Range (ENH-0011)", f"{full_min_p99}\\text{{--}}{full_max_p99}\\text{{ ms}}"),
+        ("H1 m=5 token count", "8{,}152"),
+        ("H1 m=5 speedup", "46.0"),
+        ("H1 L=6 naive ms", "5.84"),
+        ("H1 L=6 speedup", "116.8"),
+        ("Prism RAM overhead", "5.6\\%"),
+        ("H4 1K-doc Prism ms", "0.06"),
+        ("H4 1K-doc speedup", "107.7"),
+        ("H3 r=0.20 gain", "+19.2"),
+        ("H3 r=3.00 eval reduction", "1.82"),
     ]
     for label, tok in headline_tokens:
         check(tok in tex, f"Headline {label} ('{tok}') verified", f"Missing headline {label}: '{tok}'")

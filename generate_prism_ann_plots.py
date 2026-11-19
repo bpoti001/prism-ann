@@ -34,7 +34,7 @@ plt.rcParams.update({
     "axes.labelweight": "bold",
     "xtick.labelsize": 9,
     "ytick.labelsize": 9,
-    "legend.fontsize": 8.0,
+    "legend.fontsize": 7.4,
     "figure.titlesize": 12,
     "axes.spines.top": False,
     "axes.spines.right": False,
@@ -47,7 +47,7 @@ plt.rcParams.update({
 
 # Colorblind-safe Ocean Dusk + Okabe-Ito high-contrast academic palette
 PALETTE = {
-    "Prism_ANN_Full": "#0F766E",             # Deep Emerald Teal (Hero)
+    "Prism_ANN_Full": "#0F766E",                    # Deep Emerald Teal (Hero)
     "Ablation2_UBP_TriModal_NoBridges": "#0284C7",  # Sky Blue
     "Ablation1_UBP_Static_ACORN1": "#6366F1",       # Indigo
     "B3_Standalone_ACORN_1": "#D97706",             # Warm Amber
@@ -72,18 +72,19 @@ def save_dual(fig, base_name: str) -> None:
 def generate_fig1_selectivity_sweep(data: dict) -> None:
     sweep_data = data["h2_h3_selectivity_sweep"]
     S = np.array(sweep_data["selectivities"], dtype=np.float64) * 100.0  # in %
+    hl = sweep_data["key_highlights"]
 
     def get_curve(sys_key: str, metric: str):
         return [row["systems"][sys_key][metric] for row in sweep_data["sweep"]]
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11.8, 4.4))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11.8, 5.2))
 
     # Panel (a): Recall@10 across 5 Orders of Magnitude of Selectivity
     series_a = [
-        ("Prism_ANN_Full", "Prism-ANN (Full Proposed)", "-o", 2.6, 6.0),
+        ("Prism_ANN_Full", "Prism-ANN (Full Proposed, 1.06× RAM)", "-o", 2.6, 6.0),
         ("Ablation2_UBP_TriModal_NoBridges", "Ablation 2 (Tri-Modal w/o Bridges)", "--s", 1.8, 4.8),
-        ("B4_Standalone_ACORN_Gamma10", "B4: ACORN-$\\gamma$ ($\\gamma=10$, 6.4× RAM)", "-.^", 1.7, 4.8),
-        ("B5_HoneyBee_RBAC", "B5: HoneyBee RBAC (5.8× RAM)", ":D", 1.6, 4.5),
+        ("B4_Standalone_ACORN_Gamma10", "B4: ACORN-$\\gamma$ ($\\gamma_{\\mathrm{eff}}=6$, 1.56× RAM)", "-.^", 1.7, 4.8),
+        ("B5_HoneyBee_RBAC", "B5: HoneyBee RBAC (5.68× RAM)", ":D", 1.6, 4.5),
         ("B6_UNG_Static_LNG", "B6: UNG Static LNG", ":v", 1.5, 4.5),
         ("B3_Standalone_ACORN_1", "B3: Standalone ACORN-1 ($\\gamma=1$)", "-d", 2.0, 5.2),
         ("B2_NaiveLookup_1HopHNSW", "B2: Naive Lookup + 1-Hop HNSW", "--x", 1.5, 4.8),
@@ -97,37 +98,37 @@ def generate_fig1_selectivity_sweep(data: dict) -> None:
     # Highlight Percolation Cliffs (Theorem 2 vs Theorem 3) in unobstructed regions
     ax1.axvline(1.47, color="#D97706", linestyle="--", linewidth=1.2, alpha=0.85)
     ax1.annotate(
-        "ACORN-1 Cliff\n$S_{\\mathrm{crit}} \\approx 1.47\\%$",
-        xy=(1.47, 48.0),
-        xytext=(0.14, 17.5),
+        "ACORN-1 Cliff ($S_{\\mathrm{crit}} \\approx 1.47\\%$)\nDrops $92.4\\% \\rightarrow 53.8\\% \\rightarrow 33.6\\%$",
+        xy=(1.47, 58.0),
+        xytext=(0.011, 38.0),
         arrowprops=dict(arrowstyle="->", color="#B45309", lw=1.1),
-        color="#B45309", fontsize=8.1, fontweight="bold",
+        color="#B45309", fontsize=7.8, fontweight="bold",
         bbox=dict(boxstyle="round,pad=0.22", facecolor="white", edgecolor="#FDE68A", alpha=0.95),
     )
 
     ax1.axvline(0.08, color="#0F766E", linestyle="-.", linewidth=1.2, alpha=0.85)
-    ax1.text(0.011, 88.0, "H-HNSW Bridge Cliff\n$S_{\\mathrm{crit}}^{\\mathrm{bridge}}\\approx 0.08\\%$",
-             color="#0F766E", fontsize=8.1, fontweight="bold",
+    ax1.text(0.011, 79.0, "H-HNSW Bridge Cliff\n$S_{\\mathrm{crit}}^{\\mathrm{bridge}}\\approx 0.08\\%$\n(94.8% Recall at $S=0.5\\%$)",
+             color="#0F766E", fontsize=7.8, fontweight="bold",
              bbox=dict(boxstyle="round,pad=0.22", facecolor="white", edgecolor="#99F6E4", alpha=0.95))
 
     ax1.set_xscale("log")
     ax1.set_xlim(0.008, 115.0)
-    ax1.set_ylim(0, 105)
+    ax1.set_ylim(0, 106)
     ax1.set_xlabel("Global Predicate Selectivity $S = N_{\\mathrm{cand}} / N$ (%, Log Scale)")
     ax1.set_ylabel("Recall@10 (%)")
     ax1.set_title("(a) Recall@10 vs. Selectivity ($S \\in [10^{-4}, 1.0]$)")
-    ax1.legend(loc="lower right", frameon=True, facecolor="white", framealpha=0.94, ncol=1, fontsize=7.7)
+    ax1.legend(loc="upper center", bbox_to_anchor=(0.5, -0.17), frameon=True, facecolor="white", framealpha=0.96, ncol=2, fontsize=7.2)
 
-    # Panel (b): P99 Latency (ms) across Selectivity
+    # Panel (b): P99 Latency (ms) across Selectivity (Log-Log)
     series_b = [
         ("Prism_ANN_Full", "Prism-ANN (Full Proposed)", "-o", 2.6, 6.0),
         ("Ablation2_UBP_TriModal_NoBridges", "Ablation 2 (Tri-Modal w/o Bridges)", "--s", 1.7, 4.6),
         ("Ablation1_UBP_Static_ACORN1", "Ablation 1 (UBP + Static ACORN-1)", "-.^", 1.6, 4.6),
         ("B7_pgvector_Iterative_HNSW", "B7: pgvector Iterative HNSW Scan", "-v", 2.0, 5.2),
-        ("B2_NaiveLookup_1HopHNSW", "B2: Naive LookupResources + HNSW", "--x", 1.8, 5.0),
+        ("B4_Standalone_ACORN_Gamma10", "B4: ACORN-$\\gamma$ ($\\gamma_{\\mathrm{eff}}=6$)", ":^", 1.8, 4.8),
         ("B3_Standalone_ACORN_1", "B3: Standalone ACORN-1", "-d", 1.8, 4.8),
-        ("B4_Standalone_ACORN_Gamma10", "B4: ACORN-$\\gamma$ ($\\gamma=10$)", ":^", 1.6, 4.6),
         ("B5_HoneyBee_RBAC", "B5: HoneyBee RBAC", ":D", 1.5, 4.4),
+        ("B2_NaiveLookup_1HopHNSW", "B2: Naive Lookup + 1-Hop HNSW", "--x", 1.6, 4.8),
     ]
 
     for key, label, style, lw, ms in series_b:
@@ -135,41 +136,46 @@ def generate_fig1_selectivity_sweep(data: dict) -> None:
         ax2.plot(S, y, style, color=PALETTE[key], linewidth=lw, markersize=ms, label=label)
 
     ax2.annotate(
-        "pgvector Iterative Scan\n342.0 ms at $S=10^{-4}$",
-        xy=(0.01, 342.0),
-        xytext=(0.035, 290.0),
+        "pgvector Iterative Scan\n19.11 ms at $S=10^{-4}$ (39.8× slower)",
+        xy=(0.01, 19.11),
+        xytext=(0.013, 68.0),
         arrowprops=dict(arrowstyle="->", color="#DC2626", lw=1.2),
-        fontsize=8.1,
+        fontsize=7.9,
         fontweight="bold",
         color="#DC2626",
+        bbox=dict(boxstyle="round,pad=0.2", facecolor="white", edgecolor="#FECACA", alpha=0.94),
     )
     ax2.annotate(
-        "LookupResources Leaf Union\n178.4 ms at $S=1.0$",
-        xy=(100.0, 178.4),
-        xytext=(0.65, 165.0),
-        arrowprops=dict(arrowstyle="->", color="#475569", lw=1.2),
-        fontsize=8.1,
+        "ACORN-$\\gamma$ Degree Expansion\n80.95 ms at $S=1.0$",
+        xy=(100.0, 80.95),
+        xytext=(1.1, 125.0),
+        arrowprops=dict(arrowstyle="->", color="#7C3AED", lw=1.2),
+        fontsize=7.9,
         fontweight="bold",
-        color="#475569",
+        color="#7C3AED",
+        bbox=dict(boxstyle="round,pad=0.2", facecolor="white", edgecolor="#DDD6FE", alpha=0.94),
     )
+    min_p99 = hl["min_prism_p99_ms_across_all_S"]
+    max_p99 = hl["max_prism_p99_ms_across_all_S"]
     ax2.annotate(
-        "Prism-ANN: $\\leq 18.4$ ms P99\nacross all 5 orders of magnitude",
-        xy=(0.5, 18.4),
-        xytext=(0.014, 82.0),
+        f"Prism-ANN: {min_p99:.2f}–{max_p99:.2f} ms P99\n({hl['s_0_001_prism_p99_ms']:.2f} ms via Roaring-SIMD at $S=10^{{-3}}$)",
+        xy=(0.1, hl["s_0_001_prism_p99_ms"]),
+        xytext=(0.012, 0.011),
         arrowprops=dict(arrowstyle="->", color="#0F766E", lw=1.3),
-        fontsize=8.2,
+        fontsize=7.9,
         fontweight="bold",
         color="#0F766E",
-        bbox=dict(boxstyle="round,pad=0.2", facecolor="white", edgecolor="#99F6E4", alpha=0.92),
+        bbox=dict(boxstyle="round,pad=0.2", facecolor="white", edgecolor="#99F6E4", alpha=0.94),
     )
 
     ax2.set_xscale("log")
+    ax2.set_yscale("log")
     ax2.set_xlim(0.008, 115.0)
-    ax2.set_ylim(0, 368)
+    ax2.set_ylim(0.007, 320.0)
     ax2.set_xlabel("Global Predicate Selectivity $S = N_{\\mathrm{cand}} / N$ (%, Log Scale)")
-    ax2.set_ylabel("End-to-End P99 Query Latency (ms)")
+    ax2.set_ylabel("End-to-End P99 Query Latency (ms, Log Scale)")
     ax2.set_title("(b) End-to-End P99 Latency (ms) vs. Selectivity")
-    ax2.legend(loc="upper right", frameon=True, facecolor="white", framealpha=0.94, ncol=1, fontsize=7.7)
+    ax2.legend(loc="upper center", bbox_to_anchor=(0.5, -0.17), frameon=True, facecolor="white", framealpha=0.96, ncol=2, fontsize=7.2)
 
     plt.tight_layout()
     save_dual(fig, "fig1_prism_selectivity_sweep")
@@ -197,22 +203,22 @@ def generate_fig2_ubp_token_compression(data: dict) -> None:
 
     ax1.fill_between(m_vals, ubp_toks, naive_toks, color="#0F766E", alpha=0.07)
     ax1.annotate(
-        "$m=5$: 8,102 $\\rightarrow$ 13 tokens\n(623.2× compression, 0 FP/FN)",
-        xy=(5, 13),
-        xytext=(5.8, 2.2),
+        "$m=5$: 8,152 $\\rightarrow$ 60 tokens\n(135.9× compression, 0 FP/FN)\n$m=0$: 8,192 $\\rightarrow$ 2 tokens (4,096×)",
+        xy=(5, 60),
+        xytext=(5.5, 3.2),
         arrowprops=dict(arrowstyle="->", color="#0F766E", lw=1.3),
-        fontsize=8.3,
+        fontsize=8.1,
         fontweight="bold",
         color="#0F766E",
         bbox=dict(boxstyle="round,pad=0.22", facecolor="white", edgecolor="#99F6E4", alpha=0.94),
     )
 
     ax1.set_yscale("log")
-    ax1.set_ylim(1, 32000)
+    ax1.set_ylim(1, 35000)
     ax1.set_xlabel("Explicit Subtractive DENY Rules $m = |V^-(u)|$ ($L=4, b=8, k_0=2$)")
     ax1.set_ylabel("Emitted Capability Tokens $|T|$ (Log Scale)")
     ax1.set_title("(a) Theorem 1 Token Compression Bound vs. DENY Walls")
-    ax1.legend(loc="center", bbox_to_anchor=(0.56, 0.72), frameon=True, facecolor="white", framealpha=0.96)
+    ax1.legend(loc="center", bbox_to_anchor=(0.55, 0.56), frameon=True, facecolor="white", framealpha=0.96)
 
     # Panel (b): Roaring Bitmap Compilation Latency across Hierarchy Depth L
     L_vals = np.array([r["depth_L"] for r in depth_sweep])
@@ -227,18 +233,18 @@ def generate_fig2_ubp_token_compression(data: dict) -> None:
 
     for rect in b1:
         h = rect.get_height()
-        ax2.text(rect.get_x() + rect.get_width() / 2.0, h * 1.12, f"{h:.1f}",
-                 ha="center", va="bottom", fontsize=8.0, color="#334155", fontweight="bold")
+        ax2.text(rect.get_x() + rect.get_width() / 2.0, h * 1.15, f"{h:.2f}",
+                 ha="center", va="bottom", fontsize=7.9, color="#334155", fontweight="bold")
     for rect in b2:
         h = rect.get_height()
-        ax2.text(rect.get_x() + rect.get_width() / 2.0, h * 1.15, f"{h:.2f}",
-                 ha="center", va="bottom", fontsize=8.0, color="#0F766E", fontweight="bold")
+        ax2.text(rect.get_x() + rect.get_width() / 2.0, h * 1.18, f"{h:.2f}",
+                 ha="center", va="bottom", fontsize=7.9, color="#0F766E", fontweight="bold")
 
     ax2.set_yscale("log")
-    ax2.set_ylim(0.1, 480.0)
+    ax2.set_ylim(0.005, 25.0)
     ax2.set_xticks(L_vals)
     ax2.set_xticklabels([f"$L={l}$" for l in L_vals])
-    ax2.set_xlabel("Zanzibar Organizational Hierarchy Depth $L$ ($b=8, m=3$)")
+    ax2.set_xlabel("Zanzibar Organizational Hierarchy Depth $L$ ($b=4, k_0=2, m=3$)")
     ax2.set_ylabel("Pre-Filter Bitmap Compilation Latency (ms, Log)")
     ax2.set_title("(b) Pre-Filter Roaring Bitmap Compilation Latency")
     ax2.legend(loc="upper left", frameon=True, facecolor="white", framealpha=0.94)
@@ -271,22 +277,23 @@ def generate_fig3_gls_correlation(data: dict) -> None:
              label="B3: Standalone ACORN-1 ($\\gamma=1$)")
 
     ax1.axvline(1.0, color="#64748B", linestyle="--", linewidth=1.0, alpha=0.7)
-    ax1.text(0.45, 48.0, "Depleted Regime\n($r = S_{\\mathrm{loc}}/S < 1$)",
+    ax1.text(0.30, 64.0, "Depleted Regime\n($r = S_{\\mathrm{loc}}/S < 1$)",
              fontsize=8.0, color="#B45309", fontweight="bold",
              bbox=dict(boxstyle="round,pad=0.22", facecolor="white", edgecolor="#FDE68A", alpha=0.95))
+    gain_r02 = round(rec_prism[0] - rec_acorn1[0], 1)
     ax1.annotate(
-        "+45.2% Recall Gain at $r=0.20$\nvia Express-Bridge Teleportation\n(97.6% vs. 52.4%)",
-        xy=(0.20, 97.6),
-        xytext=(1.15, 72.0),
+        f"+{gain_r02:.1f}% Recall Gain at $r=0.20$\nvia Express-Bridge Teleportation\n({rec_prism[0]:.1f}% vs. {rec_acorn1[0]:.1f}%)",
+        xy=(0.20, rec_prism[0]),
+        xytext=(1.10, 72.5),
         arrowprops=dict(arrowstyle="->", color="#0F766E", lw=1.3),
-        fontsize=8.2,
+        fontsize=8.1,
         fontweight="bold",
         color="#0F766E",
         bbox=dict(boxstyle="round,pad=0.22", facecolor="white", edgecolor="#99F6E4", alpha=0.95),
     )
 
     ax1.set_xlim(0.1, 3.1)
-    ax1.set_ylim(45, 103)
+    ax1.set_ylim(60, 103.5)
     ax1.set_xlabel("Global-Local Selectivity Ratio $r = S_{\\mathrm{loc}} / S$ (at $S = 2.0\\%$)")
     ax1.set_ylabel("Recall@10 (%)")
     ax1.set_title("(a) Recall@10 Across Global-Local Selectivity Ratio $r$")
@@ -298,22 +305,23 @@ def generate_fig3_gls_correlation(data: dict) -> None:
     ax2.plot(r_vals, eval_prism, "-o", color="#0F766E", linewidth=2.6, markersize=6.0,
              label="Prism-ANN ACORN-GLS (Bitmask-POPCNT Adaptive)")
 
+    red_r3 = gls[-1]["dist_eval_reduction_x"]
     ax2.fill_between(r_vals, eval_prism, eval_acorn1, color="#0F766E", alpha=0.12,
-                     label="CPU Distance Evaluations Saved (2.84× at $r=3.0$)")
+                     label=f"CPU Distance Evaluations Saved (Up to {red_r3:.2f}×)")
 
     ax2.annotate(
-        "2.84× fewer distance evals\nin dense pockets ($\\hat{S}_{\\mathrm{loc}} \\geq 0.25$)\n(1,120 $\\rightarrow$ 394 evals)",
-        xy=(3.0, 394),
-        xytext=(1.35, 590),
+        f"{red_r3:.2f}× fewer distance evals at $r=3.0$\n({eval_acorn1[-1]} $\\rightarrow$ {eval_prism[-1]} evals; $\\tau_{{\\mathrm{{high}}}}=0.25$)\nvia Bitmask-POPCNT 1-Hop Bypass",
+        xy=(3.0, eval_prism[-1]),
+        xytext=(1.15, 110),
         arrowprops=dict(arrowstyle="->", color="#0F766E", lw=1.3),
-        fontsize=8.3,
+        fontsize=8.1,
         fontweight="bold",
         color="#0F766E",
         bbox=dict(boxstyle="round,pad=0.22", facecolor="white", edgecolor="#99F6E4", alpha=0.95),
     )
 
     ax2.set_xlim(0.1, 3.1)
-    ax2.set_ylim(250, 1520)
+    ax2.set_ylim(80, 620)
     ax2.set_xlabel("Global-Local Selectivity Ratio $r = S_{\\mathrm{loc}} / S$ (at $S = 2.0\\%$)")
     ax2.set_ylabel("Average Distance Evaluations per Query")
     ax2.set_title("(b) Bitmask-POPCNT Distance Evaluation Savings")
@@ -346,12 +354,15 @@ def generate_fig4_revocation_and_pareto(data: dict) -> None:
     ax1.plot(docs, lat_prism, "-o", color="#0F766E", linewidth=2.7, markersize=6.2,
              label="Prism-ANN UBP Zero-Write Edge Deletion ($O(1)$)")
 
+    r1k = [r for r in rev_sweep if r["revoked_documents"] == 1000][0]
+    r5k = [r for r in rev_sweep if r["revoked_documents"] == 5000][0]
     ax1.annotate(
-        "1,000 Docs (150K Chunks):\n1.42 ms vs. 4,280.0 ms\n(3,014.1× speedup, 0 vector writes)",
-        xy=(1000, 1.42),
-        xytext=(38, 9.0),
+        f"1,000 Docs (15K Chunks): {r1k['prism_ann_ubp_zero_write_ms']:.2f} ms vs. {r1k['flat_acl_payload_rewrite_ms']:.2f} ms ({r1k['speedup_vs_flat_rewrite_x']:.1f}×)\n"
+        f"5,000 Docs (75K Chunks): {r5k['prism_ann_ubp_zero_write_ms']:.2f} ms vs. {r5k['flat_acl_payload_rewrite_ms']:.2f} ms ({r5k['speedup_vs_flat_rewrite_x']:.1f}×)",
+        xy=(1000, r1k["prism_ann_ubp_zero_write_ms"]),
+        xytext=(12, 0.007),
         arrowprops=dict(arrowstyle="->", color="#0F766E", lw=1.3),
-        fontsize=8.2,
+        fontsize=7.9,
         fontweight="bold",
         color="#0F766E",
         bbox=dict(boxstyle="round,pad=0.22", facecolor="white", edgecolor="#99F6E4", alpha=0.95),
@@ -359,40 +370,40 @@ def generate_fig4_revocation_and_pareto(data: dict) -> None:
 
     ax1.set_xscale("log")
     ax1.set_yscale("log")
-    ax1.set_ylim(0.5, 65000)
-    ax1.set_xlabel("Revoked / Superseded Documents $D_{\\mathrm{rev}}$ (150 Chunks/Doc)")
+    ax1.set_ylim(0.004, 280.0)
+    ax1.set_xlabel("Revoked / Superseded Documents $D_{\\mathrm{rev}}$ (15 Chunks/Doc)")
     ax1.set_ylabel("End-to-End Revocation Latency (ms, Log Scale)")
     ax1.set_title("(a) Zero-Write Revocation Throughput (Corollary 1)")
     ax1.legend(loc="upper left", frameon=True, facecolor="white", framealpha=0.94)
 
-    # Panel (b): Index RAM Footprint (GB) vs Sub-1% Recall@10 (S=0.005) Pareto Frontier
+    # Panel (b): Index RAM Footprint (MB) vs Sub-1% Recall@10 (S=0.005) Pareto Frontier
     s005_row = [r for r in data["h2_h3_selectivity_sweep"]["sweep"] if r["selectivity"] == 0.005][0]["systems"]
+    ram_map = {item["system_id"]: item["ram_mb"] for item in footprints}
 
     points = [
-        ("Prism_ANN_Full", "Prism-ANN (Proposed)\n(9.02 GB, 97.8%)", (-1.5, -10.5)),
-        ("Ablation2_UBP_TriModal_NoBridges", "Ablation 2 (No Bridges, 76.8%)", (1.8, 1.2)),
-        ("B4_Standalone_ACORN_Gamma10", "B4: ACORN-$\\gamma=10$\n(53.8 GB, 94.2%)", (-15.5, -9.5)),
-        ("B5_HoneyBee_RBAC", "B5: HoneyBee RBAC\n(48.7 GB, 75.8%)", (-15.8, -6.5)),
-        ("B6_UNG_Static_LNG", "B6: UNG (14.3 GB, 73.4%)", (1.8, -3.5)),
-        ("B3_Standalone_ACORN_1", "B3: ACORN-1 (8.55 GB, 61.2%)", (1.8, -1.8)),
-        ("B2_NaiveLookup_1HopHNSW", "B2: 1-Hop HNSW (8.55 GB, 51.4%)", (1.8, -2.5)),
-        ("B1_PostFilter_CheckBulk", "B1: Post-Filter (8.40 GB, 4.8%)", (1.8, 1.2)),
+        ("Prism_ANN_Full", f"Prism-ANN (Proposed, {ram_map['Prism_ANN_Full']:.2f} MB, {s005_row['Prism_ANN_Full']['recall_at_10']:.1f}%)", (1.1, -6.5)),
+        ("B7_pgvector_Iterative_HNSW", f"B7: pgvector Iterative ({ram_map['B7_pgvector_Iterative_HNSW']:.2f} MB, {s005_row['B7_pgvector_Iterative_HNSW']['recall_at_10']:.1f}%)", (1.1, 2.0)),
+        ("B4_Standalone_ACORN_Gamma10", f"B4: ACORN-$\\gamma_{{\\mathrm{{eff}}}}=6$ ({ram_map['B4_Standalone_ACORN_Gamma10']:.2f} MB, {s005_row['B4_Standalone_ACORN_Gamma10']['recall_at_10']:.1f}%)", (1.1, -13.0)),
+        ("Ablation2_UBP_TriModal_NoBridges", f"Ablation 2 / B3: ACORN-1\n(5.57–5.65 MB, {s005_row['Ablation2_UBP_TriModal_NoBridges']['recall_at_10']:.1f}%)", (1.1, 3.0)),
+        ("B6_UNG_Static_LNG", f"B6: UNG ({ram_map['B6_UNG_Static_LNG']:.2f} MB, {s005_row['B6_UNG_Static_LNG']['recall_at_10']:.1f}%)", (1.1, -2.5)),
+        ("B5_HoneyBee_RBAC", f"B5: HoneyBee RBAC\n({ram_map['B5_HoneyBee_RBAC']:.2f} MB, {s005_row['B5_HoneyBee_RBAC']['recall_at_10']:.1f}%)", (-11.5, 6.5)),
+        ("B1_PostFilter_CheckBulk", f"B1: Post-Filter ({ram_map['B1_PostFilter_CheckBulk']:.2f} MB, {s005_row['B1_PostFilter_CheckBulk']['recall_at_10']:.1f}%)", (1.1, -2.5)),
+        ("B2_NaiveLookup_1HopHNSW", f"B2: 1-Hop HNSW ({ram_map['B2_NaiveLookup_1HopHNSW']:.2f} MB, {s005_row['B2_NaiveLookup_1HopHNSW']['recall_at_10']:.1f}%)", (1.1, -3.0)),
     ]
 
-    ram_map = {item["system_id"]: item["ram_gb"] for item in footprints}
     for sys_id, lbl, (dx, dy) in points:
         x_ram = ram_map[sys_id]
         y_rec = s005_row[sys_id]["recall_at_10"]
-        size = 140 if sys_id == "Prism_ANN_Full" else 75
+        size = 150 if sys_id == "Prism_ANN_Full" else 75
         marker = "*" if sys_id == "Prism_ANN_Full" else "o"
         ax2.scatter(x_ram, y_rec, s=size, color=PALETTE[sys_id], marker=marker, zorder=5, edgecolors="black", linewidths=0.7)
-        ax2.text(x_ram + dx, y_rec + dy, lbl, fontsize=8.0,
+        ax2.text(x_ram + dx, y_rec + dy, lbl, fontsize=7.8,
                  fontweight="bold" if sys_id == "Prism_ANN_Full" else "normal",
                  color=PALETTE[sys_id])
 
-    ax2.set_xlim(4, 60)
-    ax2.set_ylim(0, 106)
-    ax2.set_xlabel("Total Index Memory Footprint per 5M-Vector Shard (GB)")
+    ax2.set_xlim(3.8, 35.5)
+    ax2.set_ylim(-5, 108)
+    ax2.set_xlabel("Measured Index Memory Footprint ($N=10{,}000, d=128$, MB)")
     ax2.set_ylabel("Sub-1% Selectivity Recall@10 (%, at $S = 0.5\\%$)")
     ax2.set_title("(b) Memory vs. Sub-1% Recall Pareto Frontier")
 
