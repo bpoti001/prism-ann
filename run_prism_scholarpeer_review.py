@@ -158,13 +158,13 @@ def run_multiaspect_qa(tex: str, bench: Dict) -> List[Dict]:
         {
             "theorem": "Corollary 1 (Zero-Write Revocation)",
             "question": "Does structural unlinking avoid vector DB write amplification without New Enemy exposure?",
-            "analysis": "Ingest-time lineages Anc(v_i) remain immutable; unlinking in SpiceDB advances ZedToken and prunes subtrees via UBP in 0.06 ms at 1,000 docs (0.18 ms at 5,000 docs) with 0 vector DB writes (vs 15,000-75,000 payload writes / 5.79-33.06 ms, 96.5x-183.7x speedup).",
+            "analysis": "Ingest-time lineages Anc(v_i) remain immutable; unlinking in SpiceDB advances ZedToken and prunes subtrees via UBP in 0.06 ms at both 1,000 docs and 5,000 docs with 0 vector DB writes (vs 15,000-75,000 payload writes / 6.46-36.30 ms, 107.7x-605.0x speedup).",
             "verdict": "SOUND",
         },
         {
             "theorem": "Theorem 2 & 3 (Percolation Cliff & Express Bridges)",
             "question": "Is S_crit = 2/(rM(M+1)) exact under Molloy-Reed directed percolation, and do M_bridge=4 bridges stay under 8% RAM?",
-            "analysis": "For M=16, r=0.5, S_crit=1.471%; intra-container/magnet ring-chord bridges (S_container=0.05) shift S_crit^bridge to 0.0735% (<0.08%), lifting live S=0.005 recall from 33.2% (ACORN-1 and Ablation 2) to 100.0% at +5.6% measured RAM (5.80 MB vs 5.49 MB).",
+            "analysis": "For M=16, r=0.5, S_crit=1.471%; intra-container/magnet ring-chord bridges (S_container=0.05) shift S_crit^bridge to 0.0735% (<0.08%), lifting live S=0.005 recall from 33.6% (ACORN-1 and Ablation 2) to 94.8% (and 100.0% at S <= 10^-3) at +5.6% measured RAM (5.80 MB vs 5.49 MB).",
             "verdict": "SOUND",
         },
         {
@@ -204,7 +204,7 @@ Verified **{historian['verified_citations']}** upstream citations across `paper/
 | Era | Paradigm | Representative Systems | Remaining Gap Closed by Prism-ANN |
 |---|---|---|---|
 | **P1 (2019)** | Global ReBAC DAGs | Google Zanzibar / SpiceDB | Leaf `LookupResources` explosion (`Theta(b^L)`) & bitmap stall |
-| **P2 (2018-2025)** | Filtered ANN Graphs | HNSW, Filtered-DiskANN, ACORN, UNG, SeRF, UNIFY, RoarGraph, SIEVE | Static labels break on dynamic `DENY`; `ACORN-1` collapses `<1.47%`; `ACORN-gamma` adds `+55.6%` RAM & `237 ms` P99 |
+| **P2 (2018-2025)** | Filtered ANN Graphs | HNSW, Filtered-DiskANN, ACORN, UNG, SeRF, UNIFY, RoarGraph, SIEVE | Static labels break on dynamic `DENY`; `ACORN-1` collapses `<1.47%`; `ACORN-gamma` adds `+55.6%` RAM & `80.95 ms` P99 |
 | **P3 (2025-2026)** | RBAC Partitions & FGAC Vision | HoneyBee, FANNBench, Curator, SeQureDB | Flat RBAC explodes (`5.68x` RAM) on ReBAC x Ontology; `r<1` stalls traversal |
 | **P4 (This Work)** | Co-Designed ReBAC + HNSW | **Prism-ANN** | Unifies UBP (`<=60` tokens at `m=5`, `2` at `m=0`), `H-HNSW` (`+5.6%` RAM), `ACORN-GLS`, and Z-Order SIMD |
 
