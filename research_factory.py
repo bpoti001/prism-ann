@@ -9,7 +9,7 @@ ScholarPeer, and verify_hallucinations.py).
 
 Commands:
   python3 research_factory.py size "<task description>"
-  python3 research_factory.py init-prism-ann
+  python3 research_factory.py init-prism-ann [--force]   (refuses to overwrite without --force)
   python3 research_factory.py verify-governance
   python3 research_factory.py gsd [status|validate]
   python3 research_factory.py audit-paper
@@ -69,15 +69,20 @@ def classify_size(task_text: str) -> dict:
             "Gate 2 (HARD STOP): Mint ADR in docs/adr/NNNN-*.md ('Design-It-Twice' -> Formal Theorem) & register in CONTEXT.md",
             "Gate 3: Full /show-me architecture diagram + Deep Module seam + Lock protocol.md in Git",
             "Gate 4: Multi-slice Tracer-Bullet TDD + Full Baseline & Ablation Matrix -> results/*.json",
-            "Gate 5: Outer-Loop Synthesis (findings.md) + academic-plotting + PaperVizAgent (>=95/100)",
-            "Gate 6: 3-Brake Audit (verify_hallucinations.py + ScholarPeer + Two-Axis Review -> arXiv tar.gz)"
+            "Gate 5: Outer-Loop Synthesis (findings.md) + academic-plotting (figures regenerated from results/v2/summary.json only)",
+            "Gate 6: bench/recompute.py --check + fresh-reviewer figure/peer reviews (results/v2/review/, SHA-256 bound) -> arXiv tar.gz"
         ]
     }
+    # Honest model routing (Phase 13 / INT-04).  The subagent tool only offers the model
+    # options `inherit`, `flash`, `flash_lite`, and `pro`; nothing in this file selects a
+    # model.  The former codenames ("Argon", "Hydrogen", "Neon") did not correspond to
+    # distinct models and were removed.
     model_routing = {
-        "planner_researcher": "Argon (High Thinking)",
-        "builder_tdd": "Hydrogen (High Thinking)",
-        "adversarial_reviewer": "Neon (High Thinking)",
-        "factory_overseer": "Factory Overseer (feat/research-factory-enhancements)"
+        "planner_researcher": "inherited session model (orchestrator)",
+        "builder_tdd": "inherited session model (subagent model option: inherit)",
+        "adversarial_reviewer": "subagent model option: pro (fresh context)",
+        "factory_overseer": "inherited session model (feat/research-factory-enhancements; needs human PR review)",
+        "note": "Labels describe the invoked subagent option only; this script does not route models.",
     }
     return {
         "task": task_text,
@@ -95,11 +100,16 @@ def classify_size(task_text: str) -> dict:
     }
 
 
-def init_prism_ann():
-    os.makedirs(os.path.join(REPO_ROOT, "docs", "adr"), exist_ok=True)
-    os.makedirs(os.path.join(REPO_ROOT, "docs", "rfc"), exist_ok=True)
-    os.makedirs(os.path.join(REPO_ROOT, "literature"), exist_ok=True)
-    os.makedirs(os.path.join(REPO_ROOT, "src", "modules", "prism_ann"), exist_ok=True)
+def init_prism_ann(root: str = REPO_ROOT, force: bool = False) -> bool:
+    """
+    Scaffolds the Prism-ANN governance workspace (CONTEXT.md, GLOSSARY.md, ADR-0000..0003,
+    research-state.yaml, findings.md, research-log.md, literature/survey.md, H1-H4 protocols).
+
+    Phase 13 (INT-03) guard: this command refuses to overwrite ANY existing file unless
+    `force=True` (CLI: `init-prism-ann --force`).  It returns False and writes nothing
+    when a target already exists.
+    """
+    planned = {}  # relative path -> content; written only after the overwrite check
 
     # 1. CONTEXT.md
     context_md = """# Project Context & Architectural System of Record (`CONTEXT.md`)
@@ -152,8 +162,7 @@ All research and systems modules enforce **Deep Module boundaries** (small publi
 | Naive SpiceDB `LookupResources` leaf document ID expansion for broad principals | Produces $10^4\\text{--}10^5$ leaf tokens, stalling Roaring Bitmap union for 50–180 ms | Subtractive-Aware Upward Boundary Pruning ($\\mathcal{P}_{\\text{UBP}}$, $\\le 50$ tokens) | `ADR-0001` |
 | Static `ACORN-gamma` ($\\gamma \\ge 10$) full-graph neighbor expansion | Causes $9\\times\\text{--}53\\times$ index build slowdown and $4\\times\\text{--}8\\times$ RAM bloat | Ancestor-Stitched Express Bridges ($M_{\\text{bridge}}=4$, $<8\\%$ RAM overhead) + `ACORN-GLS` | `ADR-0002` |
 """
-    with open(os.path.join(REPO_ROOT, "CONTEXT.md"), "w") as f:
-        f.write(context_md)
+    planned[os.path.join("CONTEXT.md")] = context_md
 
     # 2. GLOSSARY.md
     glossary_md = """# Ubiquitous Domain Language & Mathematical Symbol Table (`GLOSSARY.md`)
@@ -191,8 +200,7 @@ All research and systems modules enforce **Deep Module boundaries** (small publi
 | $M, M_{\\text{bridge}}$ | HNSW base out-degree ($M$) and Ancestor-Stitched Express Bridge count ($M_{\\text{bridge}}$) | `m_degree`, `m_bridge` | $M = 16, M_{\\text{bridge}} = 4$ |
 | $\\kappa = c_{\\text{rand}} / c_{\\text{simd}}$ | Latency ratio of random DRAM graph hop to Z-ordered sequential SIMD distance evaluation | `hardware_kappa` | $\\kappa \\in [20, 35]$ |
 """
-    with open(os.path.join(REPO_ROOT, "GLOSSARY.md"), "w") as f:
-        f.write(glossary_md)
+    planned[os.path.join("GLOSSARY.md")] = glossary_md
 
     # 3. ADRs (0000 to 0003)
     adr_0000 = """# ADR-0000: ADR-to-arXiv Research & Software Factory Governance Gate
@@ -331,8 +339,7 @@ When candidate cardinality $N_{\\text{cand}} = \\operatorname{popcount}(B_\\Phi)
         ("0002-ancestor-stitched-filtered-hnsw-and-acorn-gls.md", adr_0002),
         ("0003-z-ordered-roaring-simd-tri-modal-planner.md", adr_0003),
     ]:
-        with open(os.path.join(REPO_ROOT, "docs", "adr", fname), "w") as f:
-            f.write(content)
+        planned[os.path.join("docs", "adr", fname)] = content
 
     # 4. research-state.yaml (0-autoresearch-skill state)
     research_state_yaml = """project: "Prism-ANN: Co-Designed SpiceDB ReBAC Upward Boundary Pruning and Ancestor-Stitched Filtered HNSW"
@@ -381,8 +388,7 @@ hypotheses:
 
 trajectory: []
 """
-    with open(os.path.join(REPO_ROOT, "research-state.yaml"), "w") as f:
-        f.write(research_state_yaml)
+    planned[os.path.join("research-state.yaml")] = research_state_yaml
 
     # 5. findings.md
     findings_md = """# Research Findings & Narrative Synthesis (`findings.md`)
@@ -408,16 +414,14 @@ trajectory: []
 - **Constraint 1 (Reviewer Defense):** Never rely solely on a brute-force flat-scan switch below 1% selectivity without `Ancestor-Stitched Express Bridges` and `ACORN-GLS`, because negative correlation ($r < 1$) can stall `ACORN-1` even when global $S = 3\\%\\text{--}5\\%$ ($N_{\\text{cand}} > 150{,}000$).
 - **Constraint 2 (Zero Hallucination):** Every citation in `literature/survey.md` and `paper/references.bib` is programmatically verified against arXiv / Semantic Scholar / ACM Digital Library.
 """
-    with open(os.path.join(REPO_ROOT, "findings.md"), "w") as f:
-        f.write(findings_md)
+    planned[os.path.join("findings.md")] = findings_md
 
     # 6. research-log.md
     research_log_md = f"""# Chronological Research & Governance Log (`research-log.md`)
 
 - **[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] `research(init)`**: Initialized unified **ADR-to-arXiv Research & Software Factory** workspace for `Prism-ANN`. Minted `ADR-0000` through `ADR-0003`, synchronized `CONTEXT.md` and `GLOSSARY.md`, compiled verified literature survey in `literature/survey.md`, and locked experimental protocols `H1`–`H4`.
 """
-    with open(os.path.join(REPO_ROOT, "research-log.md"), "w") as f:
-        f.write(research_log_md)
+    planned[os.path.join("research-log.md")] = research_log_md
 
     # 7. literature/survey.md
     survey_md = """# Verified Literature Survey: ReBAC Authorization & Filtered HNSW (`literature/survey.md`)
@@ -439,8 +443,7 @@ All references below have been verified against upstream proceedings (USENIX ATC
 13. **Policy-Aware Vector Search (SeQureDB / SIGMOD 2026)**: L. S. Yalamarthi and P. Pappachan, *"Policy-aware Vector Search: A Vision for Fine Grained Access Control in Vector Databases,"* `arXiv:2606.19803`, 2026.
 14. **EngramRAG (arXiv 2026)**: B. Potineni, *"EngramRAG: Dynamic Usage-Weighted Topology and Synaptic Consolidation for Multi-Hop Agentic Memory,"* `arXiv:2609.32049`, 2026.
 """
-    with open(os.path.join(REPO_ROOT, "literature", "survey.md"), "w") as f:
-        f.write(survey_md)
+    planned[os.path.join("literature", "survey.md")] = survey_md
 
     # 8. Pre-registered experiment protocols (H1..H4)
     protocols = {
@@ -486,12 +489,22 @@ Revoking access to $1{,}000$ documents ($150{,}000$ chunks) via structural edge 
 """
     }
     for slug, content in protocols.items():
-        pdir = os.path.join(REPO_ROOT, "experiments", slug)
-        os.makedirs(pdir, exist_ok=True)
-        with open(os.path.join(pdir, "protocol.md"), "w") as f:
-            f.write(content)
+        planned[os.path.join("experiments", slug, "protocol.md")] = content
 
-    print("✅ [ADR-to-arXiv Factory] Initialized unified Software Factory + Autoresearch workspace for Prism-ANN!")
+    existing = sorted(rel for rel in planned if os.path.exists(os.path.join(root, rel)))
+    if existing and not force:
+        print("❌ [init-prism-ann] Refusing to overwrite existing files (re-run with --force to overwrite):")
+        for rel in existing:
+            print(f"  - {rel}")
+        return False
+    for rel, content in planned.items():
+        full = os.path.join(root, rel)
+        os.makedirs(os.path.dirname(full), exist_ok=True)
+        with open(full, "w") as f:
+            f.write(content)
+    print(f"✅ [ADR-to-arXiv Factory] Initialized Prism-ANN workspace ({len(planned)} files"
+          f"{', overwrote ' + str(len(existing)) if existing else ''}).")
+    return True
 
 
 def validate_gsd_planning() -> dict:
@@ -643,30 +656,45 @@ def verify_governance() -> bool:
 def audit_paper() -> bool:
     ok_gov = verify_governance()
     print("\n------------------------------------------------------------------")
-    print("  Running 3-Brake Academic & Systems Verification Suite...")
+    print("  Running audit suite (v2 checks gate; v1/legacy scripts are informational)")
     print("------------------------------------------------------------------")
-    scripts = [
-        ("EngramRAG Brake 1: Zero-Hallucination Sensor", "verify_hallucinations.py"),
-        ("EngramRAG Brake 2: PaperVizAgent Figure Critic", "run_paperviz_audit.py"),
-        ("EngramRAG Brake 3: ScholarPeer Review Engine", "run_scholarpeer_review.py"),
-        ("Prism-ANN Blast Radius: Live UBP Zero-Leakage Proof", "verify_blast_radius_ubp.py"),
-        ("Prism-ANN Brake 1: Zero-Hallucination & Citation Sensor", "verify_prism_hallucinations.py"),
-        ("Prism-ANN Brake 2: PaperVizAgent 5-Agent Figure Critic", "run_prism_paperviz_audit.py"),
-        ("Prism-ANN Brake 3: ScholarPeer 4-Agent Peer Review Engine", "run_prism_scholarpeer_review.py"),
+    # v2 (ADR-0004) gating checks.  Brakes 2/3 are presence + SHA-256 checks of reviews
+    # written by a fresh reviewer at review time; no script emits scores or verdicts.
+    gating = [
+        ("Prism-ANN v2 Provenance: recompute summary.json from raw records",
+         [os.path.join("bench", "recompute.py"), "--check", os.path.join("results", "v2", "summary.json")]),
+        ("Prism-ANN Blast Radius: Live UBP Zero-Leakage Proof", ["verify_blast_radius_ubp.py"]),
+        ("Prism-ANN v2 Brake 2: figure_review.md exists + covers current figure SHA-256",
+         ["run_prism_paperviz_audit.py"]),
+        ("Prism-ANN v2 Brake 3: peer_review.md exists + covers current PDF SHA-256",
+         ["run_prism_scholarpeer_review.py"]),
+    ]
+    # v1/legacy (Milestones 1-3).  Kept for history only; they do NOT gate v2.  The v1
+    # Prism Brake 1 checks numbers against the superseded v1 results JSON, and the
+    # EngramRAG Brake 2/3 scripts are v1 scripted reviews.
+    legacy = [
+        ("[v1/legacy] EngramRAG Brake 1: Zero-Hallucination Sensor", ["verify_hallucinations.py"]),
+        ("[v1/legacy] EngramRAG Brake 2: scripted figure critic (v1, not an evaluation)", ["run_paperviz_audit.py"]),
+        ("[v1/legacy] EngramRAG Brake 3: scripted review (v1, not an evaluation)", ["run_scholarpeer_review.py"]),
+        ("[v1/legacy] Prism-ANN v1 Brake 1 (checks superseded v1 numbers)", ["verify_prism_hallucinations.py"]),
     ]
     all_ok = ok_gov
-    for label, script in scripts:
-        spath = os.path.join(REPO_ROOT, script)
-        if not os.path.exists(spath):
-            print(f"\n❌ [Missing Audit Script] Expected {script} not found!")
-            all_ok = False
-            continue
-        print(f"\n>>> Executing {label} ({script})...")
-        res = subprocess.run([sys.executable, spath], cwd=REPO_ROOT)
-        if res.returncode != 0:
-            all_ok = False
+    for group, gate in ((gating, True), (legacy, False)):
+        for label, argv in group:
+            spath = os.path.join(REPO_ROOT, argv[0])
+            if not os.path.exists(spath):
+                print(f"\n❌ [Missing Audit Script] Expected {argv[0]} not found!")
+                all_ok = all_ok and not gate
+                continue
+            print(f"\n>>> Executing {label} ({' '.join(argv)})...")
+            res = subprocess.run([sys.executable, spath] + argv[1:], cwd=REPO_ROOT)
+            if res.returncode != 0:
+                if gate:
+                    all_ok = False
+                else:
+                    print(f"  (legacy script exited {res.returncode}; informational only)")
     print("\n==================================================================")
-    print(f"  3-BRAKE AUDIT RESULT: {'PASSED (EXIT 0)' if all_ok else 'FAILED (EXIT 1)'}")
+    print(f"  AUDIT RESULT (v2 gates): {'PASSED (EXIT 0)' if all_ok else 'FAILED (EXIT 1)'}")
     print("==================================================================")
     return all_ok
 
@@ -680,7 +708,7 @@ def main():
         task = " ".join(sys.argv[2:]) if len(sys.argv) > 2 else "Run experiment"
         print(json.dumps(classify_size(task), indent=2))
     elif cmd == "init-prism-ann":
-        init_prism_ann()
+        sys.exit(0 if init_prism_ann(force="--force" in sys.argv[2:]) else 1)
     elif cmd == "verify-governance":
         sys.exit(0 if verify_governance() else 1)
     elif cmd == "gsd":

@@ -36,9 +36,9 @@ This GSD roadmap governs both foundational milestones of the **EngramRAG** agent
 
 Plans:
 
-- [ ] 13-01: `bench/harness.py` (raw JSONL per query) + `bench/recompute.py` (bit-for-bit summary) + unit tests (`ADR-0004`).
-- [ ] 13-02: Strip literal scores/verdicts from `run_prism_paperviz_audit.py` / `run_prism_scholarpeer_review.py`; turn them into checks that review files exist and match artifact SHA-256 (`ADR-0004`).
-- [ ] 13-03: Guard `research_factory.py init-prism-ann` with `--force`; replace Argon/Hydrogen/Neon labels with the actual invoked model options (`ADR-0000`).
+- [x] 13-01: `bench/harness.py` (raw JSONL per query) + `bench/recompute.py` (bit-for-bit summary) + unit tests (`ADR-0004`).
+- [x] 13-02: Strip literal scores/verdicts from `run_prism_paperviz_audit.py` / `run_prism_scholarpeer_review.py`; turn them into checks that review files exist and match artifact SHA-256 (`ADR-0004`).
+- [x] 13-03: Guard `research_factory.py init-prism-ann` with `--force`; replace Argon/Hydrogen/Neon labels with the actual invoked model options (`ADR-0000`).
 
 ### Phase 14: Real-Baseline Confirmatory Evaluation: BEIR Quora + MiniLM, FAISS/ACORN/hnswlib/pgvector, real SpiceDB, frozen algorithm (ADR-0001, ADR-0002, ADR-0003, ADR-0004)
 
@@ -74,7 +74,7 @@ Plans:
 
 Plans:
 
-- [ ] 16-01: Implement and test ENH-0013..0016 on `feat/research-factory-enhancements`; write `PR_DESCRIPTION.md` for human review (`ADR-0000`).
+- [x] 16-01: Implement and test ENH-0013..0016 on `feat/research-factory-enhancements`; write `PR_DESCRIPTION.md` for human review (`ADR-0000`).
 
 ---
 
