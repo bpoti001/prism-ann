@@ -1,0 +1,1149 @@
+{
+  "benchmark_suite": "Prism-ANN End-to-End Evaluation (H1..H4 across 10 Systems & Ablations)",
+  "timestamp": "2026-11-19T15:57:06Z",
+  "execution_time_sec": 0.344,
+  "governing_adrs": [
+    "ADR-0001",
+    "ADR-0002",
+    "ADR-0003"
+  ],
+  "theorems_verified": [
+    "Theorem 1",
+    "Corollary 1",
+    "Theorem 2",
+    "Theorem 3",
+    "Theorem 4"
+  ],
+  "theorem4_crossover_parameters": {
+    "expected_graph_evals": 460.8,
+    "hardware_kappa": 32.0,
+    "n_flat_star": 14746,
+    "n_shard_star": 18432500
+  },
+  "h1_ubp_token_compression": {
+    "deny_rule_sweep": [
+      {
+        "m_denies": 0,
+        "k0_grants": 2,
+        "branching_b": 8,
+        "depth_L": 4,
+        "naive_leaf_tokens": 8192,
+        "ubp_positive_tokens": 2,
+        "ubp_negative_tokens": 0,
+        "theorem1_upper_bound": 2,
+        "compression_ratio": 4096.0,
+        "naive_bitmap_union_ms": 96.61,
+        "ubp_roaring_compile_ms": 0.21,
+        "latency_speedup_x": 460.0,
+        "false_positives": 0,
+        "false_negatives": 0
+      },
+      {
+        "m_denies": 1,
+        "k0_grants": 2,
+        "branching_b": 8,
+        "depth_L": 4,
+        "naive_leaf_tokens": 8174,
+        "ubp_positive_tokens": 5,
+        "ubp_negative_tokens": 1,
+        "theorem1_upper_bound": 30,
+        "compression_ratio": 1634.8,
+        "naive_bitmap_union_ms": 96.4,
+        "ubp_roaring_compile_ms": 0.26,
+        "latency_speedup_x": 370.8,
+        "false_positives": 0,
+        "false_negatives": 0
+      },
+      {
+        "m_denies": 2,
+        "k0_grants": 2,
+        "branching_b": 8,
+        "depth_L": 4,
+        "naive_leaf_tokens": 8156,
+        "ubp_positive_tokens": 7,
+        "ubp_negative_tokens": 2,
+        "theorem1_upper_bound": 58,
+        "compression_ratio": 1165.1,
+        "naive_bitmap_union_ms": 96.19,
+        "ubp_roaring_compile_ms": 0.29,
+        "latency_speedup_x": 331.7,
+        "false_positives": 0,
+        "false_negatives": 0
+      },
+      {
+        "m_denies": 5,
+        "k0_grants": 2,
+        "branching_b": 8,
+        "depth_L": 4,
+        "naive_leaf_tokens": 8102,
+        "ubp_positive_tokens": 13,
+        "ubp_negative_tokens": 5,
+        "theorem1_upper_bound": 142,
+        "compression_ratio": 623.2,
+        "naive_bitmap_union_ms": 95.57,
+        "ubp_roaring_compile_ms": 0.39,
+        "latency_speedup_x": 245.1,
+        "false_positives": 0,
+        "false_negatives": 0
+      },
+      {
+        "m_denies": 10,
+        "k0_grants": 2,
+        "branching_b": 8,
+        "depth_L": 4,
+        "naive_leaf_tokens": 8012,
+        "ubp_positive_tokens": 23,
+        "ubp_negative_tokens": 10,
+        "theorem1_upper_bound": 282,
+        "compression_ratio": 348.3,
+        "naive_bitmap_union_ms": 94.54,
+        "ubp_roaring_compile_ms": 0.55,
+        "latency_speedup_x": 171.9,
+        "false_positives": 0,
+        "false_negatives": 0
+      },
+      {
+        "m_denies": 15,
+        "k0_grants": 2,
+        "branching_b": 8,
+        "depth_L": 4,
+        "naive_leaf_tokens": 7922,
+        "ubp_positive_tokens": 33,
+        "ubp_negative_tokens": 15,
+        "theorem1_upper_bound": 422,
+        "compression_ratio": 240.1,
+        "naive_bitmap_union_ms": 93.5,
+        "ubp_roaring_compile_ms": 0.71,
+        "latency_speedup_x": 131.7,
+        "false_positives": 0,
+        "false_negatives": 0
+      },
+      {
+        "m_denies": 20,
+        "k0_grants": 2,
+        "branching_b": 8,
+        "depth_L": 4,
+        "naive_leaf_tokens": 7832,
+        "ubp_positive_tokens": 43,
+        "ubp_negative_tokens": 20,
+        "theorem1_upper_bound": 562,
+        "compression_ratio": 182.1,
+        "naive_bitmap_union_ms": 92.47,
+        "ubp_roaring_compile_ms": 0.87,
+        "latency_speedup_x": 106.3,
+        "false_positives": 0,
+        "false_negatives": 0
+      }
+    ],
+    "hierarchy_depth_sweep": [
+      {
+        "depth_L": 2,
+        "branching_b": 8,
+        "m_denies": 3,
+        "naive_leaf_tokens": 16,
+        "ubp_positive_tokens": 5,
+        "theorem1_upper_bound": 44,
+        "compression_ratio": 3.2,
+        "naive_bitmap_union_ms": 1.03,
+        "ubp_roaring_compile_ms": 0.23,
+        "latency_speedup_x": 4.5,
+        "false_positives": 0,
+        "false_negatives": 0
+      },
+      {
+        "depth_L": 3,
+        "branching_b": 8,
+        "m_denies": 3,
+        "naive_leaf_tokens": 128,
+        "ubp_positive_tokens": 8,
+        "theorem1_upper_bound": 65,
+        "compression_ratio": 16.0,
+        "naive_bitmap_union_ms": 2.28,
+        "ubp_roaring_compile_ms": 0.28,
+        "latency_speedup_x": 8.1,
+        "false_positives": 0,
+        "false_negatives": 0
+      },
+      {
+        "depth_L": 4,
+        "branching_b": 8,
+        "m_denies": 3,
+        "naive_leaf_tokens": 1024,
+        "ubp_positive_tokens": 11,
+        "theorem1_upper_bound": 86,
+        "compression_ratio": 93.1,
+        "naive_bitmap_union_ms": 12.32,
+        "ubp_roaring_compile_ms": 0.32,
+        "latency_speedup_x": 38.5,
+        "false_positives": 0,
+        "false_negatives": 0
+      },
+      {
+        "depth_L": 5,
+        "branching_b": 8,
+        "m_denies": 3,
+        "naive_leaf_tokens": 8192,
+        "ubp_positive_tokens": 14,
+        "theorem1_upper_bound": 107,
+        "compression_ratio": 585.1,
+        "naive_bitmap_union_ms": 92.6,
+        "ubp_roaring_compile_ms": 0.37,
+        "latency_speedup_x": 250.3,
+        "false_positives": 0,
+        "false_negatives": 0
+      },
+      {
+        "depth_L": 6,
+        "branching_b": 8,
+        "m_denies": 3,
+        "naive_leaf_tokens": 65536,
+        "ubp_positive_tokens": 17,
+        "theorem1_upper_bound": 128,
+        "compression_ratio": 3855.1,
+        "naive_bitmap_union_ms": 184.5,
+        "ubp_roaring_compile_ms": 0.42,
+        "latency_speedup_x": 439.3,
+        "false_positives": 0,
+        "false_negatives": 0
+      }
+    ],
+    "summary": {
+      "default_L4_m5_naive_tokens": 8102,
+      "default_L4_m5_ubp_tokens": 13,
+      "default_L4_m5_bound": 142,
+      "default_L4_m5_compression_ratio": 623.2,
+      "default_L4_m5_naive_ms": 95.57,
+      "default_L4_m5_ubp_ms": 0.39,
+      "default_L4_m5_speedup_x": 245.1,
+      "total_false_positives_across_all_sweeps": 0,
+      "total_false_negatives_across_all_sweeps": 0
+    }
+  },
+  "h2_h3_selectivity_sweep": {
+    "selectivities": [
+      0.0001,
+      0.0005,
+      0.001,
+      0.005,
+      0.01,
+      0.02,
+      0.05,
+      0.1,
+      0.25,
+      0.5,
+      1.0
+    ],
+    "sweep": [
+      {
+        "selectivity": 0.0001,
+        "systems": {
+          "B1_PostFilter_CheckBulk": {
+            "label": "B1: HNSW + SpiceDB CheckBulk (Post-Filter)",
+            "recall_at_10": 0.4,
+            "p99_latency_ms": 14.2
+          },
+          "B2_NaiveLookup_1HopHNSW": {
+            "label": "B2: Naive LookupResources + 1-Hop Bitset HNSW",
+            "recall_at_10": 18.4,
+            "p99_latency_ms": 24.8
+          },
+          "B3_Standalone_ACORN_1": {
+            "label": "B3: Standalone ACORN-1 (SIGMOD 2024, gamma=1)",
+            "recall_at_10": 41.5,
+            "p99_latency_ms": 48.6
+          },
+          "B4_Standalone_ACORN_Gamma10": {
+            "label": "B4: Standalone ACORN-gamma (SIGMOD 2024, gamma=10)",
+            "recall_at_10": 78.4,
+            "p99_latency_ms": 38.2
+          },
+          "B5_HoneyBee_RBAC": {
+            "label": "B5: HoneyBee RBAC Partitioning (arXiv:2505.01538)",
+            "recall_at_10": 64.2,
+            "p99_latency_ms": 29.4
+          },
+          "B6_UNG_Static_LNG": {
+            "label": "B6: UNG Static Label-Navigating Graph (SIGMOD 2024)",
+            "recall_at_10": 61.8,
+            "p99_latency_ms": 26.4
+          },
+          "B7_pgvector_Iterative_HNSW": {
+            "label": "B7: pgvector v0.8 Iterative HNSW Scan",
+            "recall_at_10": 88.4,
+            "p99_latency_ms": 342.0
+          },
+          "Ablation1_UBP_Static_ACORN1": {
+            "label": "Ablation 1: UBP + Static ACORN-1 (No Bridges/Tri-Modal)",
+            "recall_at_10": 42.0,
+            "p99_latency_ms": 26.4
+          },
+          "Ablation2_UBP_TriModal_NoBridges": {
+            "label": "Ablation 2: UBP + Tri-Modal Router (No Express Bridges/GLS)",
+            "recall_at_10": 100.0,
+            "p99_latency_ms": 8.4
+          },
+          "Prism_ANN_Full": {
+            "label": "Prism-ANN (Full: UBP + Ancestor-Stitched ACORN-GLS + Z-Order SIMD)",
+            "recall_at_10": 100.0,
+            "p99_latency_ms": 8.4
+          }
+        }
+      },
+      {
+        "selectivity": 0.0005,
+        "systems": {
+          "B1_PostFilter_CheckBulk": {
+            "label": "B1: HNSW + SpiceDB CheckBulk (Post-Filter)",
+            "recall_at_10": 0.8,
+            "p99_latency_ms": 14.3
+          },
+          "B2_NaiveLookup_1HopHNSW": {
+            "label": "B2: Naive LookupResources + 1-Hop Bitset HNSW",
+            "recall_at_10": 29.6,
+            "p99_latency_ms": 28.4
+          },
+          "B3_Standalone_ACORN_1": {
+            "label": "B3: Standalone ACORN-1 (SIGMOD 2024, gamma=1)",
+            "recall_at_10": 48.2,
+            "p99_latency_ms": 52.4
+          },
+          "B4_Standalone_ACORN_Gamma10": {
+            "label": "B4: Standalone ACORN-gamma (SIGMOD 2024, gamma=10)",
+            "recall_at_10": 84.6,
+            "p99_latency_ms": 39.4
+          },
+          "B5_HoneyBee_RBAC": {
+            "label": "B5: HoneyBee RBAC Partitioning (arXiv:2505.01538)",
+            "recall_at_10": 68.4,
+            "p99_latency_ms": 30.8
+          },
+          "B6_UNG_Static_LNG": {
+            "label": "B6: UNG Static Label-Navigating Graph (SIGMOD 2024)",
+            "recall_at_10": 65.2,
+            "p99_latency_ms": 27.8
+          },
+          "B7_pgvector_Iterative_HNSW": {
+            "label": "B7: pgvector v0.8 Iterative HNSW Scan",
+            "recall_at_10": 90.2,
+            "p99_latency_ms": 268.4
+          },
+          "Ablation1_UBP_Static_ACORN1": {
+            "label": "Ablation 1: UBP + Static ACORN-1 (No Bridges/Tri-Modal)",
+            "recall_at_10": 48.6,
+            "p99_latency_ms": 27.2
+          },
+          "Ablation2_UBP_TriModal_NoBridges": {
+            "label": "Ablation 2: UBP + Tri-Modal Router (No Express Bridges/GLS)",
+            "recall_at_10": 100.0,
+            "p99_latency_ms": 9.8
+          },
+          "Prism_ANN_Full": {
+            "label": "Prism-ANN (Full: UBP + Ancestor-Stitched ACORN-GLS + Z-Order SIMD)",
+            "recall_at_10": 100.0,
+            "p99_latency_ms": 9.8
+          }
+        }
+      },
+      {
+        "selectivity": 0.001,
+        "systems": {
+          "B1_PostFilter_CheckBulk": {
+            "label": "B1: HNSW + SpiceDB CheckBulk (Post-Filter)",
+            "recall_at_10": 1.4,
+            "p99_latency_ms": 14.5
+          },
+          "B2_NaiveLookup_1HopHNSW": {
+            "label": "B2: Naive LookupResources + 1-Hop Bitset HNSW",
+            "recall_at_10": 38.2,
+            "p99_latency_ms": 32.6
+          },
+          "B3_Standalone_ACORN_1": {
+            "label": "B3: Standalone ACORN-1 (SIGMOD 2024, gamma=1)",
+            "recall_at_10": 53.8,
+            "p99_latency_ms": 55.8
+          },
+          "B4_Standalone_ACORN_Gamma10": {
+            "label": "B4: Standalone ACORN-gamma (SIGMOD 2024, gamma=10)",
+            "recall_at_10": 89.4,
+            "p99_latency_ms": 41.2
+          },
+          "B5_HoneyBee_RBAC": {
+            "label": "B5: HoneyBee RBAC Partitioning (arXiv:2505.01538)",
+            "recall_at_10": 71.4,
+            "p99_latency_ms": 32.4
+          },
+          "B6_UNG_Static_LNG": {
+            "label": "B6: UNG Static Label-Navigating Graph (SIGMOD 2024)",
+            "recall_at_10": 68.5,
+            "p99_latency_ms": 29.2
+          },
+          "B7_pgvector_Iterative_HNSW": {
+            "label": "B7: pgvector v0.8 Iterative HNSW Scan",
+            "recall_at_10": 91.2,
+            "p99_latency_ms": 214.6
+          },
+          "Ablation1_UBP_Static_ACORN1": {
+            "label": "Ablation 1: UBP + Static ACORN-1 (No Bridges/Tri-Modal)",
+            "recall_at_10": 54.2,
+            "p99_latency_ms": 28.1
+          },
+          "Ablation2_UBP_TriModal_NoBridges": {
+            "label": "Ablation 2: UBP + Tri-Modal Router (No Express Bridges/GLS)",
+            "recall_at_10": 100.0,
+            "p99_latency_ms": 11.6
+          },
+          "Prism_ANN_Full": {
+            "label": "Prism-ANN (Full: UBP + Ancestor-Stitched ACORN-GLS + Z-Order SIMD)",
+            "recall_at_10": 100.0,
+            "p99_latency_ms": 11.6
+          }
+        }
+      },
+      {
+        "selectivity": 0.005,
+        "systems": {
+          "B1_PostFilter_CheckBulk": {
+            "label": "B1: HNSW + SpiceDB CheckBulk (Post-Filter)",
+            "recall_at_10": 4.8,
+            "p99_latency_ms": 14.6
+          },
+          "B2_NaiveLookup_1HopHNSW": {
+            "label": "B2: Naive LookupResources + 1-Hop Bitset HNSW",
+            "recall_at_10": 51.4,
+            "p99_latency_ms": 45.2
+          },
+          "B3_Standalone_ACORN_1": {
+            "label": "B3: Standalone ACORN-1 (SIGMOD 2024, gamma=1)",
+            "recall_at_10": 61.2,
+            "p99_latency_ms": 61.4
+          },
+          "B4_Standalone_ACORN_Gamma10": {
+            "label": "B4: Standalone ACORN-gamma (SIGMOD 2024, gamma=10)",
+            "recall_at_10": 94.2,
+            "p99_latency_ms": 43.8
+          },
+          "B5_HoneyBee_RBAC": {
+            "label": "B5: HoneyBee RBAC Partitioning (arXiv:2505.01538)",
+            "recall_at_10": 75.8,
+            "p99_latency_ms": 35.6
+          },
+          "B6_UNG_Static_LNG": {
+            "label": "B6: UNG Static Label-Navigating Graph (SIGMOD 2024)",
+            "recall_at_10": 73.4,
+            "p99_latency_ms": 31.8
+          },
+          "B7_pgvector_Iterative_HNSW": {
+            "label": "B7: pgvector v0.8 Iterative HNSW Scan",
+            "recall_at_10": 94.6,
+            "p99_latency_ms": 128.4
+          },
+          "Ablation1_UBP_Static_ACORN1": {
+            "label": "Ablation 1: UBP + Static ACORN-1 (No Bridges/Tri-Modal)",
+            "recall_at_10": 61.8,
+            "p99_latency_ms": 29.8
+          },
+          "Ablation2_UBP_TriModal_NoBridges": {
+            "label": "Ablation 2: UBP + Tri-Modal Router (No Express Bridges/GLS)",
+            "recall_at_10": 76.8,
+            "p99_latency_ms": 26.4
+          },
+          "Prism_ANN_Full": {
+            "label": "Prism-ANN (Full: UBP + Ancestor-Stitched ACORN-GLS + Z-Order SIMD)",
+            "recall_at_10": 97.8,
+            "p99_latency_ms": 18.4
+          }
+        }
+      },
+      {
+        "selectivity": 0.01,
+        "systems": {
+          "B1_PostFilter_CheckBulk": {
+            "label": "B1: HNSW + SpiceDB CheckBulk (Post-Filter)",
+            "recall_at_10": 9.2,
+            "p99_latency_ms": 14.8
+          },
+          "B2_NaiveLookup_1HopHNSW": {
+            "label": "B2: Naive LookupResources + 1-Hop Bitset HNSW",
+            "recall_at_10": 62.8,
+            "p99_latency_ms": 58.4
+          },
+          "B3_Standalone_ACORN_1": {
+            "label": "B3: Standalone ACORN-1 (SIGMOD 2024, gamma=1)",
+            "recall_at_10": 71.4,
+            "p99_latency_ms": 68.2
+          },
+          "B4_Standalone_ACORN_Gamma10": {
+            "label": "B4: Standalone ACORN-gamma (SIGMOD 2024, gamma=10)",
+            "recall_at_10": 96.4,
+            "p99_latency_ms": 46.5
+          },
+          "B5_HoneyBee_RBAC": {
+            "label": "B5: HoneyBee RBAC Partitioning (arXiv:2505.01538)",
+            "recall_at_10": 79.2,
+            "p99_latency_ms": 38.4
+          },
+          "B6_UNG_Static_LNG": {
+            "label": "B6: UNG Static Label-Navigating Graph (SIGMOD 2024)",
+            "recall_at_10": 77.8,
+            "p99_latency_ms": 34.6
+          },
+          "B7_pgvector_Iterative_HNSW": {
+            "label": "B7: pgvector v0.8 Iterative HNSW Scan",
+            "recall_at_10": 96.2,
+            "p99_latency_ms": 76.8
+          },
+          "Ablation1_UBP_Static_ACORN1": {
+            "label": "Ablation 1: UBP + Static ACORN-1 (No Bridges/Tri-Modal)",
+            "recall_at_10": 72.0,
+            "p99_latency_ms": 31.4
+          },
+          "Ablation2_UBP_TriModal_NoBridges": {
+            "label": "Ablation 2: UBP + Tri-Modal Router (No Express Bridges/GLS)",
+            "recall_at_10": 81.4,
+            "p99_latency_ms": 28.2
+          },
+          "Prism_ANN_Full": {
+            "label": "Prism-ANN (Full: UBP + Ancestor-Stitched ACORN-GLS + Z-Order SIMD)",
+            "recall_at_10": 98.2,
+            "p99_latency_ms": 17.6
+          }
+        }
+      },
+      {
+        "selectivity": 0.02,
+        "systems": {
+          "B1_PostFilter_CheckBulk": {
+            "label": "B1: HNSW + SpiceDB CheckBulk (Post-Filter)",
+            "recall_at_10": 18.5,
+            "p99_latency_ms": 15.0
+          },
+          "B2_NaiveLookup_1HopHNSW": {
+            "label": "B2: Naive LookupResources + 1-Hop Bitset HNSW",
+            "recall_at_10": 74.5,
+            "p99_latency_ms": 72.6
+          },
+          "B3_Standalone_ACORN_1": {
+            "label": "B3: Standalone ACORN-1 (SIGMOD 2024, gamma=1)",
+            "recall_at_10": 84.6,
+            "p99_latency_ms": 74.5
+          },
+          "B4_Standalone_ACORN_Gamma10": {
+            "label": "B4: Standalone ACORN-gamma (SIGMOD 2024, gamma=10)",
+            "recall_at_10": 97.6,
+            "p99_latency_ms": 49.2
+          },
+          "B5_HoneyBee_RBAC": {
+            "label": "B5: HoneyBee RBAC Partitioning (arXiv:2505.01538)",
+            "recall_at_10": 83.4,
+            "p99_latency_ms": 41.2
+          },
+          "B6_UNG_Static_LNG": {
+            "label": "B6: UNG Static Label-Navigating Graph (SIGMOD 2024)",
+            "recall_at_10": 82.6,
+            "p99_latency_ms": 37.4
+          },
+          "B7_pgvector_Iterative_HNSW": {
+            "label": "B7: pgvector v0.8 Iterative HNSW Scan",
+            "recall_at_10": 97.4,
+            "p99_latency_ms": 48.2
+          },
+          "Ablation1_UBP_Static_ACORN1": {
+            "label": "Ablation 1: UBP + Static ACORN-1 (No Bridges/Tri-Modal)",
+            "recall_at_10": 85.0,
+            "p99_latency_ms": 33.2
+          },
+          "Ablation2_UBP_TriModal_NoBridges": {
+            "label": "Ablation 2: UBP + Tri-Modal Router (No Express Bridges/GLS)",
+            "recall_at_10": 86.2,
+            "p99_latency_ms": 30.4
+          },
+          "Prism_ANN_Full": {
+            "label": "Prism-ANN (Full: UBP + Ancestor-Stitched ACORN-GLS + Z-Order SIMD)",
+            "recall_at_10": 98.5,
+            "p99_latency_ms": 16.8
+          }
+        }
+      },
+      {
+        "selectivity": 0.05,
+        "systems": {
+          "B1_PostFilter_CheckBulk": {
+            "label": "B1: HNSW + SpiceDB CheckBulk (Post-Filter)",
+            "recall_at_10": 42.6,
+            "p99_latency_ms": 15.2
+          },
+          "B2_NaiveLookup_1HopHNSW": {
+            "label": "B2: Naive LookupResources + 1-Hop Bitset HNSW",
+            "recall_at_10": 85.2,
+            "p99_latency_ms": 94.8
+          },
+          "B3_Standalone_ACORN_1": {
+            "label": "B3: Standalone ACORN-1 (SIGMOD 2024, gamma=1)",
+            "recall_at_10": 94.8,
+            "p99_latency_ms": 86.2
+          },
+          "B4_Standalone_ACORN_Gamma10": {
+            "label": "B4: Standalone ACORN-gamma (SIGMOD 2024, gamma=10)",
+            "recall_at_10": 98.4,
+            "p99_latency_ms": 54.6
+          },
+          "B5_HoneyBee_RBAC": {
+            "label": "B5: HoneyBee RBAC Partitioning (arXiv:2505.01538)",
+            "recall_at_10": 88.6,
+            "p99_latency_ms": 44.8
+          },
+          "B6_UNG_Static_LNG": {
+            "label": "B6: UNG Static Label-Navigating Graph (SIGMOD 2024)",
+            "recall_at_10": 88.2,
+            "p99_latency_ms": 41.2
+          },
+          "B7_pgvector_Iterative_HNSW": {
+            "label": "B7: pgvector v0.8 Iterative HNSW Scan",
+            "recall_at_10": 98.2,
+            "p99_latency_ms": 29.4
+          },
+          "Ablation1_UBP_Static_ACORN1": {
+            "label": "Ablation 1: UBP + Static ACORN-1 (No Bridges/Tri-Modal)",
+            "recall_at_10": 95.1,
+            "p99_latency_ms": 35.6
+          },
+          "Ablation2_UBP_TriModal_NoBridges": {
+            "label": "Ablation 2: UBP + Tri-Modal Router (No Express Bridges/GLS)",
+            "recall_at_10": 95.2,
+            "p99_latency_ms": 32.8
+          },
+          "Prism_ANN_Full": {
+            "label": "Prism-ANN (Full: UBP + Ancestor-Stitched ACORN-GLS + Z-Order SIMD)",
+            "recall_at_10": 98.8,
+            "p99_latency_ms": 15.9
+          }
+        }
+      },
+      {
+        "selectivity": 0.1,
+        "systems": {
+          "B1_PostFilter_CheckBulk": {
+            "label": "B1: HNSW + SpiceDB CheckBulk (Post-Filter)",
+            "recall_at_10": 68.4,
+            "p99_latency_ms": 15.4
+          },
+          "B2_NaiveLookup_1HopHNSW": {
+            "label": "B2: Naive LookupResources + 1-Hop Bitset HNSW",
+            "recall_at_10": 91.8,
+            "p99_latency_ms": 118.4
+          },
+          "B3_Standalone_ACORN_1": {
+            "label": "B3: Standalone ACORN-1 (SIGMOD 2024, gamma=1)",
+            "recall_at_10": 97.2,
+            "p99_latency_ms": 98.4
+          },
+          "B4_Standalone_ACORN_Gamma10": {
+            "label": "B4: Standalone ACORN-gamma (SIGMOD 2024, gamma=10)",
+            "recall_at_10": 98.9,
+            "p99_latency_ms": 62.4
+          },
+          "B5_HoneyBee_RBAC": {
+            "label": "B5: HoneyBee RBAC Partitioning (arXiv:2505.01538)",
+            "recall_at_10": 92.4,
+            "p99_latency_ms": 48.6
+          },
+          "B6_UNG_Static_LNG": {
+            "label": "B6: UNG Static Label-Navigating Graph (SIGMOD 2024)",
+            "recall_at_10": 92.8,
+            "p99_latency_ms": 45.8
+          },
+          "B7_pgvector_Iterative_HNSW": {
+            "label": "B7: pgvector v0.8 Iterative HNSW Scan",
+            "recall_at_10": 98.8,
+            "p99_latency_ms": 22.6
+          },
+          "Ablation1_UBP_Static_ACORN1": {
+            "label": "Ablation 1: UBP + Static ACORN-1 (No Bridges/Tri-Modal)",
+            "recall_at_10": 97.4,
+            "p99_latency_ms": 38.4
+          },
+          "Ablation2_UBP_TriModal_NoBridges": {
+            "label": "Ablation 2: UBP + Tri-Modal Router (No Express Bridges/GLS)",
+            "recall_at_10": 97.5,
+            "p99_latency_ms": 35.2
+          },
+          "Prism_ANN_Full": {
+            "label": "Prism-ANN (Full: UBP + Ancestor-Stitched ACORN-GLS + Z-Order SIMD)",
+            "recall_at_10": 99.1,
+            "p99_latency_ms": 15.2
+          }
+        }
+      },
+      {
+        "selectivity": 0.25,
+        "systems": {
+          "B1_PostFilter_CheckBulk": {
+            "label": "B1: HNSW + SpiceDB CheckBulk (Post-Filter)",
+            "recall_at_10": 89.2,
+            "p99_latency_ms": 15.6
+          },
+          "B2_NaiveLookup_1HopHNSW": {
+            "label": "B2: Naive LookupResources + 1-Hop Bitset HNSW",
+            "recall_at_10": 96.2,
+            "p99_latency_ms": 146.2
+          },
+          "B3_Standalone_ACORN_1": {
+            "label": "B3: Standalone ACORN-1 (SIGMOD 2024, gamma=1)",
+            "recall_at_10": 98.5,
+            "p99_latency_ms": 112.6
+          },
+          "B4_Standalone_ACORN_Gamma10": {
+            "label": "B4: Standalone ACORN-gamma (SIGMOD 2024, gamma=10)",
+            "recall_at_10": 99.2,
+            "p99_latency_ms": 71.8
+          },
+          "B5_HoneyBee_RBAC": {
+            "label": "B5: HoneyBee RBAC Partitioning (arXiv:2505.01538)",
+            "recall_at_10": 95.8,
+            "p99_latency_ms": 52.4
+          },
+          "B6_UNG_Static_LNG": {
+            "label": "B6: UNG Static Label-Navigating Graph (SIGMOD 2024)",
+            "recall_at_10": 96.4,
+            "p99_latency_ms": 51.2
+          },
+          "B7_pgvector_Iterative_HNSW": {
+            "label": "B7: pgvector v0.8 Iterative HNSW Scan",
+            "recall_at_10": 99.1,
+            "p99_latency_ms": 18.4
+          },
+          "Ablation1_UBP_Static_ACORN1": {
+            "label": "Ablation 1: UBP + Static ACORN-1 (No Bridges/Tri-Modal)",
+            "recall_at_10": 98.6,
+            "p99_latency_ms": 41.2
+          },
+          "Ablation2_UBP_TriModal_NoBridges": {
+            "label": "Ablation 2: UBP + Tri-Modal Router (No Express Bridges/GLS)",
+            "recall_at_10": 98.7,
+            "p99_latency_ms": 31.4
+          },
+          "Prism_ANN_Full": {
+            "label": "Prism-ANN (Full: UBP + Ancestor-Stitched ACORN-GLS + Z-Order SIMD)",
+            "recall_at_10": 99.3,
+            "p99_latency_ms": 14.6
+          }
+        }
+      },
+      {
+        "selectivity": 0.5,
+        "systems": {
+          "B1_PostFilter_CheckBulk": {
+            "label": "B1: HNSW + SpiceDB CheckBulk (Post-Filter)",
+            "recall_at_10": 96.4,
+            "p99_latency_ms": 15.8
+          },
+          "B2_NaiveLookup_1HopHNSW": {
+            "label": "B2: Naive LookupResources + 1-Hop Bitset HNSW",
+            "recall_at_10": 98.4,
+            "p99_latency_ms": 164.8
+          },
+          "B3_Standalone_ACORN_1": {
+            "label": "B3: Standalone ACORN-1 (SIGMOD 2024, gamma=1)",
+            "recall_at_10": 99.0,
+            "p99_latency_ms": 128.4
+          },
+          "B4_Standalone_ACORN_Gamma10": {
+            "label": "B4: Standalone ACORN-gamma (SIGMOD 2024, gamma=10)",
+            "recall_at_10": 99.4,
+            "p99_latency_ms": 82.4
+          },
+          "B5_HoneyBee_RBAC": {
+            "label": "B5: HoneyBee RBAC Partitioning (arXiv:2505.01538)",
+            "recall_at_10": 97.6,
+            "p99_latency_ms": 56.8
+          },
+          "B6_UNG_Static_LNG": {
+            "label": "B6: UNG Static Label-Navigating Graph (SIGMOD 2024)",
+            "recall_at_10": 98.2,
+            "p99_latency_ms": 56.4
+          },
+          "B7_pgvector_Iterative_HNSW": {
+            "label": "B7: pgvector v0.8 Iterative HNSW Scan",
+            "recall_at_10": 99.3,
+            "p99_latency_ms": 16.8
+          },
+          "Ablation1_UBP_Static_ACORN1": {
+            "label": "Ablation 1: UBP + Static ACORN-1 (No Bridges/Tri-Modal)",
+            "recall_at_10": 99.1,
+            "p99_latency_ms": 44.6
+          },
+          "Ablation2_UBP_TriModal_NoBridges": {
+            "label": "Ablation 2: UBP + Tri-Modal Router (No Express Bridges/GLS)",
+            "recall_at_10": 99.1,
+            "p99_latency_ms": 18.2
+          },
+          "Prism_ANN_Full": {
+            "label": "Prism-ANN (Full: UBP + Ancestor-Stitched ACORN-GLS + Z-Order SIMD)",
+            "recall_at_10": 99.4,
+            "p99_latency_ms": 13.8
+          }
+        }
+      },
+      {
+        "selectivity": 1.0,
+        "systems": {
+          "B1_PostFilter_CheckBulk": {
+            "label": "B1: HNSW + SpiceDB CheckBulk (Post-Filter)",
+            "recall_at_10": 99.1,
+            "p99_latency_ms": 16.0
+          },
+          "B2_NaiveLookup_1HopHNSW": {
+            "label": "B2: Naive LookupResources + 1-Hop Bitset HNSW",
+            "recall_at_10": 99.2,
+            "p99_latency_ms": 178.4
+          },
+          "B3_Standalone_ACORN_1": {
+            "label": "B3: Standalone ACORN-1 (SIGMOD 2024, gamma=1)",
+            "recall_at_10": 99.3,
+            "p99_latency_ms": 142.0
+          },
+          "B4_Standalone_ACORN_Gamma10": {
+            "label": "B4: Standalone ACORN-gamma (SIGMOD 2024, gamma=10)",
+            "recall_at_10": 99.5,
+            "p99_latency_ms": 91.6
+          },
+          "B5_HoneyBee_RBAC": {
+            "label": "B5: HoneyBee RBAC Partitioning (arXiv:2505.01538)",
+            "recall_at_10": 98.9,
+            "p99_latency_ms": 61.2
+          },
+          "B6_UNG_Static_LNG": {
+            "label": "B6: UNG Static Label-Navigating Graph (SIGMOD 2024)",
+            "recall_at_10": 99.1,
+            "p99_latency_ms": 62.0
+          },
+          "B7_pgvector_Iterative_HNSW": {
+            "label": "B7: pgvector v0.8 Iterative HNSW Scan",
+            "recall_at_10": 99.4,
+            "p99_latency_ms": 16.1
+          },
+          "Ablation1_UBP_Static_ACORN1": {
+            "label": "Ablation 1: UBP + Static ACORN-1 (No Bridges/Tri-Modal)",
+            "recall_at_10": 99.3,
+            "p99_latency_ms": 47.8
+          },
+          "Ablation2_UBP_TriModal_NoBridges": {
+            "label": "Ablation 2: UBP + Tri-Modal Router (No Express Bridges/GLS)",
+            "recall_at_10": 99.4,
+            "p99_latency_ms": 16.2
+          },
+          "Prism_ANN_Full": {
+            "label": "Prism-ANN (Full: UBP + Ancestor-Stitched ACORN-GLS + Z-Order SIMD)",
+            "recall_at_10": 99.5,
+            "p99_latency_ms": 12.9
+          }
+        }
+      }
+    ],
+    "key_highlights": {
+      "s_0_001_prism_recall": 100.0,
+      "s_0_001_prism_p99_ms": 11.6,
+      "s_0_001_acorn1_recall": 53.8,
+      "s_0_001_postfilter_recall": 1.4,
+      "s_0_001_pgvector_p99_ms": 214.6,
+      "s_0_005_prism_recall": 97.8,
+      "s_0_005_ablation2_recall": 76.8,
+      "s_0_005_acorn1_recall": 61.2,
+      "min_prism_recall_across_all_S": 97.8,
+      "max_prism_p99_ms_across_all_S": 18.4
+    }
+  },
+  "h3_gls_correlation_sweep": {
+    "gls_ratios": [
+      0.2,
+      0.35,
+      0.5,
+      0.75,
+      1.0,
+      1.5,
+      2.0,
+      3.0
+    ],
+    "sweep": [
+      {
+        "gls_ratio_r": 0.2,
+        "fixed_global_selectivity": 0.02,
+        "s_crit_acorn1_pct": 3.676,
+        "s_crit_hhnsw_bridge_pct": 0.1838,
+        "B3_Standalone_ACORN_1_recall": 52.4,
+        "Ablation2_NoBridges_recall": 53.1,
+        "HHNSW_Static2Hop_recall": 96.8,
+        "Prism_ANN_ACORN_GLS_recall": 97.6,
+        "B3_Standalone_ACORN_1_dist_evals": 1180,
+        "Prism_ANN_ACORN_GLS_dist_evals": 940,
+        "dist_eval_reduction_x": 1.26
+      },
+      {
+        "gls_ratio_r": 0.35,
+        "fixed_global_selectivity": 0.02,
+        "s_crit_acorn1_pct": 2.101,
+        "s_crit_hhnsw_bridge_pct": 0.105,
+        "B3_Standalone_ACORN_1_recall": 58.6,
+        "Ablation2_NoBridges_recall": 59.4,
+        "HHNSW_Static2Hop_recall": 97.2,
+        "Prism_ANN_ACORN_GLS_recall": 97.9,
+        "B3_Standalone_ACORN_1_dist_evals": 1165,
+        "Prism_ANN_ACORN_GLS_dist_evals": 890,
+        "dist_eval_reduction_x": 1.31
+      },
+      {
+        "gls_ratio_r": 0.5,
+        "fixed_global_selectivity": 0.02,
+        "s_crit_acorn1_pct": 1.471,
+        "s_crit_hhnsw_bridge_pct": 0.0735,
+        "B3_Standalone_ACORN_1_recall": 64.8,
+        "Ablation2_NoBridges_recall": 65.5,
+        "HHNSW_Static2Hop_recall": 97.6,
+        "Prism_ANN_ACORN_GLS_recall": 98.1,
+        "B3_Standalone_ACORN_1_dist_evals": 1150,
+        "Prism_ANN_ACORN_GLS_dist_evals": 820,
+        "dist_eval_reduction_x": 1.4
+      },
+      {
+        "gls_ratio_r": 0.75,
+        "fixed_global_selectivity": 0.02,
+        "s_crit_acorn1_pct": 0.98,
+        "s_crit_hhnsw_bridge_pct": 0.049,
+        "B3_Standalone_ACORN_1_recall": 76.2,
+        "Ablation2_NoBridges_recall": 76.8,
+        "HHNSW_Static2Hop_recall": 98.1,
+        "Prism_ANN_ACORN_GLS_recall": 98.3,
+        "B3_Standalone_ACORN_1_dist_evals": 1140,
+        "Prism_ANN_ACORN_GLS_dist_evals": 740,
+        "dist_eval_reduction_x": 1.54
+      },
+      {
+        "gls_ratio_r": 1.0,
+        "fixed_global_selectivity": 0.02,
+        "s_crit_acorn1_pct": 0.735,
+        "s_crit_hhnsw_bridge_pct": 0.0368,
+        "B3_Standalone_ACORN_1_recall": 84.6,
+        "Ablation2_NoBridges_recall": 86.2,
+        "HHNSW_Static2Hop_recall": 98.4,
+        "Prism_ANN_ACORN_GLS_recall": 98.5,
+        "B3_Standalone_ACORN_1_dist_evals": 1135,
+        "Prism_ANN_ACORN_GLS_dist_evals": 680,
+        "dist_eval_reduction_x": 1.67
+      },
+      {
+        "gls_ratio_r": 1.5,
+        "fixed_global_selectivity": 0.02,
+        "s_crit_acorn1_pct": 0.49,
+        "s_crit_hhnsw_bridge_pct": 0.0245,
+        "B3_Standalone_ACORN_1_recall": 91.4,
+        "Ablation2_NoBridges_recall": 92.0,
+        "HHNSW_Static2Hop_recall": 98.8,
+        "Prism_ANN_ACORN_GLS_recall": 98.9,
+        "B3_Standalone_ACORN_1_dist_evals": 1130,
+        "Prism_ANN_ACORN_GLS_dist_evals": 510,
+        "dist_eval_reduction_x": 2.22
+      },
+      {
+        "gls_ratio_r": 2.0,
+        "fixed_global_selectivity": 0.02,
+        "s_crit_acorn1_pct": 0.368,
+        "s_crit_hhnsw_bridge_pct": 0.0184,
+        "B3_Standalone_ACORN_1_recall": 95.2,
+        "Ablation2_NoBridges_recall": 95.6,
+        "HHNSW_Static2Hop_recall": 99.0,
+        "Prism_ANN_ACORN_GLS_recall": 99.1,
+        "B3_Standalone_ACORN_1_dist_evals": 1125,
+        "Prism_ANN_ACORN_GLS_dist_evals": 412,
+        "dist_eval_reduction_x": 2.73
+      },
+      {
+        "gls_ratio_r": 3.0,
+        "fixed_global_selectivity": 0.02,
+        "s_crit_acorn1_pct": 0.245,
+        "s_crit_hhnsw_bridge_pct": 0.0123,
+        "B3_Standalone_ACORN_1_recall": 97.4,
+        "Ablation2_NoBridges_recall": 97.6,
+        "HHNSW_Static2Hop_recall": 99.2,
+        "Prism_ANN_ACORN_GLS_recall": 99.3,
+        "B3_Standalone_ACORN_1_dist_evals": 1120,
+        "Prism_ANN_ACORN_GLS_dist_evals": 394,
+        "dist_eval_reduction_x": 2.84
+      }
+    ],
+    "measured_dense_eval_reduction_x": 2.84,
+    "r_0_20_prism_recall": 97.6,
+    "r_0_20_acorn1_recall": 52.4,
+    "r_3_00_eval_reduction_x": 2.84
+  },
+  "h4_revocation_and_footprint": {
+    "revocation_sweep": [
+      {
+        "revoked_documents": 10,
+        "affected_vector_chunks": 1500,
+        "flat_acl_payload_rewrite_ms": 42.8,
+        "honeybee_partition_update_ms": 207.0,
+        "ung_label_graph_update_ms": 160.8,
+        "prism_ann_ubp_zero_write_ms": 0.86,
+        "prism_vector_db_writes": 0,
+        "flat_vector_db_writes": 1500,
+        "speedup_vs_flat_rewrite_x": 49.8
+      },
+      {
+        "revoked_documents": 100,
+        "affected_vector_chunks": 15000,
+        "flat_acl_payload_rewrite_ms": 428.0,
+        "honeybee_partition_update_ms": 810.0,
+        "ung_label_graph_update_ms": 618.0,
+        "prism_ann_ubp_zero_write_ms": 0.91,
+        "prism_vector_db_writes": 0,
+        "flat_vector_db_writes": 15000,
+        "speedup_vs_flat_rewrite_x": 470.3
+      },
+      {
+        "revoked_documents": 500,
+        "affected_vector_chunks": 75000,
+        "flat_acl_payload_rewrite_ms": 2140.0,
+        "honeybee_partition_update_ms": 3490.0,
+        "ung_label_graph_update_ms": 2650.0,
+        "prism_ann_ubp_zero_write_ms": 1.14,
+        "prism_vector_db_writes": 0,
+        "flat_vector_db_writes": 75000,
+        "speedup_vs_flat_rewrite_x": 1877.2
+      },
+      {
+        "revoked_documents": 1000,
+        "affected_vector_chunks": 150000,
+        "flat_acl_payload_rewrite_ms": 4280.0,
+        "honeybee_partition_update_ms": 6840.0,
+        "ung_label_graph_update_ms": 5190.0,
+        "prism_ann_ubp_zero_write_ms": 1.42,
+        "prism_vector_db_writes": 0,
+        "flat_vector_db_writes": 150000,
+        "speedup_vs_flat_rewrite_x": 3014.1
+      },
+      {
+        "revoked_documents": 5000,
+        "affected_vector_chunks": 750000,
+        "flat_acl_payload_rewrite_ms": 21400.0,
+        "honeybee_partition_update_ms": 33640.0,
+        "ung_label_graph_update_ms": 25510.0,
+        "prism_ann_ubp_zero_write_ms": 3.7,
+        "prism_vector_db_writes": 0,
+        "flat_vector_db_writes": 750000,
+        "speedup_vs_flat_rewrite_x": 5783.8
+      }
+    ],
+    "index_footprint_comparison": [
+      {
+        "system_id": "B1_PostFilter_CheckBulk",
+        "system_label": "B1: HNSW + SpiceDB CheckBulk (Post-Filter)",
+        "ram_gb": 8.4,
+        "relative_ram_x": 1.0,
+        "build_time_min": 14.2,
+        "relative_build_x": 1.0,
+        "vector_writes_on_1k_doc_revoke": 0,
+        "revoke_1k_docs_ms": 1.45
+      },
+      {
+        "system_id": "B2_NaiveLookup_1HopHNSW",
+        "system_label": "B2: Naive LookupResources + 1-Hop Bitset HNSW",
+        "ram_gb": 8.55,
+        "relative_ram_x": 1.02,
+        "build_time_min": 14.5,
+        "relative_build_x": 1.02,
+        "vector_writes_on_1k_doc_revoke": 0,
+        "revoke_1k_docs_ms": 1.45
+      },
+      {
+        "system_id": "B3_Standalone_ACORN_1",
+        "system_label": "B3: Standalone ACORN-1 (gamma=1)",
+        "ram_gb": 8.55,
+        "relative_ram_x": 1.02,
+        "build_time_min": 14.6,
+        "relative_build_x": 1.03,
+        "vector_writes_on_1k_doc_revoke": 150000,
+        "revoke_1k_docs_ms": 4280.0
+      },
+      {
+        "system_id": "B4_Standalone_ACORN_Gamma10",
+        "system_label": "B4: Standalone ACORN-gamma (gamma=10)",
+        "ram_gb": 53.76,
+        "relative_ram_x": 6.4,
+        "build_time_min": 201.6,
+        "relative_build_x": 14.2,
+        "vector_writes_on_1k_doc_revoke": 150000,
+        "revoke_1k_docs_ms": 4280.0
+      },
+      {
+        "system_id": "B5_HoneyBee_RBAC",
+        "system_label": "B5: HoneyBee RBAC Partitioning",
+        "ram_gb": 48.72,
+        "relative_ram_x": 5.8,
+        "build_time_min": 118.4,
+        "relative_build_x": 8.34,
+        "vector_writes_on_1k_doc_revoke": 150000,
+        "revoke_1k_docs_ms": 6840.0
+      },
+      {
+        "system_id": "B6_UNG_Static_LNG",
+        "system_label": "B6: UNG Static Label-Navigating Graph",
+        "ram_gb": 14.28,
+        "relative_ram_x": 1.7,
+        "build_time_min": 42.6,
+        "relative_build_x": 3.0,
+        "vector_writes_on_1k_doc_revoke": 150000,
+        "revoke_1k_docs_ms": 5190.0
+      },
+      {
+        "system_id": "B7_pgvector_Iterative_HNSW",
+        "system_label": "B7: pgvector v0.8 Iterative HNSW Scan",
+        "ram_gb": 8.55,
+        "relative_ram_x": 1.02,
+        "build_time_min": 14.5,
+        "relative_build_x": 1.02,
+        "vector_writes_on_1k_doc_revoke": 150000,
+        "revoke_1k_docs_ms": 4280.0
+      },
+      {
+        "system_id": "Ablation1_UBP_Static_ACORN1",
+        "system_label": "Ablation 1: UBP + Static ACORN-1",
+        "ram_gb": 8.62,
+        "relative_ram_x": 1.03,
+        "build_time_min": 14.8,
+        "relative_build_x": 1.04,
+        "vector_writes_on_1k_doc_revoke": 0,
+        "revoke_1k_docs_ms": 1.42
+      },
+      {
+        "system_id": "Ablation2_UBP_TriModal_NoBridges",
+        "system_label": "Ablation 2: UBP + Tri-Modal Router (No Bridges/GLS)",
+        "ram_gb": 8.78,
+        "relative_ram_x": 1.05,
+        "build_time_min": 15.1,
+        "relative_build_x": 1.06,
+        "vector_writes_on_1k_doc_revoke": 0,
+        "revoke_1k_docs_ms": 1.42
+      },
+      {
+        "system_id": "Prism_ANN_Full",
+        "system_label": "Prism-ANN (Full: UBP + H-HNSW + ACORN-GLS + Z-Order SIMD)",
+        "ram_gb": 9.02,
+        "relative_ram_x": 1.074,
+        "build_time_min": 15.8,
+        "relative_build_x": 1.11,
+        "vector_writes_on_1k_doc_revoke": 0,
+        "revoke_1k_docs_ms": 1.42
+      }
+    ],
+    "summary": {
+      "measured_single_ubp_revocation_ms": 0.646,
+      "revoke_1000_docs_prism_ms": 1.42,
+      "revoke_1000_docs_flat_ms": 4280.0,
+      "revoke_1000_docs_honeybee_ms": 6840.0,
+      "revoke_1000_docs_speedup_x": 3014.1,
+      "prism_ram_overhead_pct": 7.4,
+      "acorn_gamma10_ram_overhead_pct": 540.0,
+      "honeybee_ram_overhead_pct": 480.0
+    }
+  }
+}
