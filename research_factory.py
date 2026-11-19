@@ -11,6 +11,7 @@ Commands:
   python3 research_factory.py size "<task description>"
   python3 research_factory.py init-prism-ann
   python3 research_factory.py verify-governance
+  python3 research_factory.py gsd [status|validate]
   python3 research_factory.py audit-paper
   python3 research_factory.py status
 """
@@ -72,7 +73,26 @@ def classify_size(task_text: str) -> dict:
             "Gate 6: 3-Brake Audit (verify_hallucinations.py + ScholarPeer + Two-Axis Review -> arXiv tar.gz)"
         ]
     }
-    return {"task": task_text, "tier": tier, "reason": reason, "required_gates": gates[tier]}
+    model_routing = {
+        "planner_researcher": "Argon (High Thinking)",
+        "builder_tdd": "Hydrogen (High Thinking)",
+        "adversarial_reviewer": "Neon (High Thinking)",
+        "factory_overseer": "Factory Overseer (feat/research-factory-enhancements)"
+    }
+    return {
+        "task": task_text,
+        "tier": tier,
+        "reason": reason,
+        "model_routing": model_routing,
+        "gsd_integration": {
+            "enabled": True,
+            "planning_dir": ".planning/",
+            "roadmap": ".planning/ROADMAP.md",
+            "state": ".planning/STATE.md",
+            "autoresearch_state": "research-state.yaml"
+        },
+        "required_gates": gates[tier]
+    }
 
 
 def init_prism_ann():
@@ -474,13 +494,81 @@ Revoking access to $1{,}000$ documents ($150{,}000$ chunks) via structural edge 
     print("✅ [ADR-to-arXiv Factory] Initialized unified Software Factory + Autoresearch workspace for Prism-ANN!")
 
 
+def validate_gsd_planning() -> dict:
+    """
+    Validates GSD (.planning/) workspace files and enforces ADR-0006 traceability:
+    every '### Phase N:' section in .planning/ROADMAP.md must reference at least
+    one accepted ADR ID (ADR-XXXX) from CONTEXT.md.
+    """
+    planning_dir = os.path.join(REPO_ROOT, ".planning")
+    roadmap_path = os.path.join(planning_dir, "ROADMAP.md")
+    state_path = os.path.join(planning_dir, "STATE.md")
+    project_path = os.path.join(planning_dir, "PROJECT.md")
+    req_path = os.path.join(planning_dir, "REQUIREMENTS.md")
+    config_path = os.path.join(planning_dir, "config.json")
+    context_path = os.path.join(REPO_ROOT, "CONTEXT.md")
+
+    errors = []
+    for p in [roadmap_path, state_path, project_path, req_path, config_path]:
+        if not os.path.exists(p):
+            errors.append(f"Missing GSD planning file: {os.path.relpath(p, REPO_ROOT)}")
+
+    accepted_adrs = set()
+    if os.path.exists(context_path):
+        with open(context_path) as f:
+            accepted_adrs = set(re.findall(r"\*\*(ADR-\d{4})\*\*", f.read()))
+
+    phases = []
+    referenced_adrs = set()
+    if os.path.exists(roadmap_path):
+        with open(roadmap_path) as f:
+            rm_text = f.read()
+        completed_nums = set(re.findall(r"^- \[x\] \*\*Phase\s+(\d+):", rm_text, re.M))
+        matches = list(re.finditer(r"^###\s+(Phase\s+(\d+)\s*:\s*([^\n]+))", rm_text, re.M))
+        if not matches:
+            errors.append(".planning/ROADMAP.md contains no '### Phase N: <Title>' sections.")
+        for idx, m in enumerate(matches):
+            full_title = m.group(1).strip()
+            p_num = m.group(2)
+            p_name = m.group(3).strip()
+            start_i = m.start()
+            end_i = matches[idx + 1].start() if idx + 1 < len(matches) else len(rm_text)
+            body = rm_text[start_i:end_i]
+            cited = sorted(set(re.findall(r"\bADR-\d{4}\b", body)))
+            if not cited:
+                errors.append(f"GSD Roadmap section '{full_title}' does not cite any governing ADR (ADR-XXXX).")
+            for adr_id in cited:
+                referenced_adrs.add(adr_id)
+                if accepted_adrs and adr_id not in accepted_adrs:
+                    errors.append(f"GSD Roadmap section '{full_title}' cites '{adr_id}' not found in CONTEXT.md.")
+            phases.append({
+                "number": int(p_num),
+                "name": p_name,
+                "status": "complete" if p_num in completed_nums else "planned",
+                "governing_adrs": cited
+            })
+
+    completed_count = sum(1 for p in phases if p["status"] == "complete")
+    return {
+        "gsd_enabled": True,
+        "aligned": len(errors) == 0,
+        "phase_count": len(phases),
+        "completed_phases": completed_count,
+        "progress_percent": round((completed_count / len(phases)) * 100) if phases else 0,
+        "accepted_adrs": sorted(accepted_adrs),
+        "referenced_adrs": sorted(referenced_adrs),
+        "phases": phases,
+        "errors": errors
+    }
+
+
 def verify_governance() -> bool:
     print("==================================================================")
     print("  ADR-to-arXiv Factory — Deterministic Governance & Sensor Gate   ")
     print("==================================================================")
     errors = []
 
-    # Check core Software Factory + Autoresearch files
+    # Check core Software Factory + Autoresearch + GSD files
     required_files = [
         "CONTEXT.md",
         "GLOSSARY.md",
@@ -488,11 +576,16 @@ def verify_governance() -> bool:
         "findings.md",
         "research-log.md",
         "literature/survey.md",
+        ".planning/PROJECT.md",
+        ".planning/REQUIREMENTS.md",
+        ".planning/ROADMAP.md",
+        ".planning/STATE.md",
+        ".planning/config.json",
     ]
     for rfile in required_files:
         full_p = os.path.join(REPO_ROOT, rfile)
         if not os.path.exists(full_p):
-            errors.append(f"Missing required governance/autoresearch file: {rfile}")
+            errors.append(f"Missing required governance/autoresearch/GSD file: {rfile}")
         else:
             print(f"  [PASS] Found {rfile}")
 
@@ -526,13 +619,24 @@ def verify_governance() -> bool:
             else:
                 print(f"  [PASS] Verified pre-registered experiment protocol: {pp}")
 
+    # Check GSD (.planning/) -> ADR alignment (ADR-0006)
+    gsd_report = validate_gsd_planning()
+    if not gsd_report["aligned"]:
+        errors.extend(gsd_report["errors"])
+    else:
+        print(
+            f"  [PASS] Verified GSD (.planning/ROADMAP.md) ADR traceability across "
+            f"{gsd_report['completed_phases']}/{gsd_report['phase_count']} phases "
+            f"({gsd_report['progress_percent']}%) citing {gsd_report['referenced_adrs']}"
+        )
+
     if errors:
         print("\n❌ [Governance Gate FAILED]:")
         for e in errors:
             print(f"  - {e}")
         return False
 
-    print("\n✅ [Governance Gate PASSED] 100% ADR-to-Theorem parity & Autoresearch protocol pre-registration verified!")
+    print("\n✅ [Governance Gate PASSED] 100% GSD + ADR-to-Theorem parity & Autoresearch protocol pre-registration verified!")
     return True
 
 
@@ -579,6 +683,10 @@ def main():
         init_prism_ann()
     elif cmd == "verify-governance":
         sys.exit(0 if verify_governance() else 1)
+    elif cmd == "gsd":
+        report = validate_gsd_planning()
+        print(json.dumps(report, indent=2))
+        sys.exit(0 if report["aligned"] else 1)
     elif cmd == "audit-paper":
         sys.exit(0 if audit_paper() else 1)
     elif cmd == "status":

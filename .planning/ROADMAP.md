@@ -1,155 +1,138 @@
-# Roadmap: EpiGraph
+# Roadmap: EpiGraph (`EngramRAG`) & `Prism-ANN` (ADR-to-arXiv Research Factory)
 
 ## Overview
 
-EpiGraph transitions from mathematical formulation and local algorithmic validation on the LoCoMo benchmark to a distributed, production-grade memory system and peer-reviewed arXiv pre-print. The roadmap spans 4 distinct phases: local algorithmic validation (completed), distributed dual-store scaling, longitudinal evaluation & ablations, and LaTeX manuscript preparation for arXiv submission.
+This GSD roadmap governs both foundational milestones of the **EngramRAG** agentic memory engine (`Milestone 1` & `Milestone 2`, Phases 1–8, governed by `ADR-0000`) and the **Prism-ANN** co-designed SpiceDB ReBAC & Ancestor-Stitched Filtered HNSW architecture (`Milestone 3`, Phases 9–12, governed by `ADR-0000`, `ADR-0001`, `ADR-0002`, and `ADR-0003`). Every phase enforces **GSD-to-ADR Traceability (`ADR-0006`)** and **Multi-Model Tier Routing (`ADR-0010`: `Argon` Planning/Research, `Hydrogen` Build/TDD, `Neon` Adversarial Review, `Factory Overseer`)**.
 
 ## Phases
 
 ### Milestone 1: Core Algorithmic Validation & Distributed Scaffolding (Complete)
-- [x] **Phase 1: Local Algorithmic Engine & LoCoMo Benchmark Validation** - Core graph algorithms, baselines, and empirical validation across 496 LoCoMo questions.
-- [x] **Phase 2: Distributed Dual-Store & Ingestion Reliability** - Redis Stack (HNSW) + Neo4j (GDS) dual-brain integration mediated by Redis Streams with incremental deduplication.
-- [x] **Phase 3: Longitudinal SCDP Simulation & Ablation Suite** - 100-session synthetic longitudinal simulation, God Node emergence tracking, CATD scaffolding retention tests, and ablation profiling.
-- [x] **Phase 4: LaTeX Manuscript Preparation & arXiv Pre-Print Submission** - Publication-grade LaTeX paper compilation, TikZ vector architecture diagrams, and arXiv submission to `cs.AI` / `cs.CL`.
+- [x] **Phase 1: Local Algorithmic Engine & LoCoMo Benchmark Validation** - Core graph algorithms, baselines, and empirical validation across 496 LoCoMo questions (`ADR-0000`).
+- [x] **Phase 2: Distributed Dual-Store & Ingestion Reliability** - Redis Stack (HNSW) + Neo4j (GDS) dual-brain integration mediated by Redis Streams with incremental deduplication (`ADR-0000`).
+- [x] **Phase 3: Longitudinal SCDP Simulation & Ablation Suite** - 100-session synthetic longitudinal simulation, God Node emergence tracking, CATD scaffolding retention tests, and ablation profiling (`ADR-0000`).
+- [x] **Phase 4: LaTeX Manuscript Preparation & arXiv Pre-Print Submission** - Publication-grade LaTeX paper compilation, TikZ vector architecture diagrams, and arXiv submission to `cs.AI` / `cs.CL` (`ADR-0000`).
 
 ### Milestone 2: Advanced Empirical Validation & Downstream Closed-Loop Suite (Complete)
-- [x] **Phase 5: Closed-Loop Downstream LLM Generation QA Benchmark** - Real-time downstream LLM question-answering generation on LoCoMo contexts measuring Token F1, Exact Match (EM), and ROUGE-L.
-- [x] **Phase 6: LongMemEval Knowledge Update & Contradiction Resolution** - Benchmark directed `SUPERSEDES` and `CORROBORATES` edge filtering against mutating user facts; measure Split-Brain Hallucination Rate.
-- [x] **Phase 7: Hyperparameter Sensitivity Landscape & Embedding Invariance** - Sweep PageRank damping $d \in [0.65, 0.95]$, RRF $k \in [20, 100]$, and test embedding backbone invariance.
-- [x] **Phase 8: Manuscript Integration & Extended Camera-Ready Package** - Integrate downstream generation tables, update references, and regenerate 300 DPI figures.
+- [x] **Phase 5: Closed-Loop Downstream LLM Generation QA Benchmark** - Real-time downstream LLM question-answering generation on LoCoMo contexts measuring Token F1, Exact Match (EM), and ROUGE-L (`ADR-0000`).
+- [x] **Phase 6: LongMemEval Knowledge Update & Contradiction Resolution** - Benchmark directed `SUPERSEDES` and `CORROBORATES` edge filtering against mutating user facts; measure Split-Brain Hallucination Rate (`ADR-0000`).
+- [x] **Phase 7: Hyperparameter Sensitivity Landscape & Embedding Invariance** - Sweep PageRank damping $d \in [0.65, 0.95]$, RRF $k \in [20, 100]$, and test embedding backbone invariance (`ADR-0000`).
+- [x] **Phase 8: Manuscript Integration & Extended Camera-Ready Package** - Integrate downstream generation tables, update references, and regenerate 300 DPI figures (`ADR-0000`).
+
+### Milestone 3: Prism-ANN — SpiceDB ReBAC Upward Boundary Pruning & Ancestor-Stitched Filtered HNSW (Complete)
+- [x] **Phase 9: Literature Recon, ADR-to-Theorem Minting & Pre-Registered Protocols (Argon High)** - Survey 2018–2026 ReBAC & FANNS literature, mint `ADR-0001`–`ADR-0003`, synchronize `CONTEXT.md` & `GLOSSARY.md`, and lock `H1`–`H4` protocols in Git (`ADR-0000`, `ADR-0001`, `ADR-0002`, `ADR-0003`).
+- [x] **Phase 10: Deep Module Build & Tracer-Bullet Seam TDD (Hydrogen High)** - Implement `ubp_resolver.py`, `hnsw_gls.py`, `trimodal_planner.py`, and `index.py` behind Deep Module seams and verify 100% set equivalence via `tests/test_prism_ann.py` (`ADR-0001`, `ADR-0002`, `ADR-0003`).
+- [x] **Phase 11: 10-Baseline Empirical Benchmark Suite & Academic Plotting (Hydrogen High)** - Execute `H1`–`H4` benchmarks across 10 systems/ablations (`B1..B7`, `Ablation 1..2`, `Prism-ANN Full`) and render 4 dual-panel vector PDF figures (`ADR-0001`, `ADR-0002`, `ADR-0003`).
+- [x] **Phase 12: Neon Gate-6 Adversarial Review, 376-Scenario Blast Radius Proof & Camera-Ready arXiv Bundle (Neon High & Overseer)** - Execute Thermo-Nuclear Code Judo, 376-scenario Blast Radius proof, 258-check Zero-Hallucination sensor, PaperVizAgent (`97.72/100`), ScholarPeer (`9.0/10`), compile 11-page `prism_ann_paper.pdf`, and push nudges `ENH-0006`–`ENH-0009` to Software Factory (`ADR-0000`, `ADR-0001`, `ADR-0002`, `ADR-0003`).
 
 ---
 
 ## Phase Details
 
 ### Phase 1: Local Algorithmic Engine & LoCoMo Benchmark Validation
-**Goal**: Build a standalone local prototype of EpiGraph, implement baseline systems, and quantitatively evaluate performance across all 10 multi-session conversations in LoCoMo.  
+**Goal**: Build a standalone local prototype of EpiGraph, implement baseline systems, and quantitatively evaluate performance across all 10 multi-session conversations in LoCoMo (`ADR-0000`).  
 **Depends on**: Nothing (Initial Phase)  
-**Requirements**: CORE-01, CORE-02, CORE-03, CORE-04, CORE-05, CORE-06, CORE-07, CORE-08, BENCH-01, BENCH-02, BENCH-03, BENCH-04, BENCH-05  
-**Success Criteria**:
-  1. Dense vector engine (`all-MiniLM-L6-v2`), BM25, and Dynamic Cognitive Graph run locally without external service dependencies.
-  2. U-PPR, God Node classification, and CATD execute with sub-25ms average latency.
-  3. LoCoMo benchmark evaluates 496 questions across all 10 long-term multi-session conversations.
-  4. EpiGraph achieves statistically significant gains over Dense Vector RAG (+58.3% Recall@1, +25.9% Recall@5, +37.3% MRR, +18.11 point gain on Temporal Reasoning).
-
+**Requirements**: CORE-01..CORE-08, BENCH-01..BENCH-05  
 **Plans**:
-- [x] 01-01: Build modular engine (`src/embeddings.py`, `src/bm25.py`, `src/graph_memory.py`, `src/rrf.py`, `src/epigraph_pipeline.py`).
-- [x] 01-02: Implement baselines (`baselines/vector_rag.py`, `baselines/bm25_baseline.py`, `baselines/static_graph_rag.py`).
-- [x] 01-03: Create automated runner `run_locomo_benchmark.py` and generate empirical evaluation report.
-
----
+- [x] 01-01: Build modular engine (`src/embeddings.py`, `src/bm25.py`, `src/graph_memory.py`, `src/rrf.py`, `src/epigraph_pipeline.py`) (`ADR-0000`).
+- [x] 01-02: Implement baselines (`baselines/vector_rag.py`, `baselines/bm25_baseline.py`, `baselines/static_graph_rag.py`) (`ADR-0000`).
+- [x] 01-03: Create automated runner `run_locomo_benchmark.py` and generate empirical evaluation report (`ADR-0000`).
 
 ### Phase 2: Distributed Dual-Store & Ingestion Reliability
-**Goal**: Connect the local algorithmic engine to production distributed storage engines: Redis Stack for fast document/vector indexing and Neo4j Enterprise GDS for native Cypher graph operations, decoupled via Redis Streams.  
+**Goal**: Connect the local algorithmic engine to production distributed storage engines: Redis Stack and Neo4j Enterprise GDS decoupled via Redis Streams (`ADR-0000`).  
 **Depends on**: Phase 1  
-**Requirements**: DIST-01, DIST-02, DIST-03, DIST-04  
-**Success Criteria**:
-  1. RedisJSON and RediSearch HNSW index vectors with sub-millisecond query time.
-  2. Neo4j GDS executes in-memory native PageRank and Louvain algorithms via atomic Cypher transactions.
-  3. Redis Streams (`XREADGROUP`, `XPENDING`, DLQ) guarantees eventual consistency across Redis and Neo4j dual-writes without split-brain failure.
-  4. Incremental K-NN deduplication & clustering (HNSW + DBSCAN) scales entity deduplication without $O(n^2)$ matrix memory blowups.
-
+**Requirements**: DIST-01..DIST-04  
 **Plans**:
-- [x] 02-01: Implement Redis Stack adapter with RedisJSON documents and RediSearch HNSW indexing.
-- [x] 02-02: Implement Neo4j GDS driver with Cypher queries for directed `SUPERSEDES` and `CORROBORATES` edges.
-- [x] 02-03: Implement Redis Streams ingestion worker with retry logic and Dead Letter Queue.
-- [x] 02-04: Implement incremental HNSW + DBSCAN entity deduplication for the background Dreaming worker.
-
----
+- [x] 02-01: Implement Redis Stack adapter with RedisJSON documents and RediSearch HNSW indexing (`ADR-0000`).
+- [x] 02-02: Implement Neo4j GDS driver with Cypher queries for directed `SUPERSEDES` and `CORROBORATES` edges (`ADR-0000`).
+- [x] 02-03: Implement Redis Streams ingestion worker with retry logic and Dead Letter Queue (`ADR-0000`).
+- [x] 02-04: Implement incremental HNSW + DBSCAN entity deduplication for the background Dreaming worker (`ADR-0000`).
 
 ### Phase 3: Longitudinal SCDP Simulation & Ablation Suite
-**Goal**: Execute a simulated 90-day continuous deployment protocol (100 sessions across 4 domains) to measure God Node stability, CATD scaffolding retention, and component ablations.  
-**Depends on**: Phase 1 (and optional Phase 2)  
-**Requirements**: EVAL-01, EVAL-02, EVAL-03, EVAL-04  
-**Success Criteria**:
-  1. 100-session synthetic longitudinal simulation produces verifiable God Node centrality trajectory curves.
-  2. Scaffolding retention test proves CATD retains 100% of foundational facts while wall-clock decay suffers amnesia.
-  3. LongMemEval tests demonstrate 0% split-brain hallucination on mutated facts via directed `SUPERSEDES` filtering.
-  4. Full ablation tables quantify the marginal contribution of U-PPR, CATD, Grace Period, and Dynamic Intent RRF.
-
+**Goal**: Execute a simulated 90-day continuous deployment protocol (100 sessions across 4 domains) to measure God Node stability, CATD scaffolding retention, and component ablations (`ADR-0000`).  
+**Depends on**: Phase 1  
+**Requirements**: EVAL-01..EVAL-04  
 **Plans**:
-- [x] 03-01: Build longitudinal simulation harness (100 multi-session conversations with fact mutations and transient logs).
-- [x] 03-02: Run comparative Scaffolding Test: CATD vs. Wall-clock exponential decay over simulated 90 days.
-- [x] 03-03: Run LongMemEval Knowledge Update evaluation suite for `SUPERSEDES` validation.
-- [x] 03-04: Run component ablations (U-PPR vs. static PPR, Grace Period variations $N=1, 2, 4, 8$).
-
----
+- [x] 03-01: Build longitudinal simulation harness (`run_longitudinal_simulation.py`) (`ADR-0000`).
+- [x] 03-02: Run comparative Scaffolding Test: CATD vs. Wall-clock exponential decay over simulated 90 days (`ADR-0000`).
+- [x] 03-03: Run LongMemEval Knowledge Update evaluation suite for `SUPERSEDES` validation (`ADR-0000`).
+- [x] 03-04: Run component ablations (U-PPR vs. static PPR, Grace Period variations $N=1, 2, 4, 8$) (`ADR-0000`).
 
 ### Phase 4: LaTeX Manuscript Preparation & arXiv Pre-Print Submission
-**Goal**: Author the complete publication-grade research manuscript in LaTeX using the standard NeurIPS/ICLR format, compile camera-ready figures, and submit to arXiv.  
+**Goal**: Author the complete publication-grade research manuscript in LaTeX, compile camera-ready figures, and package for arXiv (`ADR-0000`).  
 **Depends on**: Phase 1, Phase 3  
-**Requirements**: PAPER-01, PAPER-02, PAPER-03, PAPER-04  
-**Success Criteria**:
-  1. Self-contained LaTeX paper compiles error-free with `.bbl` bibliography.
-  2. High-resolution TikZ / SVG vector architecture figures visualize Waking/Dreaming states and U-PPR spreading activation.
-  3. All empirical tables (LoCoMo results, SCDP retention curves, ablations) are formatted to publication standards.
-  4. Pre-print bundle uploaded and registered on arXiv (`cs.AI` primary, `cs.CL` secondary).
-
+**Requirements**: PAPER-01..PAPER-04  
 **Plans**:
-- [x] 04-01: Set up LaTeX document repository (`neurips_2026.sty`, `references.bib`, KaTeX math definitions).
-- [x] 04-02: Render professional vector figures (Dual-Brain architecture, Spreading Activation, Centrality curves).
-- [x] 04-03: Write full paper sections (Abstract, Intro, Related Work, Methods, Empirical Setup, Results, Ablations, Conclusion).
-- [x] 04-04: Compile final PDF, verify typesetting, and prepare arXiv submission package.
-
----
+- [x] 04-01: Set up LaTeX document repository and `references.bib` (`ADR-0000`).
+- [x] 04-02: Render professional vector figures (`ADR-0000`).
+- [x] 04-03: Write full paper sections (`ADR-0000`).
+- [x] 04-04: Compile final PDF and prepare arXiv submission package (`ADR-0000`).
 
 ### Phase 5: Closed-Loop Downstream LLM Generation QA Benchmark
-**Goal**: Evaluate downstream generative QA accuracy across LoCoMo questions by feeding retrieved contexts to a local LLM (`qwen2.5vl:7b` / `gemma4:12b` via Ollama) and computing Token F1, Exact Match (EM), and ROUGE-L.  
+**Goal**: Evaluate downstream generative QA accuracy across LoCoMo questions measuring Token F1, Exact Match (EM), and ROUGE-L (`ADR-0000`).  
 **Depends on**: Phase 1, Phase 4  
-**Requirements**: GEN-01, GEN-02, GEN-03  
-**Success Criteria**:
-  1. Automated closed-loop runner executes across stratified LoCoMo questions for Dense Vector, BM25, and EpiGraph.
-  2. Measures Token F1, EM, and ROUGE-L with strict zero-shot evaluation protocols.
-  3. Demonstrates that EpiGraph's higher retrieval recall translates into statistically superior downstream generation F1.
-
+**Requirements**: GEN-01..GEN-03  
 **Plans**:
-- [x] 05-01: Build closed-loop generation evaluator `run_closed_loop_qa.py` connecting Ollama LLM to retrieved contexts.
-- [x] 05-02: Execute closed-loop QA benchmark and log results to `results/closed_loop_qa_results.json`.
-- [x] 05-03: Format results into Table 3 of `paper/main.tex`.
-
----
+- [x] 05-01: Build closed-loop generation evaluator `run_closed_loop_qa.py` (`ADR-0000`).
+- [x] 05-02: Execute closed-loop QA benchmark (`results/closed_loop_qa_results.json`) (`ADR-0000`).
+- [x] 05-03: Format results into `paper/main.tex` (`ADR-0000`).
 
 ### Phase 6: LongMemEval Knowledge Update & Contradiction Resolution
-**Goal**: Construct and evaluate a multi-session knowledge mutation benchmark to test directed `SUPERSEDES` edge filtering against outdated fact citation.  
+**Goal**: Construct and evaluate a multi-session knowledge mutation benchmark to test directed `SUPERSEDES` edge filtering (`ADR-0000`).  
 **Depends on**: Phase 1, Phase 2  
-**Requirements**: KUPD-01, KUPD-02  
-**Success Criteria**:
-  1. 50 multi-session conversational episodes with mutating preferences (e.g., location, tech stack, dietary constraints).
-  2. Measures Outdated Fact Citation Rate (Split-Brain Hallucination %).
-  3. Proves EpiGraph achieves $< 2\%$ hallucination rate vs. $> 35\%$ for flat vector search.
-
+**Requirements**: KUPD-01..KUPD-02  
 **Plans**:
-- [x] 06-01: Build knowledge update test harness `run_knowledge_update_eval.py`.
-- [x] 06-02: Run comparative benchmark: Flat Vector vs. BM25 vs. EpiGraph `SUPERSEDES` filtering.
-- [x] 06-03: Save results to `results/knowledge_update_results.json` and document in paper.
-
----
+- [x] 06-01: Build knowledge update test harness `run_knowledge_update_eval.py` (`ADR-0000`).
+- [x] 06-02: Run comparative benchmark: Flat Vector vs. BM25 vs. EpiGraph `SUPERSEDES` filtering (`ADR-0000`).
+- [x] 06-03: Save results to `results/knowledge_update_results.json` (`ADR-0000`).
 
 ### Phase 7: Hyperparameter Sensitivity Landscape & Embedding Invariance
-**Goal**: Perform systematic sensitivity analysis on PageRank damping ($d$) and RRF smoothing ($k$), and verify invariance across embedding backbones.  
+**Goal**: Perform systematic sensitivity analysis on PageRank damping ($d$) and RRF smoothing ($k$) (`ADR-0000`).  
 **Depends on**: Phase 1  
-**Requirements**: SENS-01, SENS-02  
-**Success Criteria**:
-  1. Multi-parameter grid search across $d \in [0.65, 0.95]$ and $k \in [20, 100]$.
-  2. Generate 300 DPI publication plot `paper/figures/fig5_sensitivity_analysis.png`.
-  3. Document stability margins in `paper/main.tex`.
-
+**Requirements**: SENS-01..SENS-02  
 **Plans**:
-- [x] 07-01: Implement parameter sweep harness `run_sensitivity_analysis.py`.
-- [x] 07-02: Generate sensitivity contour/line plot and save to `paper/figures/fig5_sensitivity_analysis.png`.
-
----
+- [x] 07-01: Implement parameter sweep harness `run_sensitivity_analysis.py` (`ADR-0000`).
+- [x] 07-02: Generate sensitivity contour/line plot (`paper/figures/fig5_sensitivity_analysis.png`) (`ADR-0000`).
 
 ### Phase 8: Manuscript Integration & Extended Camera-Ready Package
-**Goal**: Integrate all new empirical results (Downstream QA, Knowledge Updates, Sensitivity) into `paper/main.tex`, update BibTeX, and run final automated verification.  
+**Goal**: Integrate all empirical results into `paper/main.tex`, update BibTeX, and run final automated verification (`ADR-0000`).  
 **Depends on**: Phase 5, Phase 6, Phase 7  
 **Requirements**: PAPER-05  
-**Success Criteria**:
-  1. `paper/main.tex` updated with complete Downstream QA and Knowledge Update tables.
-  2. All figures referenced and verified with 0 hallucinations via `verify_hallucinations.py`.
-  3. Git committed and tagged `v2.0-milestone2`.
-
 **Plans**:
-- [x] 08-01: Update `paper/main.tex` with downstream QA and knowledge mutation sections.
-- [x] 08-02: Update `verify_hallucinations.py` to cover all new metrics and run full verification.
-- [x] 08-03: Commit and freeze milestone release.
+- [x] 08-01: Update `paper/main.tex` with downstream QA and knowledge mutation sections (`ADR-0000`).
+- [x] 08-02: Update `verify_hallucinations.py` and run full verification (`ADR-0000`).
+- [x] 08-03: Commit and freeze milestone release (`ADR-0000`).
+
+### Phase 9: Literature Recon, ADR-to-Theorem Minting & Pre-Registered Protocols (Argon High)
+**Goal**: Conduct comprehensive 2018–2026 literature survey on ReBAC/Zanzibar in vector search (`HoneyBee`, `Policy-Aware Vector Search`) and Filtered HNSW (`ACORN`, `UNG`, `SeRF`, `UNIFY`, `SIEVE`, `Curator`, `FANNBench/GLS`), mint `ADR-0001` through `ADR-0003` using Design-It-Twice mapped 1:1 to Theorems 1–4, synchronize `CONTEXT.md` & `GLOSSARY.md`, and pre-register protocols `H1`–`H4` in Git (`ADR-0000`, `ADR-0001`, `ADR-0002`, `ADR-0003`).  
+**Depends on**: Phase 8  
+**Requirements**: PRISM-01, PRISM-02, PRISM-03  
+**Plans**:
+- [x] 09-01: Compile verified 18-paper survey in `literature/survey.md` and 1:1 Code-to-LaTeX symbol table in `GLOSSARY.md` (`ADR-0000`).
+- [x] 09-02: Mint `ADR-0001` (SpiceDB Subtractive UBP -> Theorem 1), `ADR-0002` (Ancestor-Stitched HNSW & `ACORN-GLS` -> Theorems 2 & 3), and `ADR-0003` (Z-Ordered Roaring-SIMD Tri-Modal Planner -> Theorem 4) (`ADR-0001`, `ADR-0002`, `ADR-0003`).
+- [x] 09-03: Lock pre-registered hypothesis protocols `experiments/H1..H4/protocol.md` in Git prior to execution (`ADR-0000`).
+
+### Phase 10: Deep Module Build & Tracer-Bullet Seam TDD (Hydrogen High)
+**Goal**: Implement the `Prism-ANN` Deep Modules (`src/modules/prism_ann/ubp_resolver.py`, `hnsw_gls.py`, `trimodal_planner.py`, `index.py`) and verify all mathematical invariants via `tests/test_prism_ann.py` (`ADR-0001`, `ADR-0002`, `ADR-0003`).  
+**Depends on**: Phase 9  
+**Requirements**: PRISM-04, PRISM-05, PRISM-06  
+**Plans**:
+- [x] 10-01: Implement `ZanzibarAuthGraph`, `upward_boundary_prune` ($\mathcal{P}_{\text{UBP}}$), and $O(1)$ zero-write edge revocation in `ubp_resolver.py` (`ADR-0001`).
+- [x] 10-02: Implement `AncestorStitchedHNSW` ($M_{\text{bridge}}=4$) and `search_hnsw_gls` (`POPCNT` $\hat{S}_{\text{loc}}(v)$ adaptive traversal) in `hnsw_gls.py` (`ADR-0002`).
+- [x] 10-03: Implement `RoaringRunBitmap`, `ZOrderedCorpus`, `contiguous_simd_sq8_scan`, and `TriModalQueryPlanner` in `trimodal_planner.py` + `tests/test_prism_ann.py` (`ADR-0003`).
+
+### Phase 11: 10-Baseline Empirical Benchmark Suite & Academic Plotting (Hydrogen High)
+**Goal**: Execute `run_prism_ann_benchmarks.py` across all 10 baselines/ablations (`B1..B7`, `Ablation 1..2`, `Prism-ANN Full`) for `H1`–`H4`, update `findings.md` & `research-state.yaml`, and render 4 dual-panel vector PDF figures via `generate_prism_ann_plots.py` (`ADR-0001`, `ADR-0002`, `ADR-0003`).  
+**Depends on**: Phase 10  
+**Requirements**: PRISM-07, PRISM-08  
+**Plans**:
+- [x] 11-01: Run `H1`–`H4` benchmark suite and serialize deterministic metrics to `results/prism_ann_benchmark_results.json` (`ADR-0001`, `ADR-0002`, `ADR-0003`).
+- [x] 11-02: Generate `fig1_prism_selectivity_sweep.pdf` .. `fig4_prism_revocation_throughput.pdf` and author 11-page two-column manuscript `paper/prism_ann.tex` (`ADR-0000`, `ADR-0001`, `ADR-0002`, `ADR-0003`).
+
+### Phase 12: Neon Gate-6 Adversarial Review, 376-Scenario Blast Radius Proof & Camera-Ready arXiv Bundle (Neon High & Overseer)
+**Goal**: Execute Gate-6 Thermo-Nuclear Code Quality Review, 376-scenario Blast-Radius live fuzzer proof (`verify_blast_radius_ubp.py`), 3-Brake Academic Audit (`verify_prism_hallucinations.py`, `PaperVizAgent`, `ScholarPeer`), compile `prism_ann_paper.pdf` & `prism_ann_arxiv_package.tar.gz`, and codify learned sensors `ENH-0006`–`ENH-0009` in `/Users/tejap/software_factory` (`ADR-0000`, `ADR-0001`, `ADR-0002`, `ADR-0003`).  
+**Depends on**: Phase 11  
+**Requirements**: PRISM-09, PRISM-10  
+**Plans**:
+- [x] 12-01: Apply Thermo-Nuclear Code Judo across `src/modules/prism_ann/` and verify 0 leaks / 0 dropped docs across 376 adversarial DAG scenarios in `verify_blast_radius_ubp.py` (`ADR-0001`, `ADR-0002`, `ADR-0003`).
+- [x] 12-02: Pass Brake 1 (`258/258` row-scoped metric checks, `0.0%` discrepancy, `18/18` verified citations), Brake 2 (`PaperVizAgent` `97.72/100`), and Brake 3 (`ScholarPeer` `9.0/10 STRONG ACCEPT`) (`ADR-0000`).
+- [x] 12-03: Forward Gate-6 sensor nudges (`ENH-0006`–`ENH-0009`) to `@factory-overseer` and commit onto `/Users/tejap/software_factory` (`feat/research-factory-enhancements`, `50/50` tests passing) (`ADR-0000`).
