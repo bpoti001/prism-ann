@@ -78,7 +78,7 @@ Filtered-DiskANN \cite{gollapudi2023filtered} & WWW '23 & Flat Label Equality & 
 \section{Introduction}
 \label{sec:intro}
 
-\textbf{Prism-ANN ($X$) is designed for multi-tenant Ontology and Relationship-Based Access Control (ReBAC) filtered retrieval ($Y$) over HNSW vector indexes ($Z$).}
+\textbf{Prism-ANN is designed for multi-tenant Ontology and Relationship-Based Access Control (ReBAC) filtered retrieval over HNSW vector indexes.}
 
 In Enterprise Multimodal Knowledge Platforms (EMKPs)---including regulated financial systems, clinical corpora, and multi-tenant agentic memory engines such as \textit{EngramRAG} \cite{potineni2026engramrag}---every retrieval query must satisfy a dual-graph conjunctive predicate before any document chunk can be returned to a user or Large Language Model (LLM) agent. Chunks must match both an \textbf{Ontological Concept Predicate} ($\mathcal{T}_{\text{ont}}$, e.g., canonical \textit{Meaning Magnets} $\tau(v_i)$) and an \textbf{Enterprise Authorization Predicate} ($\mathcal{G}_{\text{auth}}$) enforced by Google Zanzibar \cite{pang2019zanzibar} or SpiceDB. Unlike flat Role-Based Access Control (RBAC), enterprise ReBAC propagates permissions down nested organizational trees ($\texttt{org} \to \texttt{lob} \to \texttt{dept} \to \texttt{folder} \to \texttt{doc}$) while applying non-monotonic subtractive exclusions (\texttt{permission view = (viewer + parent->view) - denied}).
 
@@ -215,7 +215,7 @@ S < S_{\text{crit}}(\text{ACORN-1}) \approx \frac{2}{r \cdot M(M + 1)}.
 Under the stated independence and clustering assumptions, $M$ 1-hop neighbors contribute $r S M$ expected authorized links, and $(1 - r S)M$ unauthorized hubs expose at most $M^2/2$ distinct unvisited 2-hop candidates surviving independently with probability $r S$. For $r S \ll 1$, solving $r S (M + M^2/2) \approx \frac{r S M(M+1)}{2} = 1$ gives $S_{\text{crit}} \approx \frac{2}{r M(M+1)}$ (e.g., $0.74\%$ at $M=16, r=1$; $1.47\%$ at $r=0.5$).
 \end{proof}
 
-\paragraph{Ancestor-Stitched Express Bridges (\texttt{H-HNSW}).}
+\paragraph{Ancestor-Stitched Express Bridges (\texttt{H-HNSW})}
 During construction (\texttt{ADR-0002}), \texttt{H-HNSW} augments each node's $M=16$ base-layer proximity neighbors with $M_{\text{bridge}} = 4$ structural express bridges $\mathcal{B}_{\text{exp}}(v_i)$: $2$ intra-container edges (next ring peer and medoid/$\sqrt{|V|}$-chord peer within its primary folder bucket $V(g_\ell)$) and $2$ intra-magnet edges within its primary Meaning Magnet bucket $V(m_k)$.
 
 \begin{proposition}[Conditional Connectivity \& RAM Footprint of \texttt{H-HNSW}]
@@ -445,13 +445,13 @@ D9 & Language Asymmetry & Primary: Recall@10, distance evals; secondary: latency
 \section{Related Work \& Limitations}
 \label{sec:related_work}
 
-\paragraph{Path-Hierarchy ACL Tokens \& ReBAC in Vector Search.}
+\paragraph{Path-Hierarchy ACL Tokens \& ReBAC in Vector Search}
 Stamping ancestor container paths onto document records is established practice in full-text search engines (e.g., Elasticsearch/Lucene path-hierarchy tokenizers) for monotonic positive access control. Prism-ANN's specific contribution over classical path-token indexing is \textbf{Subtractive-Aware Upward Boundary Pruning ($\mathcal{P}_{\text{UBP}}$)}: handling non-monotonic Zanzibar/SpiceDB \texttt{but not} (\texttt{DENY}) exclusions via upward taint propagation with the proven $k_0 + m(b-1)L$ bound (Theorem~\ref{thm:ubp_bound}), exact zero-leak equivalence against live SpiceDB \texttt{LookupResources}, and zero-write revocation. \textit{HoneyBee} \cite{zhong2025honeybee} partitions HNSW indexes by flat RBAC roles (without subtractive ReBAC or public code), while Yalamarthi and Pappachan \cite{yalamarthi2026policy} frame the broader Fine-Grained Access Control (FGAC) trilemma.
 
-\paragraph{Filtered ANN Search (FANNS).}
+\paragraph{Filtered ANN Search (FANNS)}
 Hybrid engines such as AnalyticDB-V \cite{wei2020analyticdbv} and Milvus \cite{wang2021milvus} combine bitset scans with filtered HNSW \cite{malkov2018hnsw}. Specialized graphs---Filtered-DiskANN \cite{gollapudi2023filtered}, RoarGraph \cite{chen2024roargraph}, UNG \cite{cai2024ung}, SeRF \cite{zuo2024serf}, UNIFY \cite{liang2024unify}, SIEVE \cite{li2025sieve}, and Curator \cite{curator2026}---target static label sets, 1D numerical ranges, or workload-stable predicates rather than dynamic ReBAC with subtractive \texttt{DENY}s. \textit{ACORN} \cite{patel2024acorn} introduces predicate-agnostic 2-hop search (\texttt{ACORN-1}), and \textit{FANNBench} \cite{iff2025fannbench} formalizes Global-Local Selectivity correlation $r = S_{\text{loc}}/S$. Our confirmatory study demonstrates that on real $523\text{k}$ MiniLM vectors, both fixed-\texttt{ef} \texttt{FAISS} and upstream \texttt{ACORN-1} suffer severe sub-1\% recall collapse, whereas \texttt{hnswlib} and \texttt{pgvector}~0.8 iterative scans preserve recall at the expense of $10\times$--$300\times$ latency growth.
 
-\paragraph{Limitations \& Open Directions.}
+\paragraph{Limitations \& Open Directions}
 Four concrete limitations bound our findings: (1) \textbf{Graph-only express bridges are insufficient below $S=1\%$ on real embeddings:} while $M_{\text{bridge}}=4$ ring-chord bridges outperform \texttt{FAISS M=16} and \texttt{ACORN-1}, achieving $\ge 95\%$ graph-only recall in the $S \in [0.5\%, 5\%]$ regime without falling back to Mode~3 will require \textit{geometrically navigated} intra-container edges (e.g., per-container HNSW/Vamana overlays or higher-degree semantic bridges) rather than ID-ordered rings; (2) \textbf{GLS threshold trade-off (P3b falsification):} fixed $\tau_{\text{high}}=0.25$ cut dense-pocket distance evaluations by $5.33\times$ at a $-2.00$ pt recall cost, indicating that tuning or calibrating $\tau_{\text{high}}$ (in a future exploratory study) is needed to stay within $-1$ pt; (3) \textbf{Python reference traversal:} porting \texttt{search\_hnsw\_gls} and Z-ordered SIMD scans to C++/FAISS is deferred until the graph-only recall gap is closed; and (4) \textbf{Single-node SpiceDB in-memory datastore and static ingestion:} distributed SpiceDB datastores (PostgreSQL/CockroachDB) and continuous-ingestion Z-order compaction remain future engineering work.
 
 \section{Conclusion}

@@ -187,9 +187,11 @@ def plot_h2(summary: dict) -> None:
     ax2.set_xlabel("Filter Selectivity S (random, N=522,931)")
     ax2.set_ylabel("Distance Computations / Query (log)")
     ax2.set_title("(b) H2v2 Distance Computations / Query")
+    acorn_d01 = bc["S=0.001"]["acorn-1"]["dist_mean"]["mean"]
+    acorn_r01 = 100.0 * bc["S=0.001"]["acorn-1"]["recall_mean"]["mean"]
     ax2.annotate(
-        "ACORN-1 early stall\n(11.4 evals, 0.85% R@10;\nP2b falsified on dist ratio)",
-        xy=(0.1, bc["S=0.001"]["acorn-1"]["dist_mean"]["mean"]),
+        f"ACORN-1 early stall\n({acorn_d01:.1f} evals, {acorn_r01:.2f}% R@10;\nP2b falsified on dist ratio)",
+        xy=(0.1, acorn_d01),
         xytext=(0.25, 14),
         fontsize=6.9, bbox=dict(boxstyle="round,pad=0.25", fc="#F2FBF7", ec="#009E73", lw=0.8),
         arrowprops=dict(arrowstyle="->", color="#009E73", lw=0.9),

@@ -63,7 +63,7 @@ Plans:
 
 Plans:
 
-- [ ] 15-01: Provenance-first audit + runtime reviews -> `results/v2/review/` (`ADR-0004`).
+- [x] 15-01: Provenance-first audit + runtime reviews -> `results/v2/review/` (`ADR-0004`).
 
 ### Phase 16: Factory Overseer: ENH-0013..0016 provenance sensors, honest model labels, local PR package for human review (ADR-0000, ADR-0004)
 
