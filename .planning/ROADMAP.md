@@ -49,10 +49,10 @@ Plans:
 
 Plans:
 
-- [ ] 14-01: Environment: `faiss-cpu`, `sentence-transformers`, `psycopg`, `authzed`; Homebrew `spicedb`, `postgresql`, `pgvector`; record versions in `results/v2/ENVIRONMENT.md` (`ADR-0004`).
-- [ ] 14-02: Dataset build: BEIR Quora download, MiniLM encoding (cached `.npy`), hierarchy overlays (random + cluster-aligned), exact ground truth (`ADR-0004`).
-- [ ] 14-03: Smoke run on a 20k subset (ledger: smoke), then the single confirmatory run H1v2–H4v2 (ledger: confirmatory) (`ADR-0001`, `ADR-0002`, `ADR-0003`).
-- [ ] 14-04: Figures and paper §5 rewritten from `results/v2/summary.json` only. Rename to "Zanzibar-style ReBAC" if SpiceDB isn't the measured path. Theorems 2–4 become propositions. Add a Protocol Deviations table (`ADR-0004`).
+- [x] 14-01: Environment: `faiss-cpu`, `sentence-transformers`, `psycopg`, `authzed`; Homebrew `spicedb`, `postgresql`, `pgvector`; record versions in `results/v2/ENVIRONMENT.md` (`ADR-0004`).
+- [x] 14-02: Dataset build: BEIR Quora download, MiniLM encoding (cached `.npy`), hierarchy overlays (random + cluster-aligned), exact ground truth (`ADR-0004`).
+- [x] 14-03: Smoke run on a 20k subset (ledger: smoke), then the single confirmatory run H1v2–H4v2 (ledger: confirmatory) (`ADR-0001`, `ADR-0002`, `ADR-0003`).
+- [x] 14-04: Figures and paper §5 rewritten from `results/v2/summary.json` only. Rename to "Zanzibar-style ReBAC" if SpiceDB isn't the measured path. Theorems 2–4 become propositions. Add a Protocol Deviations table (`ADR-0004`).
 
 ### Phase 15: Fresh Independent Review: provenance-first audit, runtime Brake 2/3 reviews of PDF and figures (ADR-0000, ADR-0004)
 

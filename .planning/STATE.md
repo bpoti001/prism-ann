@@ -1,48 +1,42 @@
 ---
 gsd_state_version: '1.0'
-milestone: v3.0
-milestone_name: Prism-ANN & ADR-to-arXiv Research Factory
-current_phase: 12
-current_phase_name: Neon Gate-6 Adversarial Review, 100% Live Empirical Pass (ENH-0010 & ENH-0011), 376-Scenario Blast Radius Proof & Camera-Ready arXiv Bundle
-status: complete
-last_updated: '2026-11-19T12:47:00-06:00'
+milestone: v4.0
+milestone_name: Prism-ANN v2 Provenance-Verified Real-Baseline Evaluation (ADR-0004)
+current_phase: 14
+current_phase_name: Real-Baseline Confirmatory Evaluation (BEIR Quora + MiniLM, FAISS/ACORN/hnswlib/pgvector, Real SpiceDB, Frozen Algorithm)
+status: phase_14_complete_awaiting_phase_15
+last_updated: '2026-11-20T15:35:00-06:00'
 progress:
-  total_phases: 12
-  completed_phases: 12
-  total_plans: 39
-  completed_plans: 39
-  percent: 100
+  total_phases: 16
+  completed_phases: 15
+  total_plans: 48
+  completed_plans: 47
+  percent: 98
 ---
 
-# Project State: EpiGraph (`EngramRAG`) & `Prism-ANN` (ADR-to-arXiv Research Factory)
-
-## Project Reference
-
-See: `.planning/PROJECT.md`, `CONTEXT.md`, `GLOSSARY.md`, and `research-state.yaml` (updated 2026-11-19)
-
-**Core value:** Unifying dynamic usage-weighted cognitive graph memory (`EngramRAG`, `arXiv:2609.32049`) with co-designed SpiceDB ReBAC Subtractive-Aware Upward Boundary Pruning, Ancestor-Stitched Express Bridges (`H-HNSW`), Bitmask-`POPCNT` Local-Selectivity-Adaptive traversal (`ACORN-GLS`), and Z-Ordered Roaring-SIMD execution (`Prism-ANN`) under a deterministic GSD + ADR-Governed Software Factory & Two-Loop Autoresearch pipeline.
+# Project State: EpiGraph (`EngramRAG`) & `Prism-ANN` (Milestone 4 — ADR-0004)
 
 ## Current Position
+- **Completed**: Phases 1–12 (M1–M3, with M3 v1 evaluation superseded by `ADR-0004`), Phase 13 (`13-01`..`13-03` provenance harness, literal-verdict removal, `--force` guard), Phase 14 (`14-01`..`14-04` real-engine confirmatory run `v2-confirmatory-002`, v2 figures, rewritten 10-page manuscript), and Phase 16 (`16-01` factory sensors).
+- **Next Phase**: **Phase 15 (`15-01`)** — Fresh Independent Review (provenance-first audit + runtime Brake 2/3 reviews of `paper/prism_ann.pdf` and `paper/figures/v2_*.png` -> `results/v2/review/`).
+- **Algorithm Freeze**: `FREEZE.md` SHA-256 hashes match `5/5` files (`freeze_match = YES`).
 
-- **Phase**: 12 of 12 (Phase 12: Neon Gate-6 Adversarial Review, 100% Live Empirical Pass `ENH-0010` & `ENH-0011`, 376-Scenario Blast Radius Proof & Camera-Ready arXiv Bundle ✓)
-- **Status**: Complete & Verified across all 3 Milestones (`EngramRAG` M1–M2 + `Prism-ANN` M3)
-- **Multi-Model Routing Active (`ADR-0010`)**:
-  - **Planner / Researcher (`@architect` / `@orchestrator`)**: `Argon (High Thinking)`
-  - **Builder & TDD (`@hydrogen-builder`)**: `Hydrogen (High Thinking)`
-  - **Adversarial Reviewer (`@neon-reviewer`)**: `Neon (High Thinking)`
-  - **Software Factory Overseer (`@factory-overseer`)**: Continuous Nudge Loop on `/Users/tejap/software_factory` (`feat/research-factory-enhancements`, `54/54` tests passing)
-- **Progress**: [██████████] 100% (12/12 Phases, 39/39 Plans)
+## Confirmatory v2 Scorecard (`v2-confirmatory-002`, Full `N=522,931` BEIR Quora MiniLM `384-d`, 3 Seeds, `62,410` Raw Records)
 
-## Milestone 3 Scorecard: `Prism-ANN` (100% Live Empirical Evaluation over $N=10{,}000$ `LoCoMo` Chunks, $d=128$)
+| Prediction | Criterion (`PROTOCOL_v2.md`) | Measured (`results/v2/summary.json`) | Verdict |
+|---|---|---|---|
+| **P1a** | `0` mismatches vs. live SpiceDB ($\ge 200$ principals) | `0` doc / `0` chunk mismatches (`600` principals) | **SUPPORTED** |
+| **P1b** | $|T_{\text{UBP}}^+| \le k_0 + m(b-1)L$ in `100%` | `100.0%` (`600/600`); med `76`, max `296` tokens | **SUPPORTED** |
+| **P1c** | Broad ($\ge 1\text{k}$ docs) median UBP+bitmap $\ge 10\times$ faster | `0.310 ms` vs. `70.150 ms` = **`226.5×`** (strict live RPC: `2.089 ms` = **`33.6×`**) | **SUPPORTED** |
+| **P2a** | `prism-graph-only` $\ge$ `faiss-hnsw-M16` $+10$ pts at $S \le 0.5\%$ | `S=0.1%`: `+22.25 ± 2.54` pts; `S=0.5%`: `+23.49 ± 2.19` pts | **SUPPORTED** |
+| **P2b** | `prism-graph-only` within `-2` pts of `acorn-1` at $\le 1.0\times$ evals | Wins recall at all $S$ (`+27.4` to `+49.4` pts), but dist ratio `1.04×–58.50×` | **FALSIFIED** |
+| **P2c** | `prism-full` (Mode 3) $\ge 99\%$ at $S \le 0.5\%$ (completeness) | `100.00 ± 0.00%` at `S=0.1%` and `S=0.5%` (`1.10–1.82 ms`) | **SUPPORTED** |
+| **P3a** | At $r \le 0.5$ ($S=2\%$), `prism-graph-only` $\ge$ `faiss-hnsw-M16` $+10$ pts | `+17.65 ± 3.09` pts (`23.34%` vs. `5.68%`, $n=735$) | **SUPPORTED** |
+| **P3b** | At $r \ge 2$, `prism-graph-only` $\le 0.8\times$ `static-2hop` evals, R@10 $\ge -1$ pt | `0.188×` (`5.33×` fewer: `588.8` vs. `3136.1`), but R@10 `-2.00` pts (`97.10%` vs. `99.09%`) | **FALSIFIED** |
+| **P4a** | Revoking `1` SpiceDB edge ($\ge 1\text{k}$ docs) uses `0` vector writes | `0` writes, median `76.05 ms` (`1,024` docs / `153,600` chunks, $n=5$) | **SUPPORTED** |
+| **P4b** | Real PostgreSQL/`pgvector` `UPDATE` $\ge 100\times$ slower than P4a | `182,526.4 ms` (`182.5 s`) vs. `76.05 ms` = **`2,400.1×`** | **SUPPORTED** |
 
-| Evaluation Dimension | Live Baselines (`LookupResources` / `ACORN-1` / `Post-Filter`) | `Prism-ANN` (`UBP` + `H-HNSW` + `ACORN-GLS` + `Z-SIMD`) | Verified Live Gain / Proof |
-| :--- | :--- | :--- | :--- |
-| **H1: SpiceDB Capability Tokens ($L=4, b=8, m=5$)** | $8{,}152$ leaf doc tokens ($5.06\text{ ms}$ bitmap union) | **$60$ pruned tokens ($0.11\text{ ms}$)** ($2$ tokens / $0.01\text{ ms}$ at $m=0$) | **$135.9\times$ compression ($46.0\times$ speedup); $4{,}096.0\times$ / $527.0\times$ at $m=0$** |
-| **H1 / Blast-Radius Safety Proof (376 DAGs)** | — | **0 False Positives / 0 False Negatives** | Proven across 376 tree, diamond-DAG & revocation cases |
-| **H2: Sub-1% Selectivity ($S = 5 \times 10^{-3}$)** | `ACORN-1`: $33.6\%$ Recall@10 (`Ablation 2`: $33.6\%$) | **$94.8\%$ Recall@10 ($3.78\text{ ms}$ P99; $93.8\%\text{--}100.0\%$ full sweep)** | **+61.2 pt gain over `ACORN-1` and `Ablation 2`** |
-| **H2: Extreme Selectivity ($S = 10^{-4}$ / $10^{-3}$)** | `Post-Filter`: $5.0\%$, `ACORN-1`: $6.4\%\text{--}7.8\%$, `pgvector`: $19.11\text{ ms}$ | **$100.0\%$ Recall@10 ($0.07\text{--}0.48\text{ ms}$ P99)** | **Exact recall at $148.3\times$ lower latency than `pgvector` at $S=10^{-3}$** |
-| **H3: Depleted Negative Correlation ($r = 0.20$)** | `ACORN-1`: $80.4\%$ Recall@10 (`486` evals) | **$99.6\%$ Recall@10 (`426` evals)** | **+19.2 pt recall recovery via Express-Bridge Teleport** |
-| **H3: Enriched Positive Correlation ($r = 2.0\text{--}3.0$)** | `ACORN-1`: $349\text{--}312$ distance evaluations | **$193\text{--}171$ distance evaluations ($\tau_{\text{high}}=0.25$)** | **$1.81\times$ ($r=2.0$) / $1.82\times$ ($r=3.0$) reduction in distance evals** |
-| **H4: 1,000–5,000 Doc Revocation** | Flat ACL Payloads: $6.46\text{--}36.30\text{ ms}$ ($15\text{k}\text{--}75\text{k}$ writes) | **$0.06\text{ ms}$ ($0$ vector DB writes)** | **$107.7\times$ ($1\text{K}$ docs) to $605.0\times$ ($5\text{K}$ docs) faster ($O(1)$ delete)** |
-| **Live Index RAM Footprint ($N=10{,}000, d=128$)** | `ACORN-gamma` ($\gamma_{\text{eff}}=6$): $8.54\text{ MB}$ ($+55.6\%$), `HoneyBee`: $31.19\text{ MB}$ ($5.68\times$) | **$5.80\text{ MB}$ ($+5.6\%$ over bare HNSW's $5.49\text{ MB}$)** | **$5.38\times$ lower RAM than `HoneyBee` / $10\times$ lower overhead than `ACORN-gamma`** |
-| **Gate-6 3-Brake Verification** | — | **`260/260` Metrics (`0.0%` err), PaperViz `97.72`, ScholarPeer `9.0`** | All 3 deterministic brakes PASSED (Exit Code 0) |
+## Verification Status
+- `tests/test_bench_provenance.py`: **9/9 passing (0 skipped)**, including bit-for-bit `test_committed_summary_matches_raw_exactly`.
+- `verify_prism_hallucinations.py` (Brake 1 v2): **127/127 checks passing, 0 errors**.
+- Brake 2 (`run_prism_paperviz_audit.py`) & Brake 3 (`run_prism_scholarpeer_review.py`): intentionally pending fresh independent Phase 15 reviewer (`results/v2/review/`).
