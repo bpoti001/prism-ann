@@ -8,3 +8,6 @@ venv/
 *.log
 *.xdv
 .venv-bench/
+bench/_build/
+data/beir/
+results/v2/raw_smoke/
