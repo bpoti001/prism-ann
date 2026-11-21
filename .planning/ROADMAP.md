@@ -122,7 +122,7 @@ Plans:
 
 Plans:
 
-- [ ] 20-01: Fresh independent v3 provenance + figure + peer review -> `results/v3/review/` (`ADR-0004`, `ADR-0005`).
+- [x] 20-01: Fresh independent v3 provenance + figure + peer review -> `results/v3/review/` (`ADR-0004`, `ADR-0005`).
 
 ---
 
