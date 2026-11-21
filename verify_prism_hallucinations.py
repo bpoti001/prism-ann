@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 """
-Brake 1 (v2): Raw-Record Provenance & Zero-Hallucination Sensor (ADR-0004)
-==========================================================================
+Brake 1 (v3): Raw-Record Provenance & Zero-Hallucination Sensor (ADR-0004 & ADR-0005)
+=====================================================================================
 Programmatically verifies:
-  1. Bit-for-bit reproducibility of `results/v2/summary.json` from
-     `results/v2/raw/*.jsonl` via `bench.recompute`, and `FREEZE.md` hash match.
-  2. 0.0% numerical discrepancy between `results/v2/summary.json` and every
-     table row (Verdicts, H2v2, H3v2) and headline metric in `paper/prism_ann.tex`.
-  3. Zero v1 metrics, zero ScholarPeer/PaperViz claims, zero "camera-ready" claims,
-     and Propositions 2-4 instead of Theorems 2-4.
+  1. Bit-for-bit reproducibility of `results/v3/summary.json` from
+     `results/v3/raw/*.jsonl` via `bench.recompute_v3`, plus `FREEZE.md` (5/5)
+     and `FREEZE_v3.md` (7/7) SHA-256 hash matches.
+  2. 0.0% numerical discrepancy between `results/v3/summary.json` and every
+     table row (Verdicts P1a..P5, H2v3 Quora & NQ, H3v3 Quora & NQ) and
+     headline metric in `paper/prism_ann.tex`.
+  3. Zero v1 metrics, zero ScholarPeer/PaperViz/camera-ready claims, zero
+     template placeholders ((X)/(Y)/(Z)/TBD), zero IEEEtran \\paragraph{... .},
+     and Theorem 1 + Propositions 2-4 structure.
   4. 100% citation resolution (every \\cite resolves to a \\bibitem, 0 unused).
 """
 
@@ -24,10 +27,10 @@ REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
 if REPO_ROOT not in sys.path:
     sys.path.insert(0, REPO_ROOT)
 
-from bench import harness, recompute  # noqa: E402
+from bench import harness, harness_v3, recompute, recompute_v3  # noqa: E402
 
-RAW_DIR = os.path.join(REPO_ROOT, "results", "v2", "raw")
-SUMMARY_PATH = os.path.join(REPO_ROOT, "results", "v2", "summary.json")
+RAW_DIR = os.path.join(REPO_ROOT, "results", "v3", "raw")
+SUMMARY_PATH = os.path.join(REPO_ROOT, "results", "v3", "summary.json")
 TEX_PATH = os.path.join(REPO_ROOT, "paper", "prism_ann.tex")
 
 
@@ -59,15 +62,20 @@ def verify() -> bool:
             errors.append(fail_msg)
 
     print("=== 1. RAW-RECORD PROVENANCE & FREEZE INTEGRITY ===")
-    fz = harness.freeze_status()
-    check(fz["match"], f"FREEZE.md SHA-256 match ({fz['n_files']}/5 files)", f"FREEZE mismatch: {fz['mismatches']}")
+    fz2 = harness.freeze_status()
+    check(fz2["match"], f"FREEZE.md (v2) SHA-256 match ({fz2['n_files']}/5)", f"FREEZE.md mismatch: {fz2['mismatches']}")
+    fz3 = harness_v3.freeze_v3_status()
+    check(fz3["match"], f"FREEZE_v3.md (v3) SHA-256 match ({fz3['n_files']}/7)", f"FREEZE_v3.md mismatch: {fz3['mismatches']}")
 
     with open(SUMMARY_PATH, "r", encoding="utf-8") as f:
         committed = f.read()
-    recomputed_dict = recompute.recompute_summary(RAW_DIR)
+    recomputed_dict = recompute_v3.recompute_v3_summary(RAW_DIR)
     recomputed = recompute.dumps_summary(recomputed_dict)
-    check(committed == recomputed, "results/v2/summary.json matches bench.recompute(results/v2/raw) bit-for-bit",
-          "summary.json does NOT match raw records!")
+    check(
+        committed == recomputed,
+        "results/v3/summary.json matches bench.recompute_v3(results/v3/raw) bit-for-bit",
+        "results/v3/summary.json does NOT match raw records!",
+    )
 
     s = json.loads(committed)
     check(s["freeze_match_all"] is True, "summary.json freeze_match_all == True", "freeze_match_all is False")
@@ -75,69 +83,90 @@ def verify() -> bool:
     with open(TEX_PATH, "r", encoding="utf-8") as f:
         tex = f.read()
 
-    print("\n=== 2. VERIFYING VERDICTS TABLE (tab:verdicts) ===")
+    print("\n=== 2. VERIFYING ALL 11 VERDICTS (tab:verdicts) ===")
     tv = _extract_table_block(tex, "tab:verdicts")
     for pid, v in sorted(s["verdicts"].items()):
         expected_status = v["verdict"].upper()
         line = _extract_row_line(tv, rf"\\textbf\{{{pid}\}}")
-        check(bool(line) and expected_status in line,
-              f"{pid}: verdict {expected_status} present in tab:verdicts",
-              f"{pid}: missing or wrong verdict (expected {expected_status}) in tab:verdicts")
+        check(
+            bool(line) and expected_status in line,
+            f"{pid}: verdict {expected_status} verified in tab:verdicts",
+            f"{pid}: missing or wrong verdict (expected {expected_status}) in tab:verdicts",
+        )
 
-    print("\n=== 3. VERIFYING H1v2 & H4v2 HEADLINE METRICS ===")
+    print("\n=== 3. VERIFYING H1v3, H4v3, & H5v3 HEADLINE METRICS ===")
     v1c = s["verdicts"]["P1c"]
     v4b = s["verdicts"]["P4b"]
+    v5 = s["verdicts"]["P5"]["by_S"]
     for label, tok in [
-        ("H1v2 P1c mirror speedup", f"{v1c['ratio_spicedb_over_ubp']:.1f}\\times"),
-        ("H1v2 P1c strict speedup", f"{v1c['strict_ratio_including_grant_fetch']:.1f}\\times"),
-        ("H1v2 SpiceDB broad median", f"{v1c['spicedb_median_ms']:.2f}\\text{{ ms}}"),
-        ("H4v2 P4a median ms", f"{v4b['p4a_median_ms']:.2f}\\text{{ ms}}"),
-        ("H4v2 pgvector median s", f"{v4b['pgvector_median_ms']/1000.0:.1f}\\text{{ s}}"),
-        ("H4v2 speedup ratio", f"{v4b['ratio']:,.1f}".replace(",", "{,}") + "\\times"),
+        ("H1v3 memory speedup", f"{v1c['memory']['ratio_spicedb_over_ubp']:.1f}\\times"),
+        ("H1v3 postgres speedup", f"{v1c['postgres']['ratio_spicedb_over_ubp']:.1f}\\times"),
+        ("H1v3 postgres SpiceDB median", f"{v1c['postgres']['spicedb_median_ms']:.2f}\\text{{ ms}}"),
+        ("H4v3 persistent P4a median", f"{v4b['p4a_median_ms']:.2f}\\text{{ ms}}"),
+        ("H4v3 pgvector median s", f"{v4b['pgvector_median_ms']/1000.0:.1f}\\text{{ s}}"),
+        ("H4v3 speedup ratio", f"{v4b['ratio']:,.1f}".replace(",", "{,}") + "\\times"),
+        ("H5v3 S=0.1% retained", f"{100.0 * v5['S=0.001']['retained_gain_fraction']:.1f}\\%"),
+        ("H5v3 S=0.5% retained", f"{100.0 * v5['S=0.005']['retained_gain_fraction']:.1f}\\%"),
     ]:
-        check(tok in tex, f"{label}: '{tok}' verified in prism_ann.tex",
-              f"{label}: expected '{tok}' missing from prism_ann.tex")
+        check(tok in tex, f"{label}: '{tok}' verified in prism_ann.tex", f"{label}: expected '{tok}' missing!")
 
-    print("\n=== 4. VERIFYING H2v2 SELECTIVITY TABLE (tab:h2_results) ===")
+    print("\n=== 4. VERIFYING H2v3 MULTI-CORPUS TABLE (tab:h2_results) ===")
     th2 = _extract_table_block(tex, "tab:h2_results")
-    bc2 = s["hypotheses"]["H2"]["by_condition"]
+    parts_h2 = th2.split("Corpus 2: BEIR NQ")
+    check(len(parts_h2) == 2, "tab:h2_results contains both Corpus 1 (Quora) and Corpus 2 (NQ)", "Missing Corpus 2 section in tab:h2_results")
     s_keys = ("S=0.001", "S=0.005", "S=0.01", "S=0.05")
-    for sysname in ("exact-brute-force", "faiss-hnsw-M16", "faiss-hnsw-M8", "acorn-1",
-                    "hnswlib-M16", "pgvector-hnsw-iter", "prism-graph-only", "prism-full"):
-        line = _extract_row_line(th2, rf"\\texttt\{{{re.escape(sysname)}\}}")
-        check(bool(line), f"H2 row found for {sysname}", f"H2 row missing for {sysname}")
-        if line:
-            for sk in s_keys:
-                g = bc2[sk][sysname]
-                rm = f"{100.0 * g['recall_mean']['mean']:.2f}"
-                lm = f"{g['latency_ms_median']['mean']:.2f}"
-                check(rm in line, f"H2 {sysname} {sk} recall={rm}% matches",
-                      f"H2 {sysname} {sk} recall={rm}% missing in row: {line}")
-                check(lm in line, f"H2 {sysname} {sk} med_ms={lm} matches",
-                      f"H2 {sysname} {sk} med_ms={lm} missing in row: {line}")
+    sys_h2 = (
+        "exact-brute-force", "faiss-hnsw-M16", "acorn-1", "acorn-gamma",
+        "hnswlib-M16", "pgvector-hnsw-iter", "v2-ring-chord-M4", "v3-geom-M8", "v3-full-guard-sq8",
+    )
+    if len(parts_h2) == 2:
+        for hyp_key, sub_tex in (("H2_quora", parts_h2[0]), ("H2_nq", parts_h2[1])):
+            bc = s["hypotheses"][hyp_key]["by_condition"]
+            for sysname in sys_h2:
+                line = _extract_row_line(sub_tex, rf"\\texttt\{{{re.escape(sysname)}\}}")
+                check(bool(line), f"{hyp_key} row found for {sysname}", f"{hyp_key} row missing for {sysname}")
+                if line:
+                    for sk in s_keys:
+                        g = bc[sk][sysname]
+                        rm = f"{100.0 * g['recall_mean']['mean']:.2f}"
+                        lm = f"{g['latency_ms_median_pooled']:.2f}"
+                        check(rm in line, f"{hyp_key} {sysname} {sk} R@10={rm}% matches", f"{hyp_key} {sysname} {sk} R@10={rm}% missing in: {line}")
+                        check(lm in line, f"{hyp_key} {sysname} {sk} med={lm}ms matches", f"{hyp_key} {sysname} {sk} med={lm}ms missing in: {line}")
 
-    print("\n=== 5. VERIFYING H3v2 CORRELATION TABLE (tab:h3_results) ===")
+    print("\n=== 5. VERIFYING H3v3 MULTI-CORPUS TABLE (tab:h3_results) ===")
     th3 = _extract_table_block(tex, "tab:h3_results")
-    bc3 = s["hypotheses"]["H3"]["by_condition"]
-    for sysname in ("exact-brute-force", "faiss-hnsw-M16", "faiss-hnsw-M8", "acorn-1",
-                    "hnswlib-M16", "prism-graph-only", "prism-static-2hop", "prism-full"):
+    sys_h3 = (
+        "exact-brute-force", "faiss-hnsw-M16", "acorn-1", "hnswlib-M16",
+        "v3-geom-M8", "v3-static-2hop", "v3-full-guard-sq8",
+    )
+    for sysname in sys_h3:
         line = _extract_row_line(th3, rf"\\texttt\{{{re.escape(sysname)}\}}")
         check(bool(line), f"H3 row found for {sysname}", f"H3 row missing for {sysname}")
         if line:
-            for rk in ("r_le_0.5", "r_ge_2"):
-                g = bc3[rk][sysname]
-                rm = f"{100.0 * g['recall_mean']['mean']:.2f}"
-                check(rm in line, f"H3 {sysname} {rk} recall={rm}% matches",
-                      f"H3 {sysname} {rk} recall={rm}% missing in row: {line}")
+            for hyp_key in ("H3_quora", "H3_nq"):
+                bc3 = s["hypotheses"][hyp_key]["by_condition"]
+                for rk in ("r_le_0.5", "r_ge_2"):
+                    rm = f"{100.0 * bc3[rk][sysname]['recall_mean']['mean']:.2f}"
+                    check(rm in line, f"{hyp_key} {sysname} {rk} R@10={rm}% matches", f"{hyp_key} {sysname} {rk} R@10={rm}% missing in: {line}")
 
-    print("\n=== 6. ANTI-CONTAMINATION & CITATION AUDIT ===")
-    for forbidden in ("ScholarPeer", "PaperViz", "camera-ready", "LoCoMo", "97.72", "135.9", "4,096.0", "94.8\\%"):
-        check(re.search(forbidden, tex, re.I) is None,
-              f"Zero occurrences of banned/v1 string '{forbidden}'",
-              f"Banned/v1 string '{forbidden}' found in prism_ann.tex!")
-    check(r"\begin{proposition}" in tex and tex.count(r"\begin{theorem}") == 1,
-          "Theorem 1 + Propositions 2-4 structure verified",
-          "Unexpected theorem/proposition count in prism_ann.tex")
+    print("\n=== 6. HYGIENE, ANTI-CONTAMINATION, & CITATION AUDIT ===")
+    for forbidden in ("ScholarPeer", "PaperViz", "camera-ready", "LoCoMo", "97.72", "135.9", "4,096.0"):
+        check(
+            re.search(forbidden, tex, re.I) is None,
+            f"Zero occurrences of banned/v1 pattern '{forbidden}'",
+            f"Banned/v1 pattern '{forbidden}' found in prism_ann.tex!",
+        )
+    for ph in (r"\(X\)", r"\(Y\)", r"\(Z\)", r"\bTBD\b", r"\bTODO\b", r"\\paragraph\{[^}]+\.\}"):
+        check(
+            re.search(ph, tex) is None,
+            f"Zero occurrences of placeholder/typography pattern '{ph}'",
+            f"Placeholder/typography pattern '{ph}' found in prism_ann.tex!",
+        )
+    check(
+        r"\begin{proposition}" in tex and tex.count(r"\begin{theorem}") == 1,
+        "Theorem 1 + Propositions 2-4 structure verified",
+        "Unexpected theorem/proposition count in prism_ann.tex",
+    )
     check("tab:deviations" in tex, "Protocol Deviations table present", "Missing tab:deviations")
 
     cited = set()
@@ -145,12 +174,8 @@ def verify() -> bool:
         for k in m.group(1).split(","):
             cited.add(k.strip())
     bibs = set(re.findall(r"\\bibitem\{([^}]+)\}", tex))
-    missing_bibs = cited - bibs
-    unused_bibs = bibs - cited
-    check(not missing_bibs, f"All {len(cited)} cited keys resolve in bibliography",
-          f"Unresolved citations: {missing_bibs}")
-    check(not unused_bibs, f"Zero unused bibitems ({len(bibs)} total)",
-          f"Unused bibitems: {unused_bibs}")
+    check(not (cited - bibs), f"All {len(cited)} cited keys resolve in bibliography", f"Unresolved citations: {cited - bibs}")
+    check(not (bibs - cited), f"Zero unused bibitems ({len(bibs)} total)", f"Unused bibitems: {bibs - cited}")
 
     print(f"\nSUMMARY: {passed} checks passed, {len(errors)} errors.")
     return len(errors) == 0

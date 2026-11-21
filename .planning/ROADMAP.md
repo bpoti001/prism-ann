@@ -109,9 +109,9 @@ Plans:
 
 Plans:
 
-- [ ] 19-01: Prepare 2nd real public corpus (encoded & cached, strictly disjoint queries) + persistent PostgreSQL-backed SpiceDB & upstream `ACORN-gamma` wrappers (`ADR-0004`, `ADR-0005`).
-- [ ] 19-02: Execute single frozen confirmatory run `v3-confirmatory-001` (`results/v3/raw/*.jsonl` -> `results/v3/summary.json`) and verify `recompute --check` + `FREEZE_v3.md` (`ADR-0004`, `ADR-0005`).
-- [ ] 19-03: Generate `paper/figures/v3_fig*.{pdf,png}`, rewrite `paper/prism_ann.tex`, recompile `prism_ann_paper.pdf` & `prism_ann_arxiv_package.tar.gz` (`ADR-0004`, `ADR-0005`).
+- [x] 19-01: Prepare 2nd real public corpus (encoded & cached, strictly disjoint queries) + persistent PostgreSQL-backed SpiceDB & upstream `ACORN-gamma` wrappers (`ADR-0004`, `ADR-0005`).
+- [x] 19-02: Execute single frozen confirmatory run `v3-confirmatory-001` (`results/v3/raw/*.jsonl` -> `results/v3/summary.json`) and verify `recompute --check` + `FREEZE_v3.md` (`ADR-0004`, `ADR-0005`).
+- [x] 19-03: Generate `paper/figures/v3_fig*.{pdf,png}`, rewrite `paper/prism_ann.tex`, recompile `prism_ann_paper.pdf` & `prism_ann_arxiv_package.tar.gz` (`ADR-0004`, `ADR-0005`).
 
 ### Phase 20: Fresh Independent v3 Review & Submission Package: provenance-first audit, runtime Brake 2/3 reviews of v3 PDF & figures (ADR-0000, ADR-0004, ADR-0005)
 

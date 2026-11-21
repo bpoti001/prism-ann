@@ -1,58 +1,71 @@
-project: "Prism-ANN: Co-Designed SpiceDB ReBAC Upward Boundary Pruning and Ancestor-Stitched Filtered HNSW"
+project: "Prism-ANN: Co-Designed SpiceDB ReBAC Upward Boundary Pruning, Geometric Express Bridges, and Native SIMD Tri-Modal Filtered HNSW"
 domain: "Database Systems, Information Retrieval, Access Control in Vector Databases (VLDB / SIGMOD / SIGIR)"
 foundation_paper: "EngramRAG (arXiv:2609.32049)"
-status: "PHASE_14_CONFIRMATORY_V2_COMPLETE_AWAITING_PHASE_15_INDEPENDENT_REVIEW"
-current_loop: "MILESTONE_4_PHASE_14_COMPLETE"
-last_updated: "2026-11-20T15:35:00-06:00"
+status: "PHASE_19_CONFIRMATORY_V3_COMPLETE_AWAITING_PHASE_20_INDEPENDENT_REVIEW"
+current_loop: "MILESTONE_5_PHASE_19_COMPLETE"
+last_updated: "2026-11-21T08:46:00-06:00"
 confirmatory_run:
-  run_id: "v2-confirmatory-002"
-  git_sha: "c819e65963d0ad26cf99909766b6f8add4f4e868"
-  freeze_match: true
-  corpus: "BEIR Quora (N=522,931 passages, all-MiniLM-L6-v2 384-d, 9,985 disjoint held-out queries)"
-  raw_records: 62410
-  summary_path: "results/v2/summary.json"
-  deviations_path: "results/v2/DEVIATIONS.md"
+  run_id: "v3-confirmatory-001"
+  git_sha: "41868bbaf0b7354ee72aac16619e0562af297e7c"
+  freeze_v3_match: true
+  freeze_v2_match: true
+  corpora:
+    - "BEIR Quora (N=522,931 passages, all-MiniLM-L6-v2 384-d, reserved test queries [500..9,984], 9,485 disjoint)"
+    - "BEIR NQ Wikipedia (N=250,000 passages, all-MiniLM-L6-v2 384-d, 3,452 disjoint test queries)"
+  raw_records: 169810
+  summary_path: "results/v3/summary.json"
+  deviations_path: "results/v3/DEVIATIONS.md"
+  environment_path: "results/v3/ENVIRONMENT.md"
 
 hypotheses:
-  - id: "H1v2"
-    governing_adr: "ADR-0001, ADR-0004"
+  - id: "H1v3"
+    governing_adr: "ADR-0001, ADR-0004, ADR-0005"
     mapped_theorem: "Theorem 1 & Corollary 1"
     predictions:
-      P1a: "supported (0 doc / 0 chunk mismatches across 600 principals vs live SpiceDB v1.57.1)"
-      P1b: "supported (100.0% within k0 + m(b-1)L; med 76, max 296 tokens)"
-      P1c: "supported (226.5x local mirror: 0.310 ms vs 70.150 ms; 33.6x strict live ReadRelationships RPC: 2.089 ms, n=274 >=1k docs)"
-    protocol_path: "experiments/v2/PROTOCOL_v2.md"
+      P1a: "supported (0/600 memory + 0/600 persistent PostgreSQL 17 SpiceDB mismatches)"
+      P1b: "supported (100.0% within k0 + m(b-1)L; med 76, max 285 tokens)"
+      P1c: "supported (memory: 225.9x local / 29.1x live RPC; persistent PostgreSQL 17: 278.2x local / 28.2x live RPC; n=271 >=1k docs)"
+    protocol_path: "experiments/v3/PROTOCOL_v3.md"
 
-  - id: "H2v2"
-    governing_adr: "ADR-0002, ADR-0003, ADR-0004"
+  - id: "H2v3"
+    governing_adr: "ADR-0002, ADR-0003, ADR-0004, ADR-0005"
     mapped_theorem: "Propositions 2-4"
     predictions:
-      P2a: "supported (prism-graph-only beats faiss-hnsw-M16 by +22.25+-2.54 pts at S=0.1% and +23.49+-2.19 pts at S=0.5%)"
-      P2b: "falsified (prism-graph-only beats upstream C++ acorn-1 on Recall@10 at every S, +27.4 to +49.4 pts, but uses 1.04x-58.50x more distance evals because acorn-1 stalls early at 11.4 evals)"
-      P2c: "supported (prism-full Mode 3 exact scan: 100.00+-0.00% Recall@10 at S<=0.5%, completeness only)"
-    baseline_note: "hnswlib-M16 (99.34%-99.91% R@10, 4.4-131.5 ms) and pgvector-0.8.7 iterative scan (75.49%-97.51% R@10, 10.1-338.2 ms) outperform prism-graph-only (28.21%-80.69% R@10) on pure graph recall at high low-S latency."
-    protocol_path: "experiments/v2/PROTOCOL_v2.md"
+      P2a: "supported (Quora v3-geom-M8: 78.29% at S=0.5% [+56.22 vs FAISS, +21.88 vs v2 ring-chord], 85.99% at S=1.0%)"
+      P2b: "supported (v3-geom-M8 beats both upstream C++ acorn-1 and acorn-gamma g=4 across all S on both corpora at 0.143x extra L0 RAM)"
+      P2c: "supported (v3-full-guard-sq8: 100.00% R@10 at S<=1% on both corpora; 10.0x-30.8x faster than BLAS at S in {0.5%,1%}; 725x-2430x faster than pgvector/hnswlib at S=0.1%)"
+    protocol_path: "experiments/v3/PROTOCOL_v3.md"
 
-  - id: "H3v2"
-    governing_adr: "ADR-0002, ADR-0004"
-    mapped_theorem: "Propositions 2-3"
+  - id: "H3v3"
+    governing_adr: "ADR-0002, ADR-0003, ADR-0004, ADR-0005"
+    mapped_theorem: "Propositions 2-4"
     predictions:
-      P3a: "supported (at measured r<=0.5, n=735, prism-graph-only beats faiss-hnsw-M16 by +17.65+-3.09 pts: 23.34% vs 5.68%)"
-      P3b: "falsified (at measured r>=2.0, n=751, prism-graph-only uses 0.188x = 5.33x fewer dist evals than prism-static-2hop, 588.8 vs 3136.1, but Recall@10 drops -2.00 pts: 97.10% vs 99.09%, exceeding -1.0 pt tolerance)"
-    protocol_path: "experiments/v2/PROTOCOL_v2.md"
+      P3a: "supported (r<=0.5: v3-geom-M8 +49.00 pts Quora / +53.19 pts NQ vs FAISS; v3-full-guard-sq8 97.17% in 0.35ms Quora / 96.42% in 0.17ms NQ)"
+      P3b: "supported (r>=2.0: v3-geom-M8 cuts evals 3.82x Quora / 3.11x NQ vs static-2hop within -0.99 / -0.93 pt R@10)"
+    protocol_path: "experiments/v3/PROTOCOL_v3.md"
 
-  - id: "H4v2"
-    governing_adr: "ADR-0001, ADR-0004"
+  - id: "H4v3"
+    governing_adr: "ADR-0001, ADR-0004, ADR-0005"
     mapped_theorem: "Corollary 1"
     predictions:
-      P4a: "supported (0 vector writes, median 76.05 ms for SpiceDB DeleteRelationships + mirror + UBP + CRoaring over 1,024 docs / 153,600 chunks)"
-      P4b: "supported (real PostgreSQL 17.12 + pgvector 0.8.7 UPDATE on 153,600 rows takes 182,526.4 ms median = 2,400.1x slower)"
-    protocol_path: "experiments/v2/PROTOCOL_v2.md"
+      P4a: "supported (0 vector writes, median 67.28 ms on persistent PostgreSQL 17 SpiceDB over 1,024 docs / 153,600 chunks)"
+      P4b: "supported (real PostgreSQL 17 + pgvector 0.8.7 UPDATE takes 179,390.6 ms = 2,666.2x slower)"
+    protocol_path: "experiments/v3/PROTOCOL_v3.md"
+
+  - id: "H5v3"
+    governing_adr: "ADR-0002, ADR-0005"
+    mapped_theorem: "Proposition 3 (InitEntryPortals Ablation)"
+    predictions:
+      P5: "supported (0-portal H-HNSW v2 retains 101.0% / 102.3% / 101.0% of recall lift over FAISS M=16 across S<=1%; portals alone add -0.56 to +0.62 pts)"
+    protocol_path: "experiments/v3/PROTOCOL_v3.md"
 
 trajectory:
   - iteration: 1
     action: "V1_SUPERSEDED"
-    result: "Milestone 3 v1 evaluation superseded under ADR-0004 due to synthetic vectors, self-built baselines, and scripted review gates."
+    result: "Milestone 3 v1 evaluation superseded under ADR-0004."
   - iteration: 2
     action: "V2_CONFIRMATORY_FROZEN_RUN"
-    result: "Executed v2-confirmatory-002 on full 522,931 BEIR Quora MiniLM corpus across 3 seeds and all real engines (62,410 raw records, 9/9 provenance tests passing, 127/127 Brake-1 checks passing). 8 supported, 2 falsified (P2b, P3b). Ready for Phase 15 fresh independent review."
+    result: "Milestone 4 v2-confirmatory-002 (62,410 records, 8/10 supported, P2b & P3b falsified; Phase 15 review 5.5/10 identified 4 concrete engineering gaps)."
+  - iteration: 3
+    action: "V3_EXPLORATORY_DEV_AND_CONFIRMATORY_MULTI_CORPUS"
+    result: "Milestone 5 Phase 17 dev-split engineering (E1-E3) -> Phase 18 FREEZE_v3.md & PROTOCOL_v3.md -> Phase 19 v3-confirmatory-001 (169,810 records, 2 corpora, persistent Postgres SpiceDB, ACORN-1 & ACORN-gamma, 11/11 SUPPORTED, 238/238 Brake-1 checks passing). Ready for Phase 20 fresh independent pro review."
