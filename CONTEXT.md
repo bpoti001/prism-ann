@@ -38,6 +38,7 @@ All research and systems modules enforce **Deep Module boundaries** (small publi
 | **ADR-0002** | Ancestor-Stitched Express Bridges (`H-HNSW`) and Bitmask-`POPCNT` Adaptive `ACORN-GLS` Traversal | `accepted` | `src/modules/prism_ann/hnsw_gls.py` | [`docs/adr/0002-ancestor-stitched-filtered-hnsw-and-acorn-gls.md`](./docs/adr/0002-ancestor-stitched-filtered-hnsw-and-acorn-gls.md) | Section 3.2 — **Theorem 2** & **Theorem 3** |
 | **ADR-0003** | Lexicographic Ancestor-Magnet Z-Order Layout & Shard-Coupled Tri-Modal Query Planner | `accepted` | `src/modules/prism_ann/trimodal_planner.py` | [`docs/adr/0003-z-ordered-roaring-simd-tri-modal-planner.md`](./docs/adr/0003-z-ordered-roaring-simd-tri-modal-planner.md) | Section 3.3 — **Theorem 4** |
 | **ADR-0004** | Provenance-Verified, Real-Baseline Evaluation Protocol (Prism-ANN v2) | `accepted` | `bench/`, `results/v2/`, all Milestone 4 paper numbers | [`docs/adr/0004-provenance-verified-real-baseline-evaluation.md`](./docs/adr/0004-provenance-verified-real-baseline-evaluation.md) | Section 5 — Evaluation Methodology |
+| **ADR-0005** | Geometric Intra-Container Express Bridges (`H-HNSW v2`), Native C++ SIMD/CRoaring Kernel & Multi-Corpus Persistent-SpiceDB Evaluation | `accepted` | `src/modules/prism_ann/`, `bench/prism_ckernel.cpp`, `results/v3/` | [`docs/adr/0005-geometric-hhnsw-cpp-simd-and-multi-corpus-eval.md`](./docs/adr/0005-geometric-hhnsw-cpp-simd-and-multi-corpus-eval.md) | Sections 3.2, 4 & 5 — Milestone 5 (Option A) |
 
 ---
 
