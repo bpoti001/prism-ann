@@ -1,30 +1,28 @@
 #!/usr/bin/env python3
 """
-Brake 3 (v2): peer-review presence + manuscript-hash checker (ADR-0004)
-======================================================================
+Brake 3 (v2/v3): peer-review presence + manuscript-hash checker (ADR-0004/ADR-0005)
+===================================================================================
 This script does NOT review the paper and contains no scores or verdicts.
 
-Per ADR-0004 §7, the peer review is written at review time by a fresh reviewer agent
-that reads the compiled PDF.  This checker only verifies that
-`results/v2/review/peer_review.md` exists and records the SHA-256 of the current
-compiled manuscript (`paper/prism_ann.pdf`).  Recompiling the paper changes the hash
-and the check fails until the new PDF is re-reviewed.
-
-The v1 (Milestone 3) version of this script emitted a hardcoded recommendation and
-meta-score; it was removed in Phase 13 (see docs/adr/0004 and the session retrospective).
+Per ADR-0004 §7 and ADR-0005, the peer review is written at review time by a fresh
+reviewer agent that reads the compiled PDF. This checker verifies that
+`results/<version>/review/peer_review.md` exists and records the SHA-256 of the
+current compiled manuscript (`paper/prism_ann.pdf`). Recompiling the paper changes
+the hash and the check fails until the new PDF is re-reviewed.
 
 Exit 0 = review exists and references the current PDF hash; exit 1 otherwise.
 """
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import os
 import sys
 from typing import List, Tuple
 
 REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
-REVIEW_PATH = os.path.join(REPO_ROOT, "results", "v2", "review", "peer_review.md")
+DEFAULT_VERSION = "v3"
 PDF_PATH = os.path.join(REPO_ROOT, "paper", "prism_ann.pdf")
 
 
@@ -36,7 +34,13 @@ def sha256_file(path: str) -> str:
     return h.hexdigest()
 
 
-def check(review_path: str = REVIEW_PATH, pdf_path: str = PDF_PATH) -> Tuple[bool, List[str]]:
+def check(
+    review_path: str | None = None,
+    pdf_path: str = PDF_PATH,
+    version: str = DEFAULT_VERSION,
+) -> Tuple[bool, List[str]]:
+    if review_path is None:
+        review_path = os.path.join(REPO_ROOT, "results", version, "review", "peer_review.md")
     problems: List[str] = []
     if not os.path.exists(pdf_path):
         problems.append(f"missing compiled manuscript: {pdf_path}")
@@ -52,11 +56,15 @@ def check(review_path: str = REVIEW_PATH, pdf_path: str = PDF_PATH) -> Tuple[boo
     return not problems, problems
 
 
-def main() -> int:
-    print("Brake 3 (v2): peer review presence + manuscript SHA-256 check")
+def main(argv: List[str] | None = None) -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--version", choices=("v2", "v3"), default=DEFAULT_VERSION)
+    args = ap.parse_args(argv)
+    ver = args.version
+    print(f"Brake 3 ({ver}): peer review presence + manuscript SHA-256 check")
     if os.path.exists(PDF_PATH):
         print(f"  manuscript {os.path.relpath(PDF_PATH, REPO_ROOT)} sha256={sha256_file(PDF_PATH)}")
-    ok, problems = check()
+    ok, problems = check(version=ver)
     for p in problems:
         print(f"  [FAIL] {p}")
     print("  [PASS] peer_review.md references the current manuscript" if ok else "  Brake 3 check failed")
