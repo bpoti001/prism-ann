@@ -11,3 +11,4 @@ venv/
 bench/_build/
 data/beir/
 results/v2/raw_smoke/
+results/v3_dev/raw/

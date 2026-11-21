@@ -85,9 +85,9 @@ Plans:
 
 Plans:
 
-- [ ] 17-01: Implement Geometric Intra-Container & Intra-Magnet Bridges (`H-HNSW v2`) + Local-Stall Mode-3 Guard (`ADR-0002`, `ADR-0005`).
-- [ ] 17-02: Implement C++ NEON/`CRoaring` kernel (`bench/prism_ckernel.cpp` -> `libprism_ckernel.dylib`) for Mode 3 interval scan & C++ `H-HNSW`/`ACORN-GLS` traversal with `0 FP / 0 FN` parity unit tests (`ADR-0003`, `ADR-0005`).
-- [ ] 17-03: Run exploratory dev-split evaluation (`100k` BEIR Quora dev queries only, logged as `exploratory` in `results/run_ledger.md`): 4-way `InitEntryPortals` ablation (`E2`), geometric bridge degree/$\tau_{\text{high}}$ sweep, and C++ Mode-3 vs. BLAS latency proof (`ADR-0004`, `ADR-0005`).
+- [x] 17-01: Implement Geometric Intra-Container & Intra-Magnet Bridges (`H-HNSW v2`) + Local-Stall Mode-3 Guard (`ADR-0002`, `ADR-0005`).
+- [x] 17-02: Implement C++ NEON/`CRoaring` kernel (`bench/prism_ckernel.cpp` -> `libprism_ckernel.dylib`) for Mode 3 interval scan & C++ `H-HNSW`/`ACORN-GLS` traversal with `0 FP / 0 FN` parity unit tests (`ADR-0003`, `ADR-0005`).
+- [x] 17-03: Run exploratory dev-split evaluation (`100k` BEIR Quora dev queries only, logged as `exploratory` in `results/run_ledger.md`): 4-way `InitEntryPortals` ablation (`E2`), geometric bridge degree/$\tau_{\text{high}}$ sweep, and C++ Mode-3 vs. BLAS latency proof (`ADR-0004`, `ADR-0005`).
 
 ### Phase 18: v3 Algorithm Freeze & Pre-Registration: FREEZE_v3.md and experiments/v3/PROTOCOL_v3.md before confirmatory runs (ADR-0004, ADR-0005)
 
