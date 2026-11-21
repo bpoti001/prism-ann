@@ -98,7 +98,7 @@ Plans:
 
 Plans:
 
-- [ ] 18-01: Write and commit `FREEZE_v3.md` and `experiments/v3/PROTOCOL_v3.md` (`ADR-0004`, `ADR-0005`).
+- [x] 18-01: Write and commit `FREEZE_v3.md` and `experiments/v3/PROTOCOL_v3.md` (`ADR-0004`, `ADR-0005`).
 
 ### Phase 19: Single Frozen Multi-Corpus Confirmatory Evaluation (E4-E5): 2 real corpora, Postgres-backed SpiceDB, ACORN-1 & ACORN-gamma, FAISS, hnswlib, pgvector, v3 figures & paper rewrite (ADR-0001, ADR-0002, ADR-0003, ADR-0004, ADR-0005)
 
