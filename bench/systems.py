@@ -185,17 +185,23 @@ class Acorn1System:
         ef_search: int = 64,
         seed: int = 0,
         name: str = "acorn-1",
+        gamma: int = 1,
+        m_beta: Optional[int] = None,
     ):
         self.name = name
         self.ef_search = ef_search
+        self.gamma = int(gamma)
+        self.m_beta = int(m_beta) if m_beta is not None else int(M * 2 * max(1, gamma))
         self.lib = self._load_lib()
         N, d = X.shape
         self.N = N
-        rng = np.random.default_rng(20_000 + seed * 137)
+        rng = np.random.default_rng(20_000 + seed * 137 + self.gamma * 17)
         self.perm = rng.permutation(N).astype(np.int32)
 
         t0 = time.perf_counter()
-        self.handle = self.lib.acorn_create(d, M, 1, M * 2, N, int(seed), ef_construction)
+        self.handle = self.lib.acorn_create(
+            d, M, self.gamma, self.m_beta, N, int(seed), ef_construction
+        )
         X_perm = np.ascontiguousarray(X[self.perm], dtype=np.float32)
         self.lib.acorn_add(self.handle, N, X_perm.ctypes.data_as(ctypes.POINTER(ctypes.c_float)))
         self.build_sec = time.perf_counter() - t0

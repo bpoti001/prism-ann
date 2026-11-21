@@ -280,6 +280,145 @@ class SpiceDBService:
         )
 
 
+class SpiceDBPostgresService(SpiceDBService):
+    """
+    Native local SpiceDB gRPC instance backed by a real persistent PostgreSQL 17
+    datastore (`--datastore-engine postgres`, ADR-0005 / PROTOCOL_v3).
+    Runs `spicedb migrate head` before serving and tears down both daemons cleanly.
+    """
+
+    def __init__(self, key: str = "devkey"):
+        super().__init__(key=key)
+        self.pg_port = _free_port()
+        self.pg_dir = tempfile.mkdtemp(prefix="prism_v3_spicedb_pg_")
+        self.pg_started = False
+        self.conn_uri = (
+            f"postgres://postgres@127.0.0.1:{self.pg_port}/spicedb_store?sslmode=disable"
+        )
+
+    def __enter__(self) -> "SpiceDBPostgresService":
+        try:
+            subprocess.run(
+                [
+                    f"{PG_BIN_DIR}/initdb",
+                    "-D",
+                    self.pg_dir,
+                    "-U",
+                    "postgres",
+                    "--auth=trust",
+                    "--no-locale",
+                    "-E",
+                    "UTF8",
+                ],
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            opts = (
+                f"-p {self.pg_port} -k {self.pg_dir} -c listen_addresses=127.0.0.1 "
+                f"-c shared_buffers=256MB -c synchronous_commit=on"
+            )
+            subprocess.run(
+                [
+                    f"{PG_BIN_DIR}/pg_ctl",
+                    "-D",
+                    self.pg_dir,
+                    "-l",
+                    f"{self.pg_dir}/pg.log",
+                    "-o",
+                    opts,
+                    "start",
+                ],
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            self.pg_started = True
+            with psycopg.connect(
+                host="127.0.0.1",
+                port=self.pg_port,
+                user="postgres",
+                dbname="postgres",
+                autocommit=True,
+            ) as conn:
+                conn.execute("CREATE DATABASE spicedb_store;")
+
+            # Run real SpiceDB schema migration on PostgreSQL 17
+            subprocess.run(
+                [
+                    SPICEDB_BIN,
+                    "migrate",
+                    "head",
+                    "--datastore-engine",
+                    "postgres",
+                    "--datastore-conn-uri",
+                    self.conn_uri,
+                ],
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+
+            fd, self._stderr_path = tempfile.mkstemp(prefix="prism_v3_spicedb_pg_", suffix=".log")
+            self._stderr_file = os.fdopen(fd, "w+b")
+            self.proc = subprocess.Popen(
+                [
+                    SPICEDB_BIN,
+                    "serve",
+                    "--grpc-preshared-key",
+                    self.key,
+                    "--datastore-engine",
+                    "postgres",
+                    "--datastore-conn-uri",
+                    self.conn_uri,
+                    "--grpc-addr",
+                    f"127.0.0.1:{self.port}",
+                    "--http-enabled=false",
+                    "--metrics-enabled=false",
+                    "--dispatch-cluster-enabled=false",
+                    "--log-level=error",
+                ],
+                stdout=subprocess.DEVNULL,
+                stderr=self._stderr_file,
+            )
+            deadline = time.perf_counter() + 20.0
+            while time.perf_counter() < deadline:
+                if self.proc.poll() is not None:
+                    self._stderr_file.flush()
+                    self._stderr_file.seek(0)
+                    err = self._stderr_file.read().decode("utf-8", errors="replace")
+                    raise RuntimeError(f"SpiceDB(postgres) exited prematurely: {err}")
+                try:
+                    with socket.create_connection(("127.0.0.1", self.port), timeout=0.2):
+                        break
+                except OSError:
+                    time.sleep(0.05)
+            else:
+                raise RuntimeError("SpiceDB(postgres) failed to listen on gRPC port within 20s")
+
+            self.client = InsecureClient(f"127.0.0.1:{self.port}", self.key)
+            self.client.WriteSchema(WriteSchemaRequest(schema=ZANZIBAR_SCHEMA))
+            return self
+        except Exception:
+            self.close()
+            raise
+
+    def close(self) -> None:
+        super().close()
+        if self.pg_started:
+            try:
+                subprocess.run(
+                    [f"{PG_BIN_DIR}/pg_ctl", "-D", self.pg_dir, "-m", "immediate", "stop"],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    timeout=10,
+                )
+            except Exception:
+                pass
+            self.pg_started = False
+        shutil.rmtree(self.pg_dir, ignore_errors=True)
+
+
 class PostgresPgvectorService:
     """Native local PostgreSQL 17 + pgvector 0.8.7 instance with clean teardown."""
 
