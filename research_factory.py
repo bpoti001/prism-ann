@@ -684,12 +684,8 @@ def audit_paper() -> bool:
         ("Prism-ANN v3 Brake 3: peer_review.md exists + covers 12-page paper/prism_ann.pdf SHA-256",
          ["run_prism_scholarpeer_review.py", "--version", "v3"]),
     ]
-    # v1/legacy (Milestones 1-2 EngramRAG). Kept for history only; they do NOT gate Prism-ANN v3.
-    legacy = [
-        ("[v1/legacy] EngramRAG Brake 1: Zero-Hallucination Sensor", ["verify_hallucinations.py"]),
-        ("[v1/legacy] EngramRAG Brake 2: scripted figure critic (v1, not an evaluation)", ["run_paperviz_audit.py"]),
-        ("[v1/legacy] EngramRAG Brake 3: scripted review (v1, not an evaluation)", ["run_scholarpeer_review.py"]),
-    ]
+    # v1/legacy (Milestones 1-2 EngramRAG now located in ../engram/). Kept as optional informational checks if present.
+    legacy = []
     all_ok = ok_gov
     for group, gate in ((gating, True), (legacy, False)):
         for label, argv in group:
