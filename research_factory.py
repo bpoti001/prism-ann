@@ -581,7 +581,7 @@ def verify_governance() -> bool:
     print("==================================================================")
     errors = []
 
-    # Check core Software Factory + Autoresearch + GSD files
+    # Check core Software Factory + Autoresearch + GSD + Three-Tier Audience files
     required_files = [
         "CONTEXT.md",
         "GLOSSARY.md",
@@ -589,6 +589,13 @@ def verify_governance() -> bool:
         "findings.md",
         "research-log.md",
         "literature/survey.md",
+        "FREEZE.md",
+        "FREEZE_v3.md",
+        "FREEZE_v3_1.md",
+        "REVIEWER_AUDIT_REPORT.md",
+        "docs/ONBOARDING_NEW_GRAD.md",
+        "docs/ARCHITECTURE_SENIOR_ENGINEER.md",
+        "docs/RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md",
         ".planning/PROJECT.md",
         ".planning/REQUIREMENTS.md",
         ".planning/ROADMAP.md",
@@ -656,27 +663,32 @@ def verify_governance() -> bool:
 def audit_paper() -> bool:
     ok_gov = verify_governance()
     print("\n------------------------------------------------------------------")
-    print("  Running audit suite (v2 checks gate; v1/legacy scripts are informational)")
+    print("  Running audit suite (v2 + v3 + v3.1 + v3.2 checks gate; v1 scripts are informational)")
     print("------------------------------------------------------------------")
-    # v2 (ADR-0004) gating checks.  Brakes 2/3 are presence + SHA-256 checks of reviews
-    # written by a fresh reviewer at review time; no script emits scores or verdicts.
+    # v2/v3/v3.1/v3.2 (ADR-0004, ADR-0005, ADR-0006) gating checks. Brakes 2/3 are presence +
+    # SHA-256 checks of reviews written by a fresh independent reviewer at review time.
     gating = [
-        ("Prism-ANN v2 Provenance: recompute summary.json from raw records",
+        ("Prism-ANN v2 Provenance: recompute results/v2/summary.json from raw records",
          [os.path.join("bench", "recompute.py"), "--check", os.path.join("results", "v2", "summary.json")]),
+        ("Prism-ANN v3 Confirmatory Provenance (169,810 raw records)",
+         [os.path.join("bench", "recompute_v3.py"), "--check", os.path.join("results", "v3", "summary.json")]),
+        ("Prism-ANN v3.1 Reviewer Audit Provenance (22,533 raw records)",
+         [os.path.join("bench", "recompute_v3_1.py"), "--check", os.path.join("results", "v3", "reviewer_audit_v3_1.json")]),
+        ("Prism-ANN v3.2 Second-Round Audit Provenance (6,821 raw records)",
+         [os.path.join("bench", "recompute_v3_2.py"), "--check", os.path.join("results", "v3", "reviewer_audit_v3_2.json")]),
         ("Prism-ANN Blast Radius: Live UBP Zero-Leakage Proof", ["verify_blast_radius_ubp.py"]),
-        ("Prism-ANN v2 Brake 2: figure_review.md exists + covers current figure SHA-256",
-         ["run_prism_paperviz_audit.py"]),
-        ("Prism-ANN v2 Brake 3: peer_review.md exists + covers current PDF SHA-256",
-         ["run_prism_scholarpeer_review.py"]),
+        ("Prism-ANN v3/v3.1/v3.2 Brake 1: Raw-Record Provenance & Zero-Hallucination Sensor",
+         ["verify_prism_hallucinations.py"]),
+        ("Prism-ANN v3 Brake 2: figure_review.md exists + covers all 12 v3_fig1..6 SHA-256 hashes",
+         ["run_prism_paperviz_audit.py", "--version", "v3"]),
+        ("Prism-ANN v3 Brake 3: peer_review.md exists + covers 12-page paper/prism_ann.pdf SHA-256",
+         ["run_prism_scholarpeer_review.py", "--version", "v3"]),
     ]
-    # v1/legacy (Milestones 1-3).  Kept for history only; they do NOT gate v2.  The v1
-    # Prism Brake 1 checks numbers against the superseded v1 results JSON, and the
-    # EngramRAG Brake 2/3 scripts are v1 scripted reviews.
+    # v1/legacy (Milestones 1-2 EngramRAG). Kept for history only; they do NOT gate Prism-ANN v3.
     legacy = [
         ("[v1/legacy] EngramRAG Brake 1: Zero-Hallucination Sensor", ["verify_hallucinations.py"]),
         ("[v1/legacy] EngramRAG Brake 2: scripted figure critic (v1, not an evaluation)", ["run_paperviz_audit.py"]),
         ("[v1/legacy] EngramRAG Brake 3: scripted review (v1, not an evaluation)", ["run_scholarpeer_review.py"]),
-        ("[v1/legacy] Prism-ANN v1 Brake 1 (checks superseded v1 numbers)", ["verify_prism_hallucinations.py"]),
     ]
     all_ok = ok_gov
     for group, gate in ((gating, True), (legacy, False)):
@@ -694,7 +706,7 @@ def audit_paper() -> bool:
                 else:
                     print(f"  (legacy script exited {res.returncode}; informational only)")
     print("\n==================================================================")
-    print(f"  AUDIT RESULT (v2 gates): {'PASSED (EXIT 0)' if all_ok else 'FAILED (EXIT 1)'}")
+    print(f"  AUDIT RESULT (v2/v3/v3.1/v3.2 gates): {'PASSED (EXIT 0)' if all_ok else 'FAILED (EXIT 1)'}")
     print("==================================================================")
     return all_ok
 

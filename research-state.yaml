@@ -1,9 +1,9 @@
 project: "Prism-ANN: Co-Designed SpiceDB ReBAC Upward Boundary Pruning, Geometric Express Bridges, and Native SIMD Tri-Modal Filtered HNSW"
 domain: "Database Systems, Information Retrieval, Access Control in Vector Databases (VLDB / SIGMOD / SIGIR)"
 foundation_paper: "EngramRAG (arXiv:2609.32049)"
-status: "PHASE_19_CONFIRMATORY_V3_COMPLETE_AWAITING_PHASE_20_INDEPENDENT_REVIEW"
-current_loop: "MILESTONE_5_PHASE_19_COMPLETE"
-last_updated: "2026-11-21T08:46:00-06:00"
+status: "MILESTONE_6_PHASE_22_V3_2_COMPLETE_AND_APPROVED"
+current_loop: "MILESTONE_6_PHASE_22_COMPLETE"
+last_updated: "2026-11-23T09:47:00-06:00"
 confirmatory_run:
   run_id: "v3-confirmatory-001"
   git_sha: "41868bbaf0b7354ee72aac16619e0562af297e7c"
@@ -17,10 +17,32 @@ confirmatory_run:
   deviations_path: "results/v3/DEVIATIONS.md"
   environment_path: "results/v3/ENVIRONMENT.md"
 
+reviewer_audit_v3_1:
+  run_id: "v3.1-reviewer-audit-001"
+  git_sha: "e39260a9387d04628d306478fc566b7fc0cc2040"
+  git_dirty: false
+  freeze_v3_1_match: true
+  freeze_v3_1_files: 8
+  raw_records: 22533
+  raw_jsonl_path: "results/v3_1_audit/raw/v3_1_reviewer_audit.jsonl"
+  summary_path: "results/v3/reviewer_audit_v3_1.json"
+  protocol_path: "experiments/v3/PROTOCOL_v3_1.md"
+
+reviewer_audit_v3_2:
+  run_id: "v3.2-reviewer-audit-001"
+  git_sha: "a435babd9f67213a0ef6aeef8d3e98b7581a8678"
+  git_dirty: false
+  freeze_v3_1_match: true
+  freeze_v3_1_files: 8
+  raw_records: 6821
+  raw_jsonl_path: "results/v3_2_audit/raw/v3_2_reviewer_audit.jsonl"
+  summary_path: "results/v3/reviewer_audit_v3_2.json"
+  protocol_path: "experiments/v3/PROTOCOL_v3_2.md"
+
 hypotheses:
   - id: "H1v3"
     governing_adr: "ADR-0001, ADR-0004, ADR-0005"
-    mapped_theorem: "Theorem 1 & Corollary 1"
+    mapped_theorem: "Theorem 1, Theorem 2 & Corollary 1"
     predictions:
       P1a: "supported (0/600 memory + 0/600 persistent PostgreSQL 17 SpiceDB mismatches)"
       P1b: "supported (100.0% within k0 + m(b-1)L; med 76, max 285 tokens)"
@@ -59,6 +81,26 @@ hypotheses:
       P5: "supported (0-portal H-HNSW v2 retains 101.0% / 102.3% / 101.0% of recall lift over FAISS M=16 across S<=1%; portals alone add -0.56 to +0.62 pts)"
     protocol_path: "experiments/v3/PROTOCOL_v3.md"
 
+  - id: "R1_R5_v3_1"
+    governing_adr: "ADR-0001, ADR-0002, ADR-0003, ADR-0005, ADR-0006"
+    mapped_theorem: "Theorem 1, Corollary 1, Propositions 2-4"
+    predictions:
+      PR1: "supported (10,000 randomized hierarchy/deny trials: 0 FP, 0 FN, 0 Theorem 1 bound violations; max 168 <= bound 172)"
+      PR2: "supported (S=0.01% ultra-low selectivity: v3-geom-M8 73.73% Quora / 74.47% NQ vs ACORN-1 1.70% / 4.90%; v3-full-guard-sq8 100.00% in 0.036 ms, 0 leaks)"
+      PR3: "supported (2x2x2 Mode-3 component isolation under 64 MB cache eviction at S=1%: 23.62x total = 2.37x Z-order * 2.86x SQ8 * 3.49x ARM NEON vdotq_s32; warm cache 14.12x)"
+      PR4: "supported (Revocation scaling 1k..1.05M chunks flat 64.61-71.09 ms on PostgreSQL 17 SpiceDB; 16-thread ZedToken race: 0/18,412 post-zeta2 leaks across 36,881 concurrent queries)"
+      PR5: "supported (50k dynamic vector stream in 5x10k batches: 5.33-6.21 us/vec append, 0.068-0.219 ms delta scan, 55.66-63.48 ms C++ CSR remap, 100.00% R@10 pre/post compaction)"
+    protocol_path: "experiments/v3/PROTOCOL_v3_1.md"
+
+  - id: "R6_R8_v3_2"
+    governing_adr: "ADR-0001, ADR-0002, ADR-0003, ADR-0005, ADR-0006"
+    mapped_theorem: "Theorem 1 (Tree Bound) & Theorem 2 (Multi-Parent DAG Exactness), Propositions 2-4"
+    predictions:
+      PR6: "supported (5,000 multi-parent DAGs with mean 1,170.0 secondary parent edges/DAG & conflicting GRANT/DENY diamond inheritance: 0/5,000 mismatches [Theorem 2]; 243/5,000 [4.86%] exceed single-parent tree formula k0+m(b-1)L [max 135 vs 122], validating Theorem 1 vs Theorem 2 split)"
+      PR7: "falsified on fragmented-L5 sub-criterion (standard hierarchy: Track-1 v3-full-guard-sq8 0.0363-0.4527 ms beats exact-brute-force 0.5238-1.2784 ms by 2.8-14.4x; fragmented L5-only grants collapse Z-order contiguous speedup to 1.00-1.08x)"
+      PR8: "falsified on strict >=99.0% empirical cutoff at S>=0.1% (v3-full-guard-f32 achieves 100.00% Exact Recall@10 across all S; SQ8+M_rerank=64 achieves 100.00% mathematical guarantee at S=0.01% [N_cand=52<=64] and 98.17%-98.70% vs pure FP32 Mode 3 at S in [0.1%,1.0%])"
+    protocol_path: "experiments/v3/PROTOCOL_v3_2.md"
+
 trajectory:
   - iteration: 1
     action: "V1_SUPERSEDED"
@@ -68,4 +110,10 @@ trajectory:
     result: "Milestone 4 v2-confirmatory-002 (62,410 records, 8/10 supported, P2b & P3b falsified; Phase 15 review 5.5/10 identified 4 concrete engineering gaps)."
   - iteration: 3
     action: "V3_EXPLORATORY_DEV_AND_CONFIRMATORY_MULTI_CORPUS"
-    result: "Milestone 5 Phase 17 dev-split engineering (E1-E3) -> Phase 18 FREEZE_v3.md & PROTOCOL_v3.md -> Phase 19 v3-confirmatory-001 (169,810 records, 2 corpora, persistent Postgres SpiceDB, ACORN-1 & ACORN-gamma, 11/11 SUPPORTED, 238/238 Brake-1 checks passing). Ready for Phase 20 fresh independent pro review."
+    result: "Milestone 5 Phase 17 dev-split engineering (E1-E3) -> Phase 18 FREEZE_v3.md & PROTOCOL_v3.md -> Phase 19 v3-confirmatory-001 (169,810 records, 2 corpora, persistent Postgres SpiceDB, ACORN-1 & ACORN-gamma, 11/11 SUPPORTED) -> Phase 20 independent review (7.5/10 READY / ACCEPT)."
+  - iteration: 4
+    action: "V3_1_FIRST_ROUND_EXTERNAL_REVIEWER_AUDIT"
+    result: "Milestone 6 Phase 21 FREEZE_v3_1.md (8/8) & PROTOCOL_v3_1.md -> v3.1-reviewer-audit-001 (22,533 raw records across R1-R5, 5/5 SUPPORTED, 0/18,412 post-revocation leaks across 36,881 concurrent queries) -> independent review (8.5/10 APPROVED)."
+  - iteration: 5
+    action: "V3_2_SECOND_ROUND_AUDIT_THEORY_SPLIT_AND_3TIER_DOCS"
+    result: "Milestone 6 Phase 22 PROTOCOL_v3_2.md -> v3.2-reviewer-audit-001 (6,821 raw records across R6-R8, PR6 supported, PR7/PR8 falsified transparently on strict fragmented-L5/99% cutoffs) -> Theorem 1/Theorem 2 split, RACORN & EMA (Nov. 2026) citations, 3-Tier Audience Documentation Suite -> independent review (8.8/10 APPROVED, 0 blockers)."

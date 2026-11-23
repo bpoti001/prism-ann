@@ -335,6 +335,28 @@ def verify() -> bool:
         ):
             check(tok in nov_txt, f"RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md contains {tok}", f"RESEARCH_AUDIT missing {tok}")
 
+        r7_by_s = r7["by_selectivity"]
+        r8_by_s = r8["by_selectivity"]
+        v32_tex_checks = [
+            ("Theorem 1 label", r"\label{thm:ubp_bound}"),
+            ("Theorem 2 multi-parent DAG label", r"\label{thm:ubp_dag_exactness}"),
+            ("R6 0/5,000 multi-parent DAG mismatches", f"{r6['total_mismatches']}/{r6['total_dag_trials']:,}".replace(",", "{,}")),
+            ("R6 mean secondary edges/DAG", f"{r6['mean_secondary_edges_per_dag']:,.1f}".replace(",", "{,}")),
+            ("R7 S=0.01% v3-geom-M8 R@10", f"{r7_by_s['0.0001']['systems']['v3-geom-M8']['recall_pct']:.1f}\\%"),
+            ("R7 S=0.1% v3-geom-M8 R@10", f"{r7_by_s['0.001']['systems']['v3-geom-M8']['recall_pct']:.1f}\\%"),
+            ("R7 S=0.5% v3-geom-M8 R@10", f"{r7_by_s['0.005']['systems']['v3-geom-M8']['recall_pct']:.1f}\\%"),
+            ("R7 S=1.0% v3-geom-M8 R@10", f"{r7_by_s['0.01']['systems']['v3-geom-M8']['recall_pct']:.1f}\\%"),
+            ("R7 S=5.0% v3-geom-M8 R@10", f"{r7_by_s['0.05']['systems']['v3-geom-M8']['recall_pct']:.1f}\\%"),
+            ("R7 S=0.01% PG E2E speedup vs FAISS", f"{r7_by_s['0.0001']['systems']['v3-full-guard-f32']['speedup_e2e_pg_vs_faiss']:.2f}\\times"),
+            ("R7 S=0.01% mirror E2E speedup vs FAISS", f"{r7_by_s['0.0001']['systems']['v3-full-guard-f32']['speedup_e2e_mirror_vs_faiss']:.2f}\\times"),
+            ("R8 S=0.01% exact FP32 Mode-3 ms", f"{r8_by_s['0.0001']['exact_f32_med_ms']:.4f}"),
+            ("R8 S=0.1% exact FP32 Mode-3 ms", f"{r8_by_s['0.001']['exact_f32_med_ms']:.4f}"),
+            ("R8 S=1.0% exact FP32 Mode-3 ms", f"{r8_by_s['0.01']['exact_f32_med_ms']:.4f}"),
+        ]
+        for label, tex_tok in v32_tex_checks:
+            check(tex_tok in tex, f"paper/prism_ann.tex contains v3.2 {label} ({tex_tok})",
+                  f"paper/prism_ann.tex missing v3.2 {label}: {tex_tok}")
+
     print(f"\nSUMMARY: {passed} checks passed, {len(errors)} errors.")
     return len(errors) == 0
 

@@ -205,6 +205,103 @@ class TestFreezeAndAudits(unittest.TestCase):
             with open(os.path.join(d, "CONTEXT.md")) as f:
                 self.assertNotEqual(f.read(), "sentinel")
 
+    def test_frozen_files_match_freeze_v3_and_v3_1_md(self):
+        from bench import harness_v3, recompute_v3_1
+
+        st3 = harness_v3.freeze_v3_status()
+        self.assertEqual(st3["n_files"], 7)
+        self.assertTrue(st3["match"], st3["mismatches"])
+
+        st31 = recompute_v3_1.freeze_v3_1_status()
+        self.assertEqual(st31["n_files"], 8)
+        self.assertTrue(st31["match"], st31["mismatches"])
+
+    def test_v3_and_reviewer_audit_summaries_match_raw_exactly(self):
+        from bench import recompute_v3, recompute_v3_1, recompute_v3_2
+
+        raw_v3 = os.path.join(REPO_ROOT, "results", "v3", "raw")
+        sum_v3 = os.path.join(REPO_ROOT, "results", "v3", "summary.json")
+        if os.path.isdir(raw_v3) and os.path.exists(sum_v3):
+            with open(sum_v3, "r", encoding="utf-8") as f:
+                self.assertEqual(f.read(), recompute.dumps_summary(recompute_v3.recompute_v3_summary(raw_v3)))
+
+        raw_v31 = os.path.join(REPO_ROOT, "results", "v3_1_audit", "raw", "v3_1_reviewer_audit.jsonl")
+        sum_v31 = os.path.join(REPO_ROOT, "results", "v3", "reviewer_audit_v3_1.json")
+        if os.path.exists(raw_v31) and os.path.exists(sum_v31):
+            with open(sum_v31, "r", encoding="utf-8") as f:
+                self.assertEqual(f.read(), recompute.dumps_summary(recompute_v3_1.recompute_v3_1_summary(raw_v31)))
+
+        raw_v32 = os.path.join(REPO_ROOT, "results", "v3_2_audit", "raw", "v3_2_reviewer_audit.jsonl")
+        sum_v32 = os.path.join(REPO_ROOT, "results", "v3", "reviewer_audit_v3_2.json")
+        if os.path.exists(raw_v32) and os.path.exists(sum_v32):
+            with open(sum_v32, "r", encoding="utf-8") as f:
+                self.assertEqual(f.read(), recompute.dumps_summary(recompute_v3_2.recompute_v3_2_summary(raw_v32)))
+
+    def test_theorem2_multiparent_diamond_dag_deny_dominates_grant(self):
+        """Theorem 2: UBP achieves 0 FP and 0 FN on multi-parent diamond DAGs with conflicting GRANT/DENY paths."""
+        from src.modules.prism_ann.ubp_resolver import ZanzibarAuthGraph
+
+        g = ZanzibarAuthGraph(branching_factor=3, depth=3)
+        for nid, lvl in (("org_root", 0), ("dept_A", 1), ("dept_B", 1),
+                         ("proj_clean", 2), ("proj_shared", 2), ("proj_b_only", 2)):
+            g.add_node(nid, depth_level=lvl, is_leaf=False)
+        for doc_id in ("doc_clean_1", "doc_clean_2", "doc_shared_1", "doc_b_1", "doc_multiparent_conflict"):
+            g.add_node(doc_id, depth_level=3, is_leaf=True)
+
+        # Diamond topology: org_root -> {dept_A, dept_B}; both dept_A and dept_B are parents of proj_shared!
+        g.add_hierarchy_edge("org_root", "dept_A")
+        g.add_hierarchy_edge("org_root", "dept_B")
+        g.add_hierarchy_edge("dept_A", "proj_clean")
+        g.add_hierarchy_edge("dept_A", "proj_shared")
+        g.add_hierarchy_edge("dept_B", "proj_shared")  # secondary parent edge creating diamond
+        g.add_hierarchy_edge("dept_B", "proj_b_only")
+        # Documents with single and multiple container parents
+        g.add_hierarchy_edge("proj_clean", "doc_clean_1")
+        g.add_hierarchy_edge("proj_clean", "doc_clean_2")
+        g.add_hierarchy_edge("proj_shared", "doc_shared_1")
+        g.add_hierarchy_edge("proj_b_only", "doc_b_1")
+        # Multi-parent document attached to both proj_clean (granted) and proj_b_only (denied)
+        g.add_hierarchy_edge("proj_clean", "doc_multiparent_conflict")
+        g.add_hierarchy_edge("proj_b_only", "doc_multiparent_conflict")
+
+        # Principal u1 has GRANT on dept_A and DENY on dept_B:
+        # Under Deny-Dominates-Grant, proj_shared and doc_multiparent_conflict are reachable from dept_B (DENY),
+        # so ONLY {doc_clean_1, doc_clean_2} may be authorized!
+        g.grant_access("u1", "dept_A")
+        g.add_deny_exclusion("u1", "dept_B")
+
+        oracle_docs = g.lookup_resources_leaf("u1")
+        self.assertEqual(oracle_docs, {"doc_clean_1", "doc_clean_2"})
+
+        ubp_res = g.upward_boundary_prune("u1")
+        ubp_docs = (g.get_descendants(ubp_res.tokens_pos) - g.get_descendants(ubp_res.tokens_neg)) & g.leaf_documents
+        self.assertEqual(ubp_docs, oracle_docs)
+        self.assertEqual(ubp_res.tokens_pos, {"dept_A"})
+        self.assertIn("dept_B", ubp_res.tokens_neg)
+
+        # Case B: Principal u2 has GRANT on org_root and DENY on diamond child proj_shared
+        # Both dept_A and dept_B are ancestors of proj_shared, so both are tainted and split!
+        g.grant_access("u2", "org_root")
+        g.add_deny_exclusion("u2", "proj_shared")
+        oracle_u2 = g.lookup_resources_leaf("u2")
+        self.assertEqual(oracle_u2, {"doc_clean_1", "doc_clean_2", "doc_b_1", "doc_multiparent_conflict"})
+        ubp_u2 = g.upward_boundary_prune("u2")
+        ubp_u2_docs = (g.get_descendants(ubp_u2.tokens_pos) - g.get_descendants(ubp_u2.tokens_neg)) & g.leaf_documents
+        self.assertEqual(ubp_u2_docs, oracle_u2)
+        self.assertEqual(ubp_u2.tainted_containers, {"org_root", "dept_A", "dept_B"})
+        self.assertEqual(ubp_u2.tokens_pos, {"proj_clean", "proj_b_only"})
+
+    def test_governance_and_gsd_alignment_100_percent(self):
+        import research_factory as rf
+
+        report = rf.validate_gsd_planning()
+        self.assertTrue(report["aligned"], report["errors"])
+        self.assertEqual(report["phase_count"], 22)
+        self.assertEqual(report["completed_phases"], 22)
+        self.assertEqual(report["progress_percent"], 100)
+        with redirect_stdout(io.StringIO()):
+            self.assertTrue(rf.verify_governance())
+
 
 if __name__ == "__main__":
     unittest.main()

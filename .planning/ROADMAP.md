@@ -27,102 +27,24 @@ This GSD roadmap governs both foundational milestones of the **EngramRAG** agent
 - [x] **Phase 11: 10-Baseline Empirical Benchmark Suite & Academic Plotting (Hydrogen High)** - Execute `H1`–`H4` benchmarks across 10 systems/ablations (`B1..B7`, `Ablation 1..2`, `Prism-ANN Full`) and render 4 dual-panel vector PDF figures (`ADR-0001`, `ADR-0002`, `ADR-0003`).
 - [x] **Phase 12: Neon Gate-6 Adversarial Review, 376-Scenario Blast Radius Proof & Camera-Ready arXiv Bundle (Neon High & Overseer)** - Execute Thermo-Nuclear Code Judo, 376-scenario Blast Radius proof, 258-check Zero-Hallucination sensor, PaperVizAgent (`97.72/100`), ScholarPeer (`9.0/10`), compile 11-page `prism_ann_paper.pdf`, and push nudges `ENH-0006`–`ENH-0009` to Software Factory (`ADR-0000`, `ADR-0001`, `ADR-0002`, `ADR-0003`).
 
-### Phase 13: Pipeline Integrity Fixes: provenance harness, remove scripted Brake 2/3 scores, guard destructive init (ADR-0000, ADR-0004)
+### Milestone 4: Prism-ANN v2 — Provenance-Verified Real-Baseline Confirmatory Evaluation (Complete)
 
-**Goal:** Close the v1 failure modes structurally before any v2 measurement (`ADR-0004`).
-**Requirements**: INT-01 raw-record harness + recompute; INT-02 no literal scores or verdicts in audit scripts; INT-03 `init-prism-ann --force` guard; INT-04 honest model labels
-**Depends on:** Phase 12
-**Plans:** 3 plans
+- [x] **Phase 13: Pipeline Integrity Fixes: provenance harness, remove scripted Brake 2/3 scores, guard destructive init** - Raw-record JSONL harness + deterministic `recompute.py`, artifact SHA-256 verification gates, and `--force` init guard (`ADR-0000`, `ADR-0004`).
+- [x] **Phase 14: Real-Baseline Confirmatory Evaluation: BEIR Quora + MiniLM, FAISS/ACORN/hnswlib/pgvector, real SpiceDB, frozen algorithm** - Single frozen confirmatory evaluation (`v2-confirmatory-002`) over 522,931 BEIR Quora passages and real engines (`ADR-0001`, `ADR-0002`, `ADR-0003`, `ADR-0004`).
+- [x] **Phase 15: Fresh Independent Review: provenance-first audit, runtime Brake 2/3 reviews of PDF and figures** - Fresh independent reviewer audit (`5.5/10`) identifying four data-plane/corpus requirements for Milestone 5 (`ADR-0000`, `ADR-0004`).
+- [x] **Phase 16: Factory Overseer: ENH-0013..0016 provenance sensors, honest model labels, local PR package for human review** - Codify provenance sensors `ENH-0013`–`ENH-0016` in `/Users/tejap/software_factory` (`ADR-0000`, `ADR-0004`).
 
-Plans:
+### Milestone 5: Prism-ANN v3 — Geometric H-HNSW v2, Native C++ ARM NEON Kernel & Multi-Corpus Persistent-SpiceDB Evaluation (Complete)
 
-- [x] 13-01: `bench/harness.py` (raw JSONL per query) + `bench/recompute.py` (bit-for-bit summary) + unit tests (`ADR-0004`).
-- [x] 13-02: Strip literal scores/verdicts from `run_prism_paperviz_audit.py` / `run_prism_scholarpeer_review.py`; turn them into checks that review files exist and match artifact SHA-256 (`ADR-0004`).
-- [x] 13-03: Guard `research_factory.py init-prism-ann` with `--force`; replace Argon/Hydrogen/Neon labels with the actual invoked model options (`ADR-0000`).
+- [x] **Phase 17: Exploratory Dev-Split Engineering (E1-E3): Geometric H-HNSW v2 bridges, local-stall Mode-3 guard, 4-way InitEntryPortals ablation, C++ NEON/CRoaring kernel** - Implement Vamana/RNG geometric intra-container/magnet bridges (`M_bridge=8`), Local-Stall Mode-3 Guard, and `bench/prism_ckernel.cpp` (`ADR-0002`, `ADR-0003`, `ADR-0005`).
+- [x] **Phase 18: v3 Algorithm Freeze & Pre-Registration: FREEZE_v3.md and experiments/v3/PROTOCOL_v3.md before confirmatory runs** - Lock `7/7` algorithm/kernel SHA-256 hashes in `FREEZE_v3.md` and pre-register `H1v3`–`H5v3` (`11` predictions `P1a`–`P5`) (`ADR-0004`, `ADR-0005`).
+- [x] **Phase 19: Single Frozen Multi-Corpus Confirmatory Evaluation (E4-E5): 2 real corpora, Postgres-backed SpiceDB, ACORN-1 & ACORN-gamma, FAISS, hnswlib, pgvector, v3 figures & paper rewrite** - Execute frozen 3-seed run `v3-confirmatory-001` (`169,810` raw records, `11/11` predictions supported) across BEIR Quora (`522,931`) and BEIR NQ (`200,000`) (`ADR-0001`, `ADR-0002`, `ADR-0003`, `ADR-0004`, `ADR-0005`).
+- [x] **Phase 20: Fresh Independent v3 Review & Submission Package: provenance-first audit, runtime Brake 2/3 reviews of v3 PDF & figures** - Independent `pro` review sign-off (`7.5/10 READY / ACCEPT`, `0` blockers) and factory sensors `ENH-0017`–`ENH-0019` (`ADR-0000`, `ADR-0004`, `ADR-0005`).
 
-### Phase 14: Real-Baseline Confirmatory Evaluation: BEIR Quora + MiniLM, FAISS/ACORN/hnswlib/pgvector, real SpiceDB, frozen algorithm (ADR-0001, ADR-0002, ADR-0003, ADR-0004)
+### Milestone 6: Prism-ANN v3.1 & v3.2 — Two-Round External Reviewer Audit (`R1`–`R8`), Multi-Parent DAG Exactness (`Theorem 2`), Two-Track Fairness & Three-Tier Audience Suite (Complete)
 
-**Goal:** Run the one confirmatory evaluation in `experiments/v2/PROTOCOL_v2.md` at the frozen SHA in `FREEZE.md`, on real data and real engines (`ADR-0001`, `ADR-0002`, `ADR-0003`, `ADR-0004`).
-**Requirements**: EVAL2-01 BEIR Quora + MiniLM corpus/queries; EVAL2-02 real baselines (FAISS HNSW+IDSelector, FAISS ACORN if present, hnswlib, pgvector 0.8); EVAL2-03 real SpiceDB oracle + timing; EVAL2-04 3 seeds + CIs; EVAL2-05 deviations table
-**Depends on:** Phase 13
-**Plans:** 4 plans
-
-Plans:
-
-- [x] 14-01: Environment: `faiss-cpu`, `sentence-transformers`, `psycopg`, `authzed`; Homebrew `spicedb`, `postgresql`, `pgvector`; record versions in `results/v2/ENVIRONMENT.md` (`ADR-0004`).
-- [x] 14-02: Dataset build: BEIR Quora download, MiniLM encoding (cached `.npy`), hierarchy overlays (random + cluster-aligned), exact ground truth (`ADR-0004`).
-- [x] 14-03: Smoke run on a 20k subset (ledger: smoke), then the single confirmatory run H1v2–H4v2 (ledger: confirmatory) (`ADR-0001`, `ADR-0002`, `ADR-0003`).
-- [x] 14-04: Figures and paper §5 rewritten from `results/v2/summary.json` only. Rename to "Zanzibar-style ReBAC" if SpiceDB isn't the measured path. Theorems 2–4 become propositions. Add a Protocol Deviations table (`ADR-0004`).
-
-### Phase 15: Fresh Independent Review: provenance-first audit, runtime Brake 2/3 reviews of PDF and figures (ADR-0000, ADR-0004)
-
-**Goal:** A reviewer with no prior context audits provenance first, then writes Brake 2/3 reviews by reading the compiled PDF and figures (`ADR-0000`, `ADR-0004`).
-**Requirements**: REV2-01 trace 3+ headline numbers to code + raw records; REV2-02 rerun `bench/recompute.py`; REV2-03 written figure/peer reviews with no pre-set scores
-**Depends on:** Phase 14
-**Plans:** 1 plan
-
-Plans:
-
-- [x] 15-01: Provenance-first audit + runtime reviews -> `results/v2/review/` (`ADR-0004`).
-
-### Phase 16: Factory Overseer: ENH-0013..0016 provenance sensors, honest model labels, local PR package for human review (ADR-0000, ADR-0004)
-
-**Goal:** Encode the retrospective's lessons as factory sensors and prepare the branch for human review, without pushing (`ADR-0000`, `ADR-0004`).
-**Requirements**: FAC-01 ENH-0013 dynamic report interpolation; FAC-02 ENH-0014 raw-record provenance sensor; FAC-03 ENH-0015 literal-score sensor; FAC-04 ENH-0016 honest model routing; FAC-05 one test per sensor; FAC-06 local PR description
-**Depends on:** Phase 13 (runs in parallel with 14–15)
-**Plans:** 1 plan
-
-Plans:
-
-- [x] 16-01: Implement and test ENH-0013..0016 on `feat/research-factory-enhancements`; write `PR_DESCRIPTION.md` for human review (`ADR-0000`).
-
-### Phase 17: Exploratory Dev-Split Engineering (E1-E3): Geometric H-HNSW v2 bridges, local-stall Mode-3 guard, 4-way InitEntryPortals ablation, C++ NEON/CRoaring kernel (ADR-0002, ADR-0003, ADR-0005)
-
-**Goal:** Close Phase 15 peer-review technical gaps on a held-out dev split before freezing v3 (`ADR-0002`, `ADR-0003`, `ADR-0005`).
-**Requirements**: E1 geometric intra-container/magnet k-NN bridges + local-stall Mode-3 guard; E2 4-way InitEntryPortals ablation; E3 C++ NEON/CRoaring Mode-3 & H-HNSW kernel (`bench/prism_ckernel.cpp`) + parity tests; dev-split tau_high calibration
-**Depends on:** Phase 16
-**Plans:** 3 plans
-
-Plans:
-
-- [x] 17-01: Implement Geometric Intra-Container & Intra-Magnet Bridges (`H-HNSW v2`) + Local-Stall Mode-3 Guard (`ADR-0002`, `ADR-0005`).
-- [x] 17-02: Implement C++ NEON/`CRoaring` kernel (`bench/prism_ckernel.cpp` -> `libprism_ckernel.dylib`) for Mode 3 interval scan & C++ `H-HNSW`/`ACORN-GLS` traversal with `0 FP / 0 FN` parity unit tests (`ADR-0003`, `ADR-0005`).
-- [x] 17-03: Run exploratory dev-split evaluation (`100k` BEIR Quora dev queries only, logged as `exploratory` in `results/run_ledger.md`): 4-way `InitEntryPortals` ablation (`E2`), geometric bridge degree/$\tau_{\text{high}}$ sweep, and C++ Mode-3 vs. BLAS latency proof (`ADR-0004`, `ADR-0005`).
-
-### Phase 18: v3 Algorithm Freeze & Pre-Registration: FREEZE_v3.md and experiments/v3/PROTOCOL_v3.md before confirmatory runs (ADR-0004, ADR-0005)
-
-**Goal:** Lock final v3 algorithm hashes (`src/modules/prism_ann/*.py` + `bench/prism_ckernel.cpp`) in `FREEZE_v3.md` and pre-register falsifiable v3 hypotheses (`H1v3`–`H5v3`) in `experiments/v3/PROTOCOL_v3.md` prior to any confirmatory query (`ADR-0004`, `ADR-0005`).
-**Requirements**: FRZ-01 `FREEZE_v3.md`; FRZ-02 `experiments/v3/PROTOCOL_v3.md` committed before Phase 19
-**Depends on:** Phase 17
-**Plans:** 1 plan
-
-Plans:
-
-- [x] 18-01: Write and commit `FREEZE_v3.md` and `experiments/v3/PROTOCOL_v3.md` (`ADR-0004`, `ADR-0005`).
-
-### Phase 19: Single Frozen Multi-Corpus Confirmatory Evaluation (E4-E5): 2 real corpora, Postgres-backed SpiceDB, ACORN-1 & ACORN-gamma, FAISS, hnswlib, pgvector, v3 figures & paper rewrite (ADR-0001, ADR-0002, ADR-0003, ADR-0004, ADR-0005)
-
-**Goal:** Execute one frozen 3-seed confirmatory benchmark (`v3-confirmatory-001`) across 2 real public corpora, persistent PostgreSQL-backed SpiceDB + memory SpiceDB, FAISS, upstream C++ `ACORN-1` & `ACORN-gamma`, `hnswlib`, `pgvector 0.8.7`, and `Qdrant` (if native), then regenerate `v3_fig*` and rewrite `paper/prism_ann.tex` strictly from `results/v3/summary.json` (`ADR-0001`, `ADR-0002`, `ADR-0003`, `ADR-0004`, `ADR-0005`).
-**Requirements**: E4 2nd real corpus + Postgres-backed SpiceDB; E5 `ACORN-gamma` + `Qdrant` + 4-way portal ablation; raw JSONL + bit-for-bit `recompute.py`; v3 figures & paper compile
-**Depends on:** Phase 18
-**Plans:** 3 plans
-
-Plans:
-
-- [x] 19-01: Prepare 2nd real public corpus (encoded & cached, strictly disjoint queries) + persistent PostgreSQL-backed SpiceDB & upstream `ACORN-gamma` wrappers (`ADR-0004`, `ADR-0005`).
-- [x] 19-02: Execute single frozen confirmatory run `v3-confirmatory-001` (`results/v3/raw/*.jsonl` -> `results/v3/summary.json`) and verify `recompute --check` + `FREEZE_v3.md` (`ADR-0004`, `ADR-0005`).
-- [x] 19-03: Generate `paper/figures/v3_fig*.{pdf,png}`, rewrite `paper/prism_ann.tex`, recompile `prism_ann_paper.pdf` & `prism_ann_arxiv_package.tar.gz` (`ADR-0004`, `ADR-0005`).
-
-### Phase 20: Fresh Independent v3 Review & Submission Package: provenance-first audit, runtime Brake 2/3 reviews of v3 PDF & figures (ADR-0000, ADR-0004, ADR-0005)
-
-**Goal:** Fresh independent `pro` reviewer verifies v3 raw-record provenance, C++ kernel parity, all 2-corpus numbers, and writes fresh Brake 2 & Brake 3 reviews targeting submission readiness (`ADR-0000`, `ADR-0004`, `ADR-0005`).
-**Requirements**: REV3-01 provenance-first raw trace; REV3-02 runtime `results/v3/review/{figure_review,peer_review,REVIEW_SUMMARY}.md`; REV3-03 zero blockers & factory sensor pass
-**Depends on:** Phase 19
-**Plans:** 1 plan
-
-Plans:
-
-- [x] 20-01: Fresh independent v3 provenance + figure + peer review -> `results/v3/review/` (`ADR-0004`, `ADR-0005`).
+- [x] **Phase 21: First-Round External Reviewer Audit (v3.1, R1–R5): 10k UBP fuzzing, S=0.01% stress test, 2x2x2 Mode-3 attribution, 16-thread ZedToken race & dynamic Z-order compaction** - Lock `FREEZE_v3_1.md` (`8/8`), pre-register `PROTOCOL_v3_1.md`, execute `v3.1-reviewer-audit-001` (`22,533` raw records, `5/5` supported, `0` leaks across `36,881` concurrent queries), and verify via `recompute_v3_1.py` (`ADR-0001`, `ADR-0002`, `ADR-0003`, `ADR-0004`, `ADR-0005`, `ADR-0006`).
+- [x] **Phase 22: Second-Round Research Audit (v3.2, R6–R8), Theorem 1/2 Multi-Parent DAG Split, Two-Track Fairness, Nov. 2026 Literature Parity & Three-Tier Audience Suite** - Pre-register `PROTOCOL_v3_2.md`, execute `v3.2-reviewer-audit-001` (`6,821` raw records), split Theorem 1 (tree bound) & Theorem 2 (multi-parent DAG exactness), add `RACORN`/`EMA` citations, publish 3-tier audience docs, and pass independent review (`8.8/10 APPROVED`, `0` blockers) (`ADR-0000`, `ADR-0001`, `ADR-0002`, `ADR-0003`, `ADR-0004`, `ADR-0005`, `ADR-0006`).
 
 ---
 
@@ -260,3 +182,126 @@ Plans:
 - [x] 12-01: Apply Thermo-Nuclear Code Judo across `src/modules/prism_ann/` and verify 0 leaks / 0 dropped docs across 376 adversarial DAG scenarios in `verify_blast_radius_ubp.py` (`ADR-0001`, `ADR-0002`, `ADR-0003`).
 - [x] 12-02: Pass Brake 1 (`258/258` row-scoped metric checks, `0.0%` discrepancy, `18/18` verified citations), Brake 2 (`PaperVizAgent` `97.72/100`), and Brake 3 (`ScholarPeer` `9.0/10 STRONG ACCEPT`) (`ADR-0000`).
 - [x] 12-03: Forward Gate-6 sensor nudges (`ENH-0006`–`ENH-0009`) to `@factory-overseer` and commit onto `/Users/tejap/software_factory` (`feat/research-factory-enhancements`, `50/50` tests passing) (`ADR-0000`).
+
+### Phase 13: Pipeline Integrity Fixes: provenance harness, remove scripted Brake 2/3 scores, guard destructive init (ADR-0000, ADR-0004)
+
+**Goal:** Close the v1 failure modes structurally before any v2 measurement (`ADR-0004`).
+**Requirements**: INT-01 raw-record harness + recompute; INT-02 no literal scores or verdicts in audit scripts; INT-03 `init-prism-ann --force` guard; INT-04 honest model labels
+**Depends on:** Phase 12
+**Plans:** 3 plans
+
+Plans:
+
+- [x] 13-01: `bench/harness.py` (raw JSONL per query) + `bench/recompute.py` (bit-for-bit summary) + unit tests (`ADR-0004`).
+- [x] 13-02: Strip literal scores/verdicts from `run_prism_paperviz_audit.py` / `run_prism_scholarpeer_review.py`; turn them into checks that review files exist and match artifact SHA-256 (`ADR-0004`).
+- [x] 13-03: Guard `research_factory.py init-prism-ann` with `--force`; replace Argon/Hydrogen/Neon labels with the actual invoked model options (`ADR-0000`).
+
+### Phase 14: Real-Baseline Confirmatory Evaluation: BEIR Quora + MiniLM, FAISS/ACORN/hnswlib/pgvector, real SpiceDB, frozen algorithm (ADR-0001, ADR-0002, ADR-0003, ADR-0004)
+
+**Goal:** Run the one confirmatory evaluation in `experiments/v2/PROTOCOL_v2.md` at the frozen SHA in `FREEZE.md`, on real data and real engines (`ADR-0001`, `ADR-0002`, `ADR-0003`, `ADR-0004`).
+**Requirements**: EVAL2-01 BEIR Quora + MiniLM corpus/queries; EVAL2-02 real baselines (FAISS HNSW+IDSelector, FAISS ACORN if present, hnswlib, pgvector 0.8); EVAL2-03 real SpiceDB oracle + timing; EVAL2-04 3 seeds + CIs; EVAL2-05 deviations table
+**Depends on:** Phase 13
+**Plans:** 4 plans
+
+Plans:
+
+- [x] 14-01: Environment: `faiss-cpu`, `sentence-transformers`, `psycopg`, `authzed`; Homebrew `spicedb`, `postgresql`, `pgvector`; record versions in `results/v2/ENVIRONMENT.md` (`ADR-0004`).
+- [x] 14-02: Dataset build: BEIR Quora download, MiniLM encoding (cached `.npy`), hierarchy overlays (random + cluster-aligned), exact ground truth (`ADR-0004`).
+- [x] 14-03: Smoke run on a 20k subset (ledger: smoke), then the single confirmatory run H1v2–H4v2 (ledger: confirmatory) (`ADR-0001`, `ADR-0002`, `ADR-0003`).
+- [x] 14-04: Figures and paper §5 rewritten from `results/v2/summary.json` only. Rename to "Zanzibar-style ReBAC" if SpiceDB isn't the measured path. Theorems 2–4 become propositions. Add a Protocol Deviations table (`ADR-0004`).
+
+### Phase 15: Fresh Independent Review: provenance-first audit, runtime Brake 2/3 reviews of PDF and figures (ADR-0000, ADR-0004)
+
+**Goal:** A reviewer with no prior context audits provenance first, then writes Brake 2/3 reviews by reading the compiled PDF and figures (`ADR-0000`, `ADR-0004`).
+**Requirements**: REV2-01 trace 3+ headline numbers to code + raw records; REV2-02 rerun `bench/recompute.py`; REV2-03 written figure/peer reviews with no pre-set scores
+**Depends on:** Phase 14
+**Plans:** 1 plan
+
+Plans:
+
+- [x] 15-01: Provenance-first audit + runtime reviews -> `results/v2/review/` (`ADR-0004`).
+
+### Phase 16: Factory Overseer: ENH-0013..0016 provenance sensors, honest model labels, local PR package for human review (ADR-0000, ADR-0004)
+
+**Goal:** Encode the retrospective's lessons as factory sensors and prepare the branch for human review, without pushing (`ADR-0000`, `ADR-0004`).
+**Requirements**: FAC-01 ENH-0013 dynamic report interpolation; FAC-02 ENH-0014 raw-record provenance sensor; FAC-03 ENH-0015 literal-score sensor; FAC-04 ENH-0016 honest model routing; FAC-05 one test per sensor; FAC-06 local PR description
+**Depends on:** Phase 13 (runs in parallel with 14–15)
+**Plans:** 1 plan
+
+Plans:
+
+- [x] 16-01: Implement and test ENH-0013..0016 on `feat/research-factory-enhancements`; write `PR_DESCRIPTION.md` for human review (`ADR-0000`).
+
+### Phase 17: Exploratory Dev-Split Engineering (E1-E3): Geometric H-HNSW v2 bridges, local-stall Mode-3 guard, 4-way InitEntryPortals ablation, C++ NEON/CRoaring kernel (ADR-0002, ADR-0003, ADR-0005)
+
+**Goal:** Close Phase 15 peer-review technical gaps on a held-out dev split before freezing v3 (`ADR-0002`, `ADR-0003`, `ADR-0005`).
+**Requirements**: E1 geometric intra-container/magnet k-NN bridges + local-stall Mode-3 guard; E2 4-way InitEntryPortals ablation; E3 C++ NEON/CRoaring Mode-3 & H-HNSW kernel (`bench/prism_ckernel.cpp`) + parity tests; dev-split tau_high calibration
+**Depends on:** Phase 16
+**Plans:** 3 plans
+
+Plans:
+
+- [x] 17-01: Implement Geometric Intra-Container & Intra-Magnet Bridges (`H-HNSW v2`) + Local-Stall Mode-3 Guard (`ADR-0002`, `ADR-0005`).
+- [x] 17-02: Implement C++ NEON/`CRoaring` kernel (`bench/prism_ckernel.cpp` -> `libprism_ckernel.dylib`) for Mode 3 interval scan & C++ `H-HNSW`/`ACORN-GLS` traversal with `0 FP / 0 FN` parity unit tests (`ADR-0003`, `ADR-0005`).
+- [x] 17-03: Run exploratory dev-split evaluation (`100k` BEIR Quora dev queries only, logged as `exploratory` in `results/run_ledger.md`): 4-way `InitEntryPortals` ablation (`E2`), geometric bridge degree/$\tau_{\text{high}}$ sweep, and C++ Mode-3 vs. BLAS latency proof (`ADR-0004`, `ADR-0005`).
+
+### Phase 18: v3 Algorithm Freeze & Pre-Registration: FREEZE_v3.md and experiments/v3/PROTOCOL_v3.md before confirmatory runs (ADR-0004, ADR-0005)
+
+**Goal:** Lock final v3 algorithm hashes (`src/modules/prism_ann/*.py` + `bench/prism_ckernel.cpp`) in `FREEZE_v3.md` and pre-register falsifiable v3 hypotheses (`H1v3`–`H5v3`) in `experiments/v3/PROTOCOL_v3.md` prior to any confirmatory query (`ADR-0004`, `ADR-0005`).
+**Requirements**: FRZ-01 `FREEZE_v3.md`; FRZ-02 `experiments/v3/PROTOCOL_v3.md` committed before Phase 19
+**Depends on:** Phase 17
+**Plans:** 1 plan
+
+Plans:
+
+- [x] 18-01: Write and commit `FREEZE_v3.md` and `experiments/v3/PROTOCOL_v3.md` (`ADR-0004`, `ADR-0005`).
+
+### Phase 19: Single Frozen Multi-Corpus Confirmatory Evaluation (E4-E5): 2 real corpora, Postgres-backed SpiceDB, ACORN-1 & ACORN-gamma, FAISS, hnswlib, pgvector, v3 figures & paper rewrite (ADR-0001, ADR-0002, ADR-0003, ADR-0004, ADR-0005)
+
+**Goal:** Execute one frozen 3-seed confirmatory benchmark (`v3-confirmatory-001`) across 2 real public corpora, persistent PostgreSQL-backed SpiceDB + memory SpiceDB, FAISS, upstream C++ `ACORN-1` & `ACORN-gamma`, `hnswlib`, `pgvector 0.8.7`, and `Qdrant` (if native), then regenerate `v3_fig*` and rewrite `paper/prism_ann.tex` strictly from `results/v3/summary.json` (`ADR-0001`, `ADR-0002`, `ADR-0003`, `ADR-0004`, `ADR-0005`).
+**Requirements**: E4 2nd real corpus + Postgres-backed SpiceDB; E5 `ACORN-gamma` + `Qdrant` + 4-way portal ablation; raw JSONL + bit-for-bit `recompute.py`; v3 figures & paper compile
+**Depends on:** Phase 18
+**Plans:** 3 plans
+
+Plans:
+
+- [x] 19-01: Prepare 2nd real public corpus (encoded & cached, strictly disjoint queries) + persistent PostgreSQL-backed SpiceDB & upstream `ACORN-gamma` wrappers (`ADR-0004`, `ADR-0005`).
+- [x] 19-02: Execute single frozen confirmatory run `v3-confirmatory-001` (`results/v3/raw/*.jsonl` -> `results/v3/summary.json`) and verify `recompute --check` + `FREEZE_v3.md` (`ADR-0004`, `ADR-0005`).
+- [x] 19-03: Generate `paper/figures/v3_fig*.{pdf,png}`, rewrite `paper/prism_ann.tex`, recompile `prism_ann_paper.pdf` & `prism_ann_arxiv_package.tar.gz` (`ADR-0004`, `ADR-0005`).
+
+### Phase 20: Fresh Independent v3 Review & Submission Package: provenance-first audit, runtime Brake 2/3 reviews of v3 PDF & figures (ADR-0000, ADR-0004, ADR-0005)
+
+**Goal:** Fresh independent `pro` reviewer verifies v3 raw-record provenance, C++ kernel parity, all 2-corpus numbers, and writes fresh Brake 2 & Brake 3 reviews targeting submission readiness (`ADR-0000`, `ADR-0004`, `ADR-0005`).
+**Requirements**: REV3-01 provenance-first raw trace; REV3-02 runtime `results/v3/review/{figure_review,peer_review,REVIEW_SUMMARY}.md`; REV3-03 zero blockers & factory sensor pass
+**Depends on:** Phase 19
+**Plans:** 1 plan
+
+Plans:
+
+- [x] 20-01: Fresh independent v3 provenance + figure + peer review -> `results/v3/review/` (`ADR-0004`, `ADR-0005`).
+
+### Phase 21: First-Round External Reviewer Audit (v3.1, R1–R5): 10k UBP fuzzing, S=0.01% stress test, 2x2x2 Mode-3 attribution, 16-thread ZedToken race & dynamic Z-order compaction (ADR-0001, ADR-0002, ADR-0003, ADR-0004, ADR-0005, ADR-0006)
+
+**Goal:** Pre-register `experiments/v3/PROTOCOL_v3_1.md` and lock `FREEZE_v3_1.md` (`8/8` SHA-256 hashes including `bench/prism_audit_kernel.cpp`), execute the 5 reviewer-requested stress experiments (`R1`–`R5`, `22,533` raw records), verify bit-for-bit via `bench/recompute_v3_1.py`, and integrate §V-G + `v3_fig6_reviewer_audit.pdf` into the 12-page manuscript (`ADR-0001`, `ADR-0002`, `ADR-0003`, `ADR-0004`, `ADR-0005`, `ADR-0006`).
+**Requirements**: AUD1-01 `FREEZE_v3_1.md` (`8/8`) + `PROTOCOL_v3_1.md`; AUD1-02 `bench/prism_audit_kernel.cpp` + `bench/run_reviewer_audit_v3_1.py` (`22,533` raw records) + `bench/recompute_v3_1.py`; AUD1-03 `REVIEWER_AUDIT_REPORT.md` + `v3_fig6_reviewer_audit.pdf` + independent `reviewer-v2` sign-off (`8.5/10 APPROVED`)
+**Depends on:** Phase 20
+**Plans:** 3 plans
+
+Plans:
+
+- [x] 21-01: Pre-register `experiments/v3/PROTOCOL_v3_1.md` (`PR1`–`PR5`) and lock `FREEZE_v3_1.md` (`8/8` algorithm & C++ kernel SHA-256 checksums) (`ADR-0004`, `ADR-0005`, `ADR-0006`).
+- [x] 21-02: Execute `v3.1-reviewer-audit-001` (`22,533` raw JSONL records across `R1`–`R5`, `5/5` supported, `0` leaks across `36,881` concurrent `ZedToken` race queries) and verify deterministic recomputation via `bench/recompute_v3_1.py` (`ADR-0001`, `ADR-0002`, `ADR-0003`, `ADR-0006`).
+- [x] 21-03: Render 6-panel figure `paper/figures/v3_fig6_reviewer_audit.pdf`, update `paper/prism_ann.tex` (§V-G) & `REVIEWER_AUDIT_REPORT.md`, pass independent `reviewer-v2` audit (`8.5/10 APPROVED`), and publish to GitHub (`ADR-0000`, `ADR-0006`).
+
+### Phase 22: Second-Round Research Audit (v3.2, R6–R8), Theorem 1/2 Multi-Parent DAG Split, Two-Track Fairness, Nov. 2026 Literature Parity & Three-Tier Audience Suite (ADR-0000, ADR-0001, ADR-0002, ADR-0003, ADR-0004, ADR-0005, ADR-0006)
+
+**Goal:** Address second-round external peer review by pre-registering `experiments/v3/PROTOCOL_v3_2.md` (`R6` multi-parent DAG fuzzing, `R7` Two-Track baseline fairness + fragmented $L_5$-only grants, `R8` Exact vs. Empirical Recall@10 audit), splitting Theorem 1 (tree cardinality bound) and Theorem 2 (multi-parent DAG exactness under Deny-Dominates-Grant precedence), incorporating `RACORN` (Nov. 2026) and `EMA` (Nov. 2026), publishing the Three-Tier Audience Documentation Suite, and passing all 7 verification gates + independent `reviewer-v2` sign-off (`8.8/10 APPROVED`) (`ADR-0000`, `ADR-0001`, `ADR-0002`, `ADR-0003`, `ADR-0004`, `ADR-0005`, `ADR-0006`).
+**Requirements**: AUD2-01 `PROTOCOL_v3_2.md` + `run_reviewer_audit_v3_2.py` (`6,821` raw records) + `recompute_v3_2.py`; AUD2-02 Theorem 1/Theorem 2 split + Corollary 1 scoping + `RACORN`/`EMA` citations in 12-page `paper/prism_ann.tex`; AUD2-03 3-tier audience docs (`docs/ONBOARDING_NEW_GRAD.md`, `docs/ARCHITECTURE_SENIOR_ENGINEER.md`, `docs/RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md`) + `reviewer-v2` sign-off (`8.8/10 APPROVED`)
+**Depends on:** Phase 21
+**Plans:** 3 plans
+
+Plans:
+
+- [x] 22-01: Pre-register `experiments/v3/PROTOCOL_v3_2.md`, execute `v3.2-reviewer-audit-001` (`6,821` raw JSONL records across `R6`–`R8`), and verify bit-for-bit parity via `bench/recompute_v3_2.py` (`ADR-0001`, `ADR-0002`, `ADR-0003`, `ADR-0006`).
+- [x] 22-02: Split Theorem 1 (Single-Parent Tree Token Bound) and Theorem 2 (Multi-Parent DAG Exact Set Equivalence), scope Corollary 1 ($T_{\text{revoke}}$ decomposition & $\zeta_{\text{rev}}$ boundary), add `RACORN`/`EMA` (`Nov. 2026`), and author the Three-Tier Audience Documentation Suite (`ADR-0001`, `ADR-0006`).
+- [x] 22-03: Synchronize ADR-to-arXiv Factory governance files (`ADR-0006`, `CONTEXT.md`, `GLOSSARY.md`, `research-state.yaml`, `findings.md`, `literature/survey.md`, `research_factory.py`, `tests/test_bench_provenance.py`), pass all 7 verification gates (`8.8/10 APPROVED`), and push to GitHub (`ADR-0000`, `ADR-0006`).

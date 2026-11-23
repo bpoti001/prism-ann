@@ -55,6 +55,21 @@
   - **Non-Blocking Fixes**: All verified (`ACORN.cpp` collapse mechanism, `\paragraph{}` removal, `Fig. 1..5` order + `Fig. 4(b)` citation, `RevokedSubtrees` text, refs `[6]` & `[19]`, `D7` wording, `pytest.ini`, balanced 12-page PDF). Remaining trivial nits (`972-line` `wc -l` vs `973` line count, `S=0.001` box in `Fig. 5`, pure-C++ `O(N)`-prepacked baseline sweep deferred cleanly to Limitations) are non-blocking.
 - **Updated Score & Final Verdict**: **7.5 / 10 — READY / ACCEPT (0 Blockers Remaining)**.
 
+### Phase 21 First-Round External Reviewer Audit (`v3.1`, `R1`–`R5`, `22,533` Raw Records) Sign-Off
+
+- **Verified PDF**: `paper/prism_ann.pdf` (12 pages, SHA-256 `4914f0cb386993c4749d2fb1f285e7c9e95a33c9e5633daed185c8cb6f987116`)
+- **Audit Scope**: `FREEZE_v3_1.md` (`8/8` match), `experiments/v3/PROTOCOL_v3_1.md` (`PR1`–`PR5`), `results/v3_1_audit/raw/v3_1_reviewer_audit.jsonl` (`22,533` records), `bench.recompute_v3_1 --check results/v3/reviewer_audit_v3_1.json` (`MATCH`), 6-panel figure `paper/figures/v3_fig6_reviewer_audit.pdf`, and `REVIEWER_AUDIT_REPORT.md`.
+- **Phase 21 Verdict**: **8.5 / 10 — APPROVED (0 Blockers)**.
+
+### Phase 22 Second-Round External Reviewer Audit (`v3.2`, `R6`–`R8`, `6,821` Raw Records & Three-Tier Docs) Sign-Off
+
+- **Verified PDF**: `paper/prism_ann.pdf` & `prism_ann_paper.pdf` (12 pages, SHA-256 `64194536780cd9fb1a4b17144de64c8692406672206c1effd6954b20a7bb818b`)
+- **Audit Scope**:
+  - `FREEZE.md` (`5/5`), `FREEZE_v3.md` (`7/7`), and `FREEZE_v3_1.md` (`8/8`) all intact (`0` frozen files modified).
+  - Deterministic recomputation bit-for-bit `MATCH` across all three campaigns (`199,164` total raw records: `169,810` confirmatory `v3.0` + `22,533` `v3.1` audit + `6,821` `v3.2` audit).
+  - Formal separation of **Theorem 1** (Single-Parent Tree Cardinality Bound) and **Theorem 2** (Multi-Parent DAG Exact Set Equivalence under Deny-Dominates-Grant precedence, `0/5,000` mismatches in `R6`), scoped **Corollary 1** (`0` vector writes, $T_{\text{revoke}}$ decomposition, pre-/post-$\zeta_{\text{rev}}$ boundary), Two-Track fairness (`R7`, `PR7` falsified transparently on fragmented-$L_5$ sub-criterion), 5-Level Exact vs. Empirical Recall@10 taxonomy (`R8`, `PR8` falsified transparently on strict `99.0%` cutoff), Nov. 2026 citations (`RACORN` `arXiv:2607.00768v2` & `EMA` `arXiv:2606.00734v2`), and the Three-Tier Audience Documentation Suite (`docs/ONBOARDING_NEW_GRAD.md`, `docs/ARCHITECTURE_SENIOR_ENGINEER.md`, `docs/RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md`).
+- **Phase 22 Final Verdict**: **8.8 / 10 — APPROVED (0 Blockers Remaining)**.
+
 ---
 
 ## (d) Suggested Software-Factory Sensor Improvements
