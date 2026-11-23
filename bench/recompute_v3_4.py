@@ -182,6 +182,8 @@ def recompute_v3_4_summary(raw_path: str = DEFAULT_RAW_PATH) -> Dict[str, Any]:
                 "consistency_mode": r["consistency_mode"],
                 "on_unavailable": r["on_unavailable"],
                 "requested_external_zed_token": r.get("requested_external_zed_token"),
+                "evaluated_external_zed_token": r.get("evaluated_external_zed_token", r.get("selected_external_zed_token")),
+                "evaluated_external_revision_status": r.get("evaluated_external_revision_status", "unknown"),
                 "selected_external_zed_token": r.get("selected_external_zed_token"),
                 "selected_local_revision": r.get("selected_local_revision"),
                 "fallback_used": r.get("fallback_used"),

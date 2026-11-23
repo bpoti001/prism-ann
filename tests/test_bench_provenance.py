@@ -725,7 +725,27 @@ class TestFreezeAndAudits(unittest.TestCase):
         # Authoritative spicedb_leaf_fallback queries external provider (NOT stale mirror!) and excludes doc_1
         r1 = idx.search_with_metadata(X[0], "u", k=4, external_zed_token="ext_zt_1", consistency_mode="at_least_as_fresh", on_unavailable="spicedb_leaf_fallback")
         self.assertEqual(r1.fallback_used, "spicedb_leaf_fallback")
+        self.assertEqual(r1.requested_external_zed_token, "ext_zt_1")
+        self.assertEqual(r1.selected_external_zed_token, "ext_zt_1")
+        self.assertEqual(r1.evaluated_external_revision_status, "established")
         self.assertEqual({idx.vcorpus.z_leaf_doc_ids[i] for i in r1.result.top_k_ids}, {"doc_0"})
+
+        # When an external at_least_as_fresh lookup does NOT return an evaluated revision,
+        # selected_external_zed_token must remain None ('unknown') rather than echoing requested token!
+        idx_unknown_eval = ConsistentDynamicPrismANNIndex(
+            g.snapshot_graph_copy(), X, leaf_doc_ids=leaf_docs,
+            initial_external_zed_token="ext_zt_0",
+            external_auth_lookup=lambda _p, _m, req_zt: (set(ext_state[req_zt]), None),
+            M=4, m_bridge=2, ef_construction=16, ef_search=16, seed=15,
+        )
+        r_unk = idx_unknown_eval.search_with_metadata(
+            X[0], "u", k=4, external_zed_token="ext_zt_1",
+            consistency_mode="at_least_as_fresh", on_unavailable="spicedb_leaf_fallback",
+        )
+        self.assertEqual(r_unk.requested_external_zed_token, "ext_zt_1")
+        self.assertIsNone(r_unk.selected_external_zed_token)
+        self.assertEqual(r_unk.evaluated_external_revision_status, "unknown")
+        self.assertEqual({idx_unknown_eval.vcorpus.z_leaf_doc_ids[i] for i in r_unk.result.top_k_ids}, {"doc_0"})
 
         # Without an external provider, spicedb_leaf_fallback MUST fail closed rather than consulting stale local mirror
         idx_no_ext = ConsistentDynamicPrismANNIndex(

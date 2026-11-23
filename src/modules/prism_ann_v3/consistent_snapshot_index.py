@@ -101,6 +101,8 @@ class ConsistentSearchResult:
     indexed_hierarchy_version: Optional[int]
     consistency_mode: str
     fallback_used: Optional[str] = None
+    requested_external_zed_token: Optional[str] = None
+    evaluated_external_revision_status: str = "established"
 
 
 class AtomicVersionedLineageCorpus:
@@ -586,6 +588,7 @@ class ConsistentDynamicPrismANNIndex:
         selected_local_rev: Optional[int] = None
         selected_ext_zt: Optional[str] = None
         indexed_hv: Optional[int] = None
+        eval_rev_status: str = "local_only"
 
         if snap is None:
             # Authoritative external SpiceDB fallback only — never silently trust a lagging local mirror!
@@ -607,13 +610,18 @@ class ConsistentDynamicPrismANNIndex:
                 ) from exc
             b_acl = self.vcorpus.compile_bitmap_from_authorized_docs(allowed_docs)
             fallback_used = "spicedb_leaf_fallback"
-            selected_ext_zt = served_ext_zt or external_zed_token
+            # Report the actual evaluated revision ONLY when established by the external
+            # service (e.g., SpiceDB LookupResourcesResponse.looked_up_at); never echo the
+            # requested minimum token as if it were the evaluated snapshot.
+            selected_ext_zt = served_ext_zt
+            eval_rev_status = "established" if served_ext_zt is not None else "unknown"
         else:
             tokens_pos, tokens_neg = resolve_ubp_tokens(snap.auth_snapshot, principal_id)
             b_acl = self.vcorpus.compile_acl_bitmap_ubp(tokens_pos, tokens_neg, snapshot=snap)
             selected_local_rev = snap.zed_token
             selected_ext_zt = snap.external_zed_token
             indexed_hv = snap.hierarchy_version
+            eval_rev_status = "established" if snap.external_zed_token is not None else "local_only"
 
         if concept_ids:
             b_ont = self.z_corpus.compile_ontology_bitmap(concept_ids)
@@ -636,6 +644,8 @@ class ConsistentDynamicPrismANNIndex:
             indexed_hierarchy_version=indexed_hv,
             consistency_mode=consistency_mode,
             fallback_used=fallback_used,
+            requested_external_zed_token=external_zed_token,
+            evaluated_external_revision_status=eval_rev_status,
         )
 
     def search(

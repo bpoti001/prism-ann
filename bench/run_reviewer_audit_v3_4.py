@@ -89,14 +89,32 @@ def _spicedb_check_permission(
     return resp.permissionship == CheckPermissionResponse.PERMISSIONSHIP_HAS_PERMISSION
 
 
-def _spicedb_lookup_docs(client, principal_id: str, consistency: Consistency) -> Set[str]:
+def _spicedb_lookup_docs_with_revision(
+    client, principal_id: str, consistency: Consistency
+) -> Tuple[Set[str], Optional[str]]:
+    """
+    Executes SpiceDB LookupResources and returns `(doc_ids, evaluated_zed_token)`,
+    where `evaluated_zed_token` is populated strictly from SpiceDB's
+    `LookupResourcesResponse.looked_up_at.token` when returned, else `None` (unknown).
+    """
     req = LookupResourcesRequest(
         consistency=consistency,
         resource_object_type="document",
         permission="view",
         subject=SubjectReference(object=ObjectReference(object_type="user", object_id=principal_id)),
     )
-    return {r.resource_object_id for r in client.LookupResources(req)}
+    docs: Set[str] = set()
+    evaluated_tok: Optional[str] = None
+    for r in client.LookupResources(req):
+        docs.add(r.resource_object_id)
+        if getattr(r, "looked_up_at", None) is not None and r.looked_up_at.token:
+            evaluated_tok = str(r.looked_up_at.token)
+    return docs, evaluated_tok
+
+
+def _spicedb_lookup_docs(client, principal_id: str, consistency: Consistency) -> Set[str]:
+    docs, _ = _spicedb_lookup_docs_with_revision(client, principal_id, consistency)
+    return docs
 
 
 def _build_small_dag(rng: np.random.Generator) -> Tuple[DynamicMultiParentAuthGraph, List[str], np.ndarray]:
@@ -387,8 +405,10 @@ def run_r12b_live_spicedb_unsynced_mirror(logger: RawAuditLogger) -> None:
                 cons = Consistency(at_exact_snapshot=ZedToken(token=ext_zt))
             else:
                 cons = Consistency(at_least_as_fresh=ZedToken(token=ext_zt))
-            docs = _spicedb_lookup_docs(sp.client, principal_id, cons)
-            return docs, ext_zt
+            # Return SpiceDB's actual `looked_up_at.token` when established, or None (unknown);
+            # never blindly echo the requested minimum token `ext_zt`.
+            docs, evaluated_tok = _spicedb_lookup_docs_with_revision(sp.client, principal_id, cons)
+            return docs, evaluated_tok
 
         idx = ConsistentDynamicPrismANNIndex(
             g, vecs, leaf_doc_ids=chunk_docs,
@@ -432,7 +452,9 @@ def run_r12b_live_spicedb_unsynced_mirror(logger: RawAuditLogger) -> None:
             got_docs = {idx.vcorpus.z_leaf_doc_ids[zid] for zid in res_meta.result.top_k_ids}
 
             o_tok = oracle_tok_override or res_meta.selected_external_zed_token or ext_tok
-            o_mode = oracle_mode_override or ("at_exact_snapshot" if oracle_tok_override else consistency_mode)
+            o_mode = oracle_mode_override or (
+                "at_exact_snapshot" if (oracle_tok_override or res_meta.selected_external_zed_token) else consistency_mode
+            )
             sp_docs, chk_mm = _oracle_and_checkperm(o_mode, o_tok)
 
             fb_mm = int(res_meta.fallback_used != expected_fallback)
@@ -448,7 +470,9 @@ def run_r12b_live_spicedb_unsynced_mirror(logger: RawAuditLogger) -> None:
                     "check_perm_mismatch": chk_mm,
                     "consistency_mode": consistency_mode,
                     "on_unavailable": on_unavailable,
-                    "requested_external_zed_token": ext_tok,
+                    "requested_external_zed_token": res_meta.requested_external_zed_token,
+                    "evaluated_external_zed_token": res_meta.selected_external_zed_token,
+                    "evaluated_external_revision_status": res_meta.evaluated_external_revision_status,
                     "selected_external_zed_token": res_meta.selected_external_zed_token,
                     "selected_local_revision": res_meta.selected_local_revision,
                     "fallback_used": res_meta.fallback_used,
@@ -494,6 +518,8 @@ def run_r12b_live_spicedb_unsynced_mirror(logger: RawAuditLogger) -> None:
                     "consistency_mode": consistency_mode,
                     "on_unavailable": on_unavailable,
                     "requested_external_zed_token": ext_tok,
+                    "evaluated_external_zed_token": None,
+                    "evaluated_external_revision_status": "refused_fail_closed",
                     "selected_external_zed_token": None,
                     "selected_local_revision": None,
                     "fallback_used": None,
@@ -770,7 +796,7 @@ def main() -> int:
     logger.log(
         "META",
         {
-            "run_id": "v3.4-reviewer-audit-001",
+            "run_id": "v3.4-reviewer-audit-002",
             "git_sha": git_sha(),
             "git_dirty": dirty,
             "freeze_v3_match": f3["match"],
