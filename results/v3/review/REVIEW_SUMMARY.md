@@ -78,6 +78,14 @@
   - Deterministic recomputation bit-for-bit `MATCH` across all four v3 campaigns plus v2 (`207,688` v3-series JSONL records: `169,810` `v3.0` + `22,533` `v3.1` + `6,821` `v3.2` + `8,524` `v3.3`) via `./reproduce_clean_machine.sh --verify`.
   - Resolved Priority Findings 1–7 plus technical review follow-ups (`R9a` `1,000` independent DAGs/`5,000` dynamic mutations incl. $P \to C$ / $P \to X \to C$ diamonds `0` FP/FN, `R9b` `13/13` live SpiceDB matrix + fail-closed expiration verification in `S10`, explicit `at_least_as_fresh`/`at_exact_snapshot` consistency modes, `R10` unbroken direct E2E timer w/ in-timer `SQ8` quant & `efSearch` curve + honest `PR10` falsification at $S=0.01\%$ live RPC `6.15x–6.50x`, `R11` `1,760` 8-thread live SpiceDB opaque-`ZedToken` reads, `R7` Track 2 reclassified as a composed request-latency estimate w/ `CRoaring` overlap disclosure, direct source inspection of `github.com/naver/racorn` `b1a587ad2f5d` + `amanbayev2026gls` + `veda2026`, cross-doc reconciliation, `30/30` `pytest` tests, and revised explainer scripts + 4-part storyboard).
 
+### v3.4 Fourth-Round Atomic Snapshot & Unsynced-Mirror Audit Sign-Off (`R12`)
+
+- **Verified Revised PDF**: `paper/prism_ann.pdf` & `prism_ann_paper.pdf` (12 pages, SHA-256 `6217a205a8c2a3ddec115b108f018b2330fd9b66b06411983b01f1e50741fa48`)
+- **Audit Scope**:
+  - `FREEZE.md` (`5/5`), `FREEZE_v3.md` (`7/7`), `FREEZE_v3_1.md` (`8/8`), `FREEZE_v3_3.md` (`9/9`), and `FREEZE_v3_4.md` (`10/10`, adding `src/modules/prism_ann_v3/consistent_snapshot_index.py`) all intact (`0` prior frozen files modified).
+  - Deterministic recomputation bit-for-bit `MATCH` across all five v3 campaigns plus v2 (`209,303` v3-series JSONL records: `169,810` `v3.0` + `22,533` `v3.1` + `6,821` `v3.2` + `8,524` `v3.3` + `1,615` `v3.4`) via `./reproduce_clean_machine.sh --verify` (`33/33` `pytest`).
+  - Closed the `v3.3` snapshot-publication race (`R12a`: `100/100` torn snapshots reproduced on frozen `v3.3` control vs. `0/200` on `v3.4` `AtomicVersionedLineageCorpus`, `0` ordering regressions), verified `13/13` live native SpiceDB v1.57.1 unsynced-mirror scenarios (`R12b`: `5` `fail_closed` refusals, `4` live `spicedb_leaf_fallback` executions, `0` mismatches), verified `1,200` multi-threaded public `search()` queries across `101` snapshots (`R12c`: `0` torn, `0` leaks), and explicitly documented research-prototype, `R9a`/`R9b`/`R10`, and `--verify`/`--rerun-audits` scope boundaries.
+
 ---
 
 ## (d) Suggested Software-Factory Sensor Improvements

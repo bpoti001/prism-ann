@@ -50,6 +50,17 @@ reviewer_audit_v3_3:
   summary_path: "results/v3/reviewer_audit_v3_3.json"
   protocol_path: "experiments/v3/PROTOCOL_v3_3.md"
 
+reviewer_audit_v3_4:
+  run_id: "v3.4-reviewer-audit-001"
+  git_sha: "36581bd4c53f5d3b3b00028e2756514b07c61db4"
+  git_dirty: false
+  freeze_v3_4_match: true
+  freeze_v3_4_files: 10
+  raw_records: 1615
+  raw_jsonl_path: "results/v3_4_audit/raw/v3_4_reviewer_audit.jsonl"
+  summary_path: "results/v3/reviewer_audit_v3_4.json"
+  protocol_path: "experiments/v3/PROTOCOL_v3_4.md"
+
 hypotheses:
   - id: "H1v3"
     governing_adr: "ADR-0001, ADR-0004, ADR-0005"
@@ -141,3 +152,6 @@ trajectory:
   - iteration: 6
     action: "V3_3_DYNAMIC_DAG_FIX_LIVE_ZEDTOKEN_AND_DIRECT_E2E_AUDIT"
     result: "Added reachability-exact ancestor recomputation & fail-closed snapshot expiration in dynamic_dag_ubp.py (FREEZE_v3_3 9/9); executed v3.3-reviewer-audit-002 (8,524 records: PR9a [1,000 independent DAGs / 5,000 mutations], PR9b [13/13 live SpiceDB scenarios w/ S10 fail-closed], PR11 supported; PR10 transparently falsified at S=0.01% >=10x cutoff); reconciled cross-doc metrics, composed request-latency estimate terminology, and github.com/naver/racorn + Amanbayev/Veda/Curator/EMA citations."
+  - iteration: 7
+    action: "V3_4_ATOMIC_SNAPSHOT_RACE_CLOSURE_AND_UNSYNCED_MIRROR_AUDIT"
+    result: "Added race-free consistent_snapshot_index.py (FREEZE_v3_4 10/10, preserving FREEZE_v3_3 9/9 untouched); executed additive v3.4-reviewer-audit-001 (commit 36581bd, 1,615 records): R12a reproduced 100/100 torn snapshots on frozen v3.3 control vs 0/200 on v3.4; R12b verified 13/13 live SpiceDB unsynced-mirror scenarios (5 fail-closed, 4 live SpiceDB fallbacks, 0 mismatches); R12c verified 1,200 concurrent multi-threaded public search() reads across 101 snapshots (0 torn, 0 leaks); clarified R9a/R9b, R10 integrated-system, --verify/--rerun-audits, and research-prototype scope."

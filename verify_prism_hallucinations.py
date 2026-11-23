@@ -475,7 +475,7 @@ def verify() -> bool:
             "Missing github.com/naver/racorn citation in prism_ann.tex or RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md",
         )
 
-        stale_patterns = ("23.62", "36,881", "36{,}881", "0/18,412", "0 / 18,412", "98.17%", "8,521", "8{,}521", "207,685")
+        stale_patterns = ("23.62", "36,881", "36{,}881", "0/18,412", "0 / 18,412", "98.17%", "8,521", "8{,}521", "207,685", "207,688", "207{,}688")
         cross_docs = [
             ".planning/STATE.md",
             "findings.md",
@@ -490,6 +490,114 @@ def verify() -> bool:
             dtxt = _Path(dp).read_text(encoding="utf-8")
             for bad in stale_patterns:
                 check(bad not in dtxt, f"Zero stale drifted token '{bad}' in {dp}", f"Stale token '{bad}' found in {dp}!")
+
+    print("\n[10/10] Checking v3.4 Atomic Snapshot Race Closure, Unsynced Live SpiceDB Mirror (R12), & Prototype Scope...")
+    from bench.recompute_v3_4 import (
+        recompute_v3_4_summary as _recompute_v3_4,
+        freeze_v3_4_status as _freeze_v3_4,
+    )
+
+    f34 = _freeze_v3_4()
+    check(
+        f34.get("match") is True and f34.get("n_files") == 10,
+        f"FREEZE_v3_4.md {f34.get('n_files')}/10 SHA-256 intact (incl. consistent_snapshot_index.py)",
+        f"FREEZE_v3_4 mismatch: {f34}",
+    )
+
+    audit34_path = _Path("results/v3/reviewer_audit_v3_4.json")
+    raw_v34_path = _Path("results/v3_4_audit/raw/v3_4_reviewer_audit.jsonl")
+    check(
+        audit34_path.exists() and raw_v34_path.exists(),
+        "v3.4 reviewer audit JSON and raw JSONL exist",
+        "Missing v3.4 reviewer audit JSON or JSONL",
+    )
+    if audit34_path.exists() and raw_v34_path.exists():
+        audit34_txt = audit34_path.read_text(encoding="utf-8")
+        a34 = _json.loads(audit34_txt)
+        recomp_v34 = _recompute_v3_4(str(raw_v34_path))
+        check(
+            _dumps_summary(recomp_v34) == audit34_txt,
+            "results/v3/reviewer_audit_v3_4.json matches deterministic recompute_v3_4.py bit-for-bit",
+            "reviewer_audit_v3_4.json differs from recompute_v3_4.py",
+        )
+        check(a34.get("raw_records_total") == 1615, "v3.4 raw JSONL total == 1615", f"Expected 1615, got {a34.get('raw_records_total')}")
+        check(a34.get("git_dirty") is False, "v3.4 audit ran on clean git tree (git_dirty == False)", f"v3.4 git_dirty={a34.get('git_dirty')}")
+        check(a34.get("freeze_v3_4_match") is True and a34.get("freeze_v3_4_files") == 10,
+              "v3.4 FREEZE_v3_4 match 10/10", f"v3.4 freeze mismatch: {a34.get('freeze_v3_4_match')}")
+
+        v34 = a34["verdicts"]
+        check(
+            v34["PR12a"]["verdict"] == "supported"
+            and v34["PR12b"]["verdict"] == "supported"
+            and v34["PR12c"]["verdict"] == "supported",
+            "v3.4 verdicts verified (PR12a=supported, PR12b=supported, PR12c=supported)",
+            f"Unexpected v3.4 verdicts: {v34}",
+        )
+
+        r12a = a34["R12a_snapshot_race_injection"]
+        r12b = a34["R12b_live_spicedb_unsynced_mirror"]
+        r12c = a34["R12c_multithreaded_atomic_search_stress"]
+        check(
+            r12a["v3_3_control_torn_snapshots"] == 100
+            and r12a["v3_4_trials_total"] == 200
+            and r12a["v3_4_torn_snapshots"] == 0
+            and r12a["v3_4_ordering_regressions"] == 0
+            and r12a["v3_4_search_leaks"] == 0,
+            "v3.4 R12a: reproduced 100/100 torn snapshots on frozen v3.3 control vs 0/200 on v3.4 atomic fix",
+            f"R12a failure: {r12a}",
+        )
+        check(
+            r12b["scenarios_total"] == 13
+            and r12b["mask_mismatches"] == 0
+            and r12b["search_mismatches"] == 0
+            and r12b["check_permission_mismatches"] == 0
+            and r12b["fail_closed_refusals_verified"] == 5
+            and r12b["spicedb_fallbacks_verified"] == 4,
+            "v3.4 R12b: 13/13 live SpiceDB unsynced-mirror checks (5 fail_closed, 4 live SpiceDB fallbacks, 0 mismatches)",
+            f"R12b failure: {r12b}",
+        )
+        check(
+            r12c["concurrent_reads_total"] == 1200
+            and r12c["published_snapshots_verified"] == 101
+            and r12c["torn_snapshots"] == 0
+            and r12c["ordering_regressions"] == 0
+            and r12c["oracle_mismatches"] == 0
+            and r12c["search_leaks"] == 0,
+            "v3.4 R12c: 0/1,200 multi-threaded public search() leaks across 101 audited atomic snapshots",
+            f"R12c failure: {r12c}",
+        )
+
+        report_txt = _Path("REVIEWER_AUDIT_REPORT.md").read_text(encoding="utf-8")
+        nov_txt = _Path("docs/RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md").read_text(encoding="utf-8")
+        readme_txt = _Path("README.md").read_text(encoding="utf-8")
+        cs_src = _Path("src/modules/prism_ann_v3/consistent_snapshot_index.py").read_text(encoding="utf-8")
+        v34_checks = [
+            ("v3.4 total records", "1,615", "1{,}615"),
+            ("R12a v3.3 torn control", "100", "100/100"),
+            ("R12a v3.4 zero torn", "200", "0/200"),
+            ("R12c concurrent reads", "1,200", "1{,}200"),
+            ("R12c audited snapshots", "101", "101"),
+            ("research prototype scope", "research prototype", "research prototype"),
+        ]
+        for label, md_tok, tex_tok in v34_checks:
+            check(md_tok in report_txt, f"REVIEWER_AUDIT_REPORT.md contains v3.4 {label} ({md_tok})",
+                  f"REVIEWER_AUDIT_REPORT.md missing v3.4 {label}: {md_tok}")
+            check(md_tok in nov_txt, f"RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md contains v3.4 {label} ({md_tok})",
+                  f"RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md missing v3.4 {label}: {md_tok}")
+            check(tex_tok in tex, f"paper/prism_ann.tex contains v3.4 {label} ({tex_tok})",
+                  f"paper/prism_ann.tex missing v3.4 {label}: {tex_tok}")
+
+        for label, txt_body in (
+            ("paper/prism_ann.tex", tex),
+            ("README.md", readme_txt),
+            ("REVIEWER_AUDIT_REPORT.md", report_txt),
+            ("src/modules/prism_ann_v3/consistent_snapshot_index.py", cs_src),
+        ):
+            check(
+                "production-safe" not in txt_body.lower(),
+                f"Zero overstated 'production-safe' claim in {label}",
+                f"Overstated 'production-safe' found in {label}",
+            )
 
     print(f"\nSUMMARY: {passed} checks passed, {len(errors)} errors.")
     return len(errors) == 0

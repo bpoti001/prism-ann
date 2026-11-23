@@ -17,10 +17,10 @@ progress:
 # Project State: EpiGraph (`EngramRAG`) & `Prism-ANN` (Milestone 6 — ADR-0005 & ADR-0006)
 
 ## Current Position
-- **Completed**: All 22 Phases (62/62 plans, 100%) — including `v3-confirmatory-001` (`169,810` raw records, `11/11` predictions supported), `v3.1-reviewer-audit-001` (`R1`–`R5`, `22,533` raw records, `5/5` supported), `v3.2-reviewer-audit-001` (`R6`–`R8`, `6,821` raw records, `PR6` supported, `PR7`/`PR8` transparently falsified), and `v3.3-reviewer-audit-002` (commit `7ce7d44`, `R9a`, `R9b`, `R10`, `R11`, `8,524` raw records, `PR9a`/`PR9b`/`PR11` supported, `PR10` transparently falsified on `>=10x` live-RPC cutoff at `S=0.01%`).
-- **Algorithm & Kernel Freezes**: `FREEZE.md` (v2, `5/5`), `FREEZE_v3.md` (v3, `7/7`), `FREEZE_v3_1.md` (v3.1/v3.2, `8/8`), and `FREEZE_v3_3.md` (`9/9` including `src/modules/prism_ann_v3/dynamic_dag_ubp.py`) all match 100%.
+- **Completed**: All 22 Phases (62/62 plans, 100%) — including `v3-confirmatory-001` (`169,810` raw records, `11/11` predictions supported), `v3.1-reviewer-audit-001` (`R1`–`R5`, `22,533` raw records, `5/5` supported), `v3.2-reviewer-audit-001` (`R6`–`R8`, `6,821` raw records, `PR6` supported, `PR7`/`PR8` transparently falsified), `v3.3-reviewer-audit-002` (commit `7ce7d44`, `R9a`, `R9b`, `R10`, `R11`, `8,524` raw records, `PR9a`/`PR9b`/`PR11` supported, `PR10` transparently falsified on `>=10x` live-RPC cutoff at `S=0.01%`), and `v3.4-reviewer-audit-001` (commit `36581bd`, `R12a`–`R12c`, `1,615` raw records, `PR12a`/`PR12b`/`PR12c` supported).
+- **Algorithm & Kernel Freezes**: `FREEZE.md` (v2, `5/5`), `FREEZE_v3.md` (v3, `7/7`), `FREEZE_v3_1.md` (v3.1/v3.2, `8/8`), `FREEZE_v3_3.md` (`9/9` including `src/modules/prism_ann_v3/dynamic_dag_ubp.py`), and `FREEZE_v3_4.md` (`10/10` including `src/modules/prism_ann_v3/consistent_snapshot_index.py`) all match 100%.
 
-## Cumulative Evidence Scorecard (`207,688` Total Raw JSONL Records)
+## Cumulative Evidence Scorecard (`209,303` Total Raw JSONL Records)
 1. **Confirmatory `v3.0` (`v3-confirmatory-001`, `169,810` Raw Records, `11/11` `P1a`–`P5` SUPPORTED)**:
    - `P1a`/`P1b`/`P1c`: `0/1,200` mismatches (`600` memory + `600` persistent PG17 SpiceDB), `100.0%` within Theorem 1 bound, `225.9×` (mem) / `278.2×` (PG) local speedup (`29.1×` / `28.2×` live RPC).
    - `P2a`/`P2b`/`P2c`: `v3-geom-M8` (`+32 B/n`, `+1.91%` graph RAM) hits `66.60%–95.25%` (Quora) / `75.57%–93.35%` (NQ); `v3-full-guard-sq8` (`+416 B/n`, `+24.8%` w/ auxiliary `200.8 MB` SQ8 buffer) empirically hits `100.00%` at $S \le 1\%$ in `0.05–0.11 ms` kernel.
@@ -43,6 +43,11 @@ progress:
    - `PR11` (`R11`, **SUPPORTED**): `1,760` 8-thread concurrent live SpiceDB reads (`423` `at_exact_snapshot(zt_pre)` + `1,337` `at_least_as_fresh(zt_post)`, `1.481 ms` med RPC, `0.116 ms` index med search) -> **`0` oracle mismatches, `0` post-revocation leaks, `0` stale errors**.
    - `PR10` (`R10`, **FALSIFIED** on strict `>= 10x` live-RPC cutoff at `S=0.01%`, `0` total leaks across `1,750` queries): Single-timer **measured end-to-end latency** (live SpiceDB + filter compile + in-timer `SQ8` quantization + C++ search) achieves **`6.15×–6.50×`** at $S=0.01\%$ (`1.53–1.62 ms` vs `9.95 ms` `3`-leaf `LookupResources`) and **`11.50×–96.87×`** at $S \ge 0.1\%$ (`1.50–2.62 ms` vs `17.63–216.07 ms`), while mirror-cached E2E achieves **`185.22×–437.38×`** to $S=1\%$ and **`505.08×`** at $S=5\%$ (`0.0384 ms` `FP32` / `0.0537 ms` `SQ8` at $S=0.01\%$). Matched-recall `efSearch=32..512` sweep (`1,000` queries) shows `v3-geom-M8` reaching `98.0%` at $S=0.5\%$ in `1.968 ms` vs `FAISS` `69.6%` in `2.211 ms`.
 
+5. **Fourth-Round Audit `v3.4` (`v3.4-reviewer-audit-001`, commit `36581bd`, `R12a`–`R12c`, `1,615` Raw Records)**:
+   - `PR12a` (`R12a`, **SUPPORTED**): Double-injection race test reproduces `100/100` torn snapshots on frozen `v3.3` `VersionedLineageCorpus` while `v3.4` `AtomicVersionedLineageCorpus` achieves `0/200` torn snapshots (`100` double-injection + `100` out-of-order multi-publisher), `0` ordering regressions, `0` leaks.
+   - `PR12b` (`R12b`, **SUPPORTED**): `13/13` live SpiceDB v1.57.1 unsynced-mirror scenarios (`0` mismatches, `5` verified `fail_closed` refusals, `4` live `spicedb_leaf_fallback` executions).
+   - `PR12c` (`R12c`, **SUPPORTED**): `1,200` multi-threaded public `search()` reads (`600` exact + `600` fresh, `0.032 ms` med / `1.090 ms` P99) across `101` audited snapshots -> `0` torn snapshots, `0` ordering regressions, `0` leaks.
+
 ## Verification Status
-- `reproduce_clean_machine.sh --verify`: **ALL GATES PASSING (EXIT 0)**.
-- `bench/recompute{,_v3,_v3_1,_v3_2,_v3_3}.py --check`: **5/5 BIT-FOR-BIT MATCH (`207,688` cumulative raw JSONL records + `62,410` v2 records)**.
+- `reproduce_clean_machine.sh --verify`: **ALL GATES PASSING (EXIT 0)** (`33/33` pytest; note `--rerun-audits` re-executes `R1`–`R12` from source).
+- `bench/recompute{,_v3,_v3_1,_v3_2,_v3_3,_v3_4}.py --check`: **6/6 BIT-FOR-BIT MATCH (`209,303` cumulative raw JSONL records + `62,410` v2 records)**.

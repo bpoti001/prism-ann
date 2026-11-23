@@ -4,24 +4,28 @@
 # ==============================================================================
 # Usage:
 #   ./reproduce_clean_machine.sh --verify
-#       Runs all fast deterministic verification gates (~15s, no external DB
-#       daemons required):
-#         1. FREEZE.md (5/5), FREEZE_v3.md (7/7), FREEZE_v3_1.md (8/8), FREEZE_v3_3.md (9/9) SHA-256
-#         2. Bit-for-bit raw JSONL recomputation across all 5 campaigns:
+#       Verifies recorded evidence, frozen SHA-256 manifests, unit/parity tests,
+#       and audit gates (~10s, no external DB daemons required; does NOT re-run
+#       live benchmarks — use --rerun-audits for independent benchmark reproduction):
+#         1. FREEZE.md (5/5), FREEZE_v3.md (7/7), FREEZE_v3_1.md (8/8),
+#            FREEZE_v3_3.md (9/9), FREEZE_v3_4.md (10/10) SHA-256
+#         2. Bit-for-bit raw JSONL recomputation across all 6 campaigns:
 #              - v2-confirmatory-002   ( 62,410 raw records)
 #              - v3-confirmatory-001   (169,810 raw records)
 #              - v3.1-reviewer-audit   ( 22,533 raw records)
 #              - v3.2-reviewer-audit   (  6,821 raw records)
 #              - v3.3-reviewer-audit   (  8,524 raw records)
+#              - v3.4-reviewer-audit   (  1,615 raw records)
 #         3. 376-scenario Blast-Radius live UBP fuzzer (0 FP, 0 FN)
 #         4. Full pytest suite (unit, C++ NEON kernel parity, provenance,
-#            Theorem 2 dynamic multi-parent diamond DAG & ZedToken snapshot tests)
+#            Theorem 2 dynamic multi-parent diamond DAG, atomic snapshot race
+#            closure, & opaque ZedToken unsynced-mirror fallback tests)
 #         5. 3-Brake Academic & Governance Audit
 #
 #   ./reproduce_clean_machine.sh --rerun-audits
 #       Compiles the C++17 / ARM NEON kernels from source, re-executes the
-#       standalone reviewer audits (R1-R11) on the clean machine, and verifies
-#       deterministic recomputation.
+#       standalone reviewer audits (R1-R12) on the clean machine, and verifies
+#       deterministic recomputation (relevant independent reproduction milestone).
 # ==============================================================================
 
 set -euo pipefail
@@ -74,16 +78,18 @@ $PY research_factory.py audit-paper
 
 if [[ "$MODE" == "--rerun-audits" ]]; then
     echo ""
-    echo ">>> [4/4] Re-Executing Standalone Reviewer Audits (v3.1 R1-R5, v3.2 R6-R8, & v3.3 R9-R11)..."
+    echo ">>> [4/4] Re-Executing Standalone Reviewer Audits (v3.1 R1-R5, v3.2 R6-R8, v3.3 R9-R11, & v3.4 R12)..."
     $PY -m bench.run_reviewer_audit_v3_1
     $PY -m bench.recompute_v3_1 --check results/v3/reviewer_audit_v3_1.json
     $PY -m bench.run_reviewer_audit_v3_2
     $PY -m bench.recompute_v3_2 --check results/v3/reviewer_audit_v3_2.json
     $PY -m bench.run_reviewer_audit_v3_3
     $PY -m bench.recompute_v3_3 --check results/v3/reviewer_audit_v3_3.json
+    $PY -m bench.run_reviewer_audit_v3_4
+    $PY -m bench.recompute_v3_4 --check results/v3/reviewer_audit_v3_4.json
 else
     echo ""
-    echo ">>> [4/4] Verification complete (pass --rerun-audits to re-execute R1-R11 benchmark runs)."
+    echo ">>> [4/4] Recorded-evidence & test verification complete (pass --rerun-audits to re-execute R1-R12 benchmarks)."
 fi
 
 echo ""

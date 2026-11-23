@@ -1,10 +1,10 @@
-# ADR-0006: External Reviewer Audit Protocol (`v3.1 R1–R5`, `v3.2 R6–R8`, & `v3.3 R9–R11`), Multi-Parent Dynamic DAG Exactness (`Theorem 2`), Direct E2E Attribution, and Three-Tier Audience Architecture
+# ADR-0006: External Reviewer Audit Protocol (`v3.1 R1–R5`, `v3.2 R6–R8`, `v3.3 R9–R11`, & `v3.4 R12`), Multi-Parent Dynamic DAG Exactness (`Theorem 2`), Atomic Snapshot Publication, and Three-Tier Audience Architecture
 
 - **Status**: `accepted`
 - **Date**: 2026-11-23
-- **Scope**: `bench/prism_audit_kernel.cpp`, `src/modules/prism_ann_v3/dynamic_dag_ubp.py`, `FREEZE_v3_3.md`, `bench/run_reviewer_audit_v3_{1,2,3}.py`, `bench/recompute_v3_{1,2,3}.py`, `experiments/v3/PROTOCOL_v3_{1,2,3}.md`, `docs/ONBOARDING_NEW_GRAD.md`, `docs/ARCHITECTURE_SENIOR_ENGINEER.md`, `docs/RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md`, `paper/prism_ann.tex`
+- **Scope**: `bench/prism_audit_kernel.cpp`, `src/modules/prism_ann_v3/dynamic_dag_ubp.py`, `src/modules/prism_ann_v3/consistent_snapshot_index.py`, `FREEZE_v3_3.md`, `FREEZE_v3_4.md`, `bench/run_reviewer_audit_v3_{1,2,3,4}.py`, `bench/recompute_v3_{1,2,3,4}.py`, `experiments/v3/PROTOCOL_v3_{1,2,3,4}.md`, `docs/ONBOARDING_NEW_GRAD.md`, `docs/ARCHITECTURE_SENIOR_ENGINEER.md`, `docs/RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md`, `paper/prism_ann.tex`
 - **Builds Upon**: `ADR-0001` (UBP), `ADR-0002` (`H-HNSW` / `ACORN-GLS`), `ADR-0003` (Z-Ordered Tri-Modal Planner), `ADR-0004` (Raw-Record Provenance), `ADR-0005` (`v3` Confirmatory Evaluation)
-- **Mapped Paper Section**: Section III-A (**Theorem 1** Single-Parent Tree Token Bound, **Theorem 2** Multi-Parent Dynamic DAG Exact Set Equivalence & **Corollary 1** Revocation / Atomic Lineage-Revision Boundary), Section V-G (Supplementary Reviewer Audits `R1`–`R11`), Section VI-B (`Veda`, `RACORN`, `Curator`, & `EMA` Novelty Matrix)
+- **Mapped Paper Section**: Section III-A (**Theorem 1** Single-Parent Tree Token Bound, **Theorem 2** Multi-Parent Dynamic DAG Exact Set Equivalence & **Corollary 1** Revocation / Atomic Snapshot Consistency), Section V-F (Supplementary Reviewer Audits `R1`–`R12`), Section VI-B (`Veda`, `RACORN`, `Curator`, & `EMA` Novelty Matrix)
 
 ## Context
 Following the frozen `v3-confirmatory-001` benchmark (`169,810` raw records, `7/7` checksums in `FREEZE_v3.md`), three rounds of external research peer review raised formal, fairness, dynamic-hierarchy, and literature requirements:
@@ -25,12 +25,16 @@ Following the frozen `v3-confirmatory-001` benchmark (`169,810` raw records, `7/
    - `R10`: Measured single-timer E2E latency (`750` queries incl. live SpiceDB/mirror RPC + UBP + bitmap + in-timer `SQ8` quant + C++ kernel + `efSearch={32..512}` `1,000`-query sweep, `0` leaks). Reported `PR10` honestly **falsified** at $S=0.01\%$ (`6.15×–6.50× < 10×` live RPC cutoff, while passing `11.50×–96.87×` for $S \ge 0.1\%$ and `185.22×–437.38×` / `505.08×` in mirror mode) and observed in-timer `FP32` beating in-timer `SQ8` for $S \le 0.1\%$.
    - `R11`: `1,760` 8-thread concurrent live SpiceDB reads (`423` pre-rev `at_exact_snapshot`, `1,337` post-rev `at_least_as_fresh`, `1.481 ms` SpiceDB med RPC, `0.116 ms` index med search) -> `0` oracle mismatches, `0` post-rev leaks, `0` stale errors.
    - **Nov. 2026 Literature Parity**: Added `amanbayev2026gls` (`arXiv:2602.11443`) for proposing Global-Local Selectivity $r = S_{\text{loc}}/S$ (`iff2025fannbench` for FANNBench), `veda2026` (`arXiv:2605.01342`), `RACORN` (`arXiv:2607.00768v2`, `github.com/naver/racorn`), and `EMA` (`arXiv:2606.00734v2`).
+4. **Fourth-Round Concurrency & Unsynced-Mirror Audit (`v3.4`, `R12a`–`R12c`, `1,615` raw records, commit `36581bd`, `FREEZE_v3_4.md` `10/10`)**:
+   - **Snapshot Publication Race Closure (`src/modules/prism_ann_v3/consistent_snapshot_index.py`, research prototype)**: Preserving frozen `v3.3` `dynamic_dag_ubp.py` untouched (`FREEZE_v3_3.md` `9/9`), `AtomicVersionedLineageCorpus` captures `frozen_graph` under `auth_graph._lock` first, computes all reachability postings strictly from `frozen_graph`, and publishes monotonically. `R12a` reproduces `100/100` torn snapshots on frozen `v3.3` control while proving `0/200` torn snapshots (`100` double-injection + `100` out-of-order multi-publisher), `0` ordering regressions, and `0` leaks on `v3.4`.
+   - **Opaque SpiceDB `ZedToken` Lag & Authoritative Fallback (`R12b`)**: Across `13/13` live native SpiceDB v1.57.1 scenarios, `ConsistentDynamicPrismANNIndex` achieves `0` mismatches, `5` verified `fail_closed` refusals, and `4` verified live `spicedb_leaf_fallback` executions (never consulting a lagging local mirror).
+   - **Multi-Threaded Public `search()` Stress (`R12c`)**: `1,200` concurrent reads (`600` exact + `600` fresh, `0.032 ms` med / `1.090 ms` P99) across `101` audited snapshots yield `0` torn snapshots, `0` ordering regressions, and `0` leaks.
 
 ## Decision
-1. **Strict Separation of Confirmatory (`v3.0`) vs. Supplementary Reviewer-Audit (`v3.1`, `v3.2`, `v3.3`) Evidence**:
-   - Preserve `FREEZE.md` (`5/5`), `FREEZE_v3.md` (`7/7`), `FREEZE_v3_1.md` (`8/8`), and `results/v3/summary.json` (`169,810` records) completely untouched.
-   - Lock `src/modules/prism_ann_v3/dynamic_dag_ubp.py` in `FREEZE_v3_3.md` (`9/9` SHA-256 hashes) and pre-register `experiments/v3/PROTOCOL_v3_{1,2,3}.md` prior to execution.
-   - Emit per-trial raw JSONL logs verified bit-for-bit by `bench/recompute_v3_{1,2,3}.py`.
+1. **Strict Separation of Confirmatory (`v3.0`) vs. Supplementary Reviewer-Audit (`v3.1`, `v3.2`, `v3.3`, `v3.4`) Evidence**:
+   - Preserve `FREEZE.md` (`5/5`), `FREEZE_v3.md` (`7/7`), `FREEZE_v3_1.md` (`8/8`), `FREEZE_v3_3.md` (`9/9`), and all prior datasets untouched.
+   - Lock `src/modules/prism_ann_v3/consistent_snapshot_index.py` in `FREEZE_v3_4.md` (`10/10` SHA-256 hashes) and pre-register `experiments/v3/PROTOCOL_v3_{1,2,3,4}.md` prior to execution.
+   - Emit per-trial raw JSONL logs verified bit-for-bit by `bench/recompute_v3_{1,2,3,4}.py`.
 2. **Formal Split of Theorem 1, Theorem 2 (Dynamic Multi-Parent DAGs), and Atomic `ZedToken` Corollary 1**:
    - **Theorem 1** proves $|T_{\text{UBP}}^+(u)| \le k_0 + m(b-1)L$ on single-parent container trees (`0/10,000` violations in `R1`).
    - **Theorem 2** proves exact set equivalence $\Phi(\mathcal{P}_{\text{UBP}}(u)) = D_{\text{auth}}(u)$ (`0` FP, `0` FN) on arbitrary finite acyclic multi-parent ReBAC DAGs under **Deny-Dominates-Grant** precedence — provided structural edge mutations increment an atomic lineage revision (`CorpusRevisionSnapshot`) paired with `at_least_as_fresh` / `at_exact_snapshot` SpiceDB `ZedToken` checks.
@@ -48,11 +52,12 @@ Following the frozen `v3-confirmatory-001` benchmark (`169,810` raw records, `7/
 - **Corollary 1** (Section III-A): Zero vector-index writes ($0$ payload mutations) and atomic `ZedToken` ($\zeta_{\text{rev}}$) + `CorpusRevisionSnapshot` visibility.
 
 ## Deep Module Seam
-- `src/modules/prism_ann_v3/dynamic_dag_ubp.py` -> `DynamicMultiParentAuthGraph`, `VersionedLineageCorpus`, `DynamicPrismANNIndex`
+- `src/modules/prism_ann_v3/dynamic_dag_ubp.py` -> `DynamicMultiParentAuthGraph`, `VersionedLineageCorpus`, `DynamicPrismANNIndex` (frozen `v3.3`)
+- `src/modules/prism_ann_v3/consistent_snapshot_index.py` -> `AtomicVersionedLineageCorpus`, `ConsistentDynamicPrismANNIndex`, `AtomicRevisionSnapshot` (frozen `v3.4` research prototype)
 - `bench/prism_audit_kernel.cpp` -> `bench/_build/libprism_audit_kernel.dylib` (`audit_mode3_matrix`, `audit_r4_concurrent_zedtoken`, `audit_r5_compaction_step`)
-- `bench/recompute_v3_{1,2,3}.py` -> `recompute_v3_{1,2,3}_summary(jsonl_path) -> dict`
+- `bench/recompute_v3_{1,2,3,4}.py` -> `recompute_v3_{1,2,3,4}_summary(jsonl_path) -> dict`
 
 ## Consequences
-- **Positive**: Every claim in `paper/prism_ann.tex` is backed by `207,688` cumulative v3-series JSONL records (`169,810` `v3.0` + `22,533` `v3.1` + `6,821` `v3.2` + `8,524` `v3.3`) with `100%` deterministic recomputation parity across `3` independent reviewer audit rounds.
-- **Negative**: Maintaining four frozen manifests (`FREEZE.md`, `FREEZE_v3.md`, `FREEZE_v3_1.md`, `FREEZE_v3_3.md`) and three audit recomputers adds ~2.5s to CI verification.
-- **Reversibility**: `Two-Way Door` (all `v3.3` artifacts live cleanly inside `src/modules/prism_ann_v3/dynamic_dag_ubp.py`, `FREEZE_v3_3.md`, and `results/v3_3_audit/`).
+- **Positive**: Every claim in `paper/prism_ann.tex` is backed by `209,303` cumulative v3-series JSONL records (`169,810` `v3.0` + `22,533` `v3.1` + `6,821` `v3.2` + `8,524` `v3.3` + `1,615` `v3.4`) with `100%` deterministic recomputation parity across `4` additive reviewer audit rounds.
+- **Negative**: Maintaining five frozen manifests (`FREEZE.md`, `FREEZE_v3.md`, `FREEZE_v3_1.md`, `FREEZE_v3_3.md`, `FREEZE_v3_4.md`) and four audit recomputers adds ~3s to CI verification.
+- **Reversibility**: `Two-Way Door` (all `v3.4` artifacts live cleanly inside `src/modules/prism_ann_v3/consistent_snapshot_index.py`, `FREEZE_v3_4.md`, and `results/v3_4_audit/`).
