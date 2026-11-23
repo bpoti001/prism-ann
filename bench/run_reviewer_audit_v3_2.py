@@ -323,11 +323,7 @@ def run_r7_two_track_fair_benchmark(
                 denom = float(len(gt)) if gt else 1.0
 
                 # Common Z-order range arrays from UBP tokens
-                rbm_z = _compile_ranges_from_tokens(z_corpus, ubp_tokens, set())
-                arr_r = np.asarray(rbm_z.runs, dtype=np.int32)
-                starts = np.ascontiguousarray(arr_r[:, 0], dtype=np.int32)
-                ends = np.ascontiguousarray(arr_r[:, 1], dtype=np.int32)
-                n_cand = int(np.sum(ends - starts))
+                starts, ends, n_cand = _compile_ranges_from_tokens(z_corpus, ubp_tokens)
 
                 # --- 1. FAISS HNSW M=16 (Pure C++ Track 1 + O(N) Filter Compile Track 2) ---
                 t_fc0 = time.perf_counter_ns()
@@ -381,8 +377,7 @@ def run_r7_two_track_fair_benchmark(
 
                 # Pre-measure O(N_cand/64) C++ bitset materialization time vs O(N) naive leaf union time
                 t_fc0 = time.perf_counter_ns()
-                _rbm_tmp = _compile_ranges_from_tokens(z_corpus, ubp_tokens, set())
-                _s_tmp, _e_tmp = np.ascontiguousarray(np.asarray(_rbm_tmp.runs, dtype=np.int32)[:, 0], dtype=np.int32), np.ascontiguousarray(np.asarray(_rbm_tmp.runs, dtype=np.int32)[:, 1], dtype=np.int32)
+                _s_tmp, _e_tmp, _ = _compile_ranges_from_tokens(z_corpus, ubp_tokens)
                 ranges_set_bitset(_s_tmp, _e_tmp, idx_geom_m8._mask_bits, N)
                 fc_prism_ms = (time.perf_counter_ns() - t_fc0) / 1e6
                 # Clean bitset for RACORN leaf-bitmap compile measurement:
@@ -566,11 +561,7 @@ def run_r8_recall_audit(X_q: np.ndarray, Q_q: np.ndarray, logger: RawAuditLogger
             gt = set(_exact_top_k(X_q, qv, mask, k=k))
             denom = float(len(gt)) if gt else 1.0
 
-            rbm_z = _compile_ranges_from_tokens(z_corpus, ubp_tokens, set())
-            arr = np.asarray(rbm_z.runs, dtype=np.int32)
-            starts = np.ascontiguousarray(arr[:, 0], dtype=np.int32)
-            ends = np.ascontiguousarray(arr[:, 1], dtype=np.int32)
-            n_cand = int(np.sum(ends - starts))
+            starts, ends, n_cand = _compile_ranges_from_tokens(z_corpus, ubp_tokens)
             p_st = starts.ctypes.data_as(ctypes.POINTER(ctypes.c_int32))
             p_en = ends.ctypes.data_as(ctypes.POINTER(ctypes.c_int32))
             nr = len(starts)
