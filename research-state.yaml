@@ -40,12 +40,12 @@ reviewer_audit_v3_2:
   protocol_path: "experiments/v3/PROTOCOL_v3_2.md"
 
 reviewer_audit_v3_3:
-  run_id: "v3.3-reviewer-audit-001"
-  git_sha: "3c79298d2a52fa49f0c250fd660187a3f558db07"
+  run_id: "v3.3-reviewer-audit-002"
+  git_sha: "7ce7d44390962fb3ce2a3ef14770ae9ab5699478"
   git_dirty: false
   freeze_v3_3_match: true
   freeze_v3_3_files: 9
-  raw_records: 8521
+  raw_records: 8524
   raw_jsonl_path: "results/v3_3_audit/raw/v3_3_reviewer_audit.jsonl"
   summary_path: "results/v3/reviewer_audit_v3_3.json"
   protocol_path: "experiments/v3/PROTOCOL_v3_3.md"
@@ -108,18 +108,18 @@ hypotheses:
     mapped_theorem: "Theorem 1 (Tree Bound) & Theorem 2 (Multi-Parent DAG Exactness), Propositions 2-4"
     predictions:
       PR6: "supported (5,000 permission/deny/revocation trials across 36 generated multi-parent DAGs [mean 1,170.0 secondary edges]: 0/5,000 mismatches, max 387 tokens)"
-      PR7: "falsified on strict fragmented-L5 <=0.35ms / >=100x thresholds (0/1,500 leaks; Track 1 C++ + modeled Track 2 composite: v3-full-guard-f32 0.0206-0.4527ms & -sq8 0.0380-0.4344ms hit 100.0% at S<=1% [0.4344ms>0.35ms & 82.19x<100x at S=1%]; v3-geom-M8 71.4%-87.4% beats acorn-1 & racorn-1-fallback proxy)"
+      PR7: "falsified on strict fragmented-L5 <=0.35ms / >=100x thresholds (0/1,500 leaks; Track 1 C++ + composed request-latency estimate Track 2 w/ H1 bitmap overlap: v3-full-guard-f32 0.0206-0.4527ms & -sq8 0.0380-0.4344ms hit 100.0% at S<=1% [0.4344ms>0.35ms & 82.19x<100x at S=1%]; v3-geom-M8 71.4%-87.4% beats acorn-1 & racorn-1-fallback proxy)"
       PR8: "falsified on strict <=0.25ms exact-FP32 cutoff at fragmented S=1.0% (M_rerank=64 100% guarantee at S=0.01% [n_cand<=48]; SQ8+M_rerank>=32 100.0% empirical R@10 at S<=1%; exact FP32 0.0035/0.0235/0.1964/0.3289ms > 0.25ms at S=1%)"
     protocol_path: "experiments/v3/PROTOCOL_v3_2.md"
 
   - id: "R9_R11_v3_3"
     governing_adr: "ADR-0001, ADR-0004, ADR-0005, ADR-0006"
-    mapped_theorem: "Theorem 2 (Multi-Parent DAG Exactness), Corollary 1 (ZedToken Snapshot Consistency)"
+    mapped_theorem: "Theorem 2 (Multi-Parent DAG Exactness), Corollary 1 (ZedToken Snapshot Consistency & Fail-Closed Contract)"
     predictions:
-      PR9a: "supported (1,000 independent multi-parent DAGs, 5,000 dynamic structural-mutation checkpoints: 0 FP, 0 FN, 0 search hit leaks)"
-      PR9b: "supported (10/10 live native SpiceDB v1.57.1 multi-parent scenarios vs LookupResources & CheckPermission: 0 mismatches)"
-      PR10: "falsified on strict >=10x live-RPC cutoff at S=0.01% (0/1,750 total leaks; single-timer E2E incl. in-timer SQ8 quant: 6.20x-6.47x at S=0.01% [1.61-1.68ms vs 10.40ms LookupResources], 11.39x-89.10x at S>=0.1%; mirror 197.39x-522.40x; efSearch=32..512 sweep dominates S=0.5%)"
-      PR11: "supported (1,760 8-thread concurrent live SpiceDB reads pinned to real opaque at_exact_snapshot / at_least_as_fresh ZedTokens: 0 oracle mismatches, 0 post-revocation leaks)"
+      PR9a: "supported (1,000 independent multi-parent DAGs, 5,000 dynamic structural-mutation checkpoints incl. P->C & P->X->C diamond unlinks: 0 FP, 0 FN, 0 search hit leaks)"
+      PR9b: "supported (13/13 live native SpiceDB v1.57.1 multi-parent scenarios vs LookupResources & CheckPermission w/ logged write_zed_token/revisions/IDs/latency & S10 fail-closed StaleOrMissingSnapshotError refusal: 0 mismatches)"
+      PR10: "falsified on strict >=10x live-RPC cutoff at S=0.01% (0/1,750 total leaks; measured single-timer E2E incl. in-timer SQ8 quant: 6.15x-6.50x at S=0.01% [1.53-1.62ms vs 9.95ms LookupResources], 11.50x-96.87x at S>=0.1%; mirror 185.22x-437.38x to S=1% & 505.08x at S=5%; efSearch=32..512 sweep dominates S=0.5%)"
+      PR11: "supported (1,760 8-thread concurrent live SpiceDB reads pinned to real opaque at_exact_snapshot / at_least_as_fresh ZedTokens [423+1337, 1.481ms RPC, 0.116ms idx]: 0 oracle mismatches, 0 post-revocation leaks, 0 stale errors)"
     protocol_path: "experiments/v3/PROTOCOL_v3_3.md"
 
 trajectory:
@@ -140,4 +140,4 @@ trajectory:
     result: "v3.2-reviewer-audit-001 (6,821 records across R6-R8, PR6 supported, PR7/PR8 falsified transparently) + Theorem 1/2 split + 3-Tier Docs."
   - iteration: 6
     action: "V3_3_DYNAMIC_DAG_FIX_LIVE_ZEDTOKEN_AND_DIRECT_E2E_AUDIT"
-    result: "Added dynamic_dag_ubp.py (FREEZE_v3_3 9/9) resolving post-index edge additions & multi-parent unlinks; executed v3.3-reviewer-audit-001 (8,521 records: PR9a/PR9b/PR11 supported, PR10 transparently falsified at S=0.01% >=10x cutoff); reconciled cross-doc metrics & Amanbayev/Veda/RACORN/Curator/EMA citations."
+    result: "Added reachability-exact ancestor recomputation & fail-closed snapshot expiration in dynamic_dag_ubp.py (FREEZE_v3_3 9/9); executed v3.3-reviewer-audit-002 (8,524 records: PR9a [1,000 independent DAGs / 5,000 mutations], PR9b [13/13 live SpiceDB scenarios w/ S10 fail-closed], PR11 supported; PR10 transparently falsified at S=0.01% >=10x cutoff); reconciled cross-doc metrics, composed request-latency estimate terminology, and github.com/naver/racorn + Amanbayev/Veda/Curator/EMA citations."

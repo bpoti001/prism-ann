@@ -677,7 +677,7 @@ def audit_paper() -> bool:
          [os.path.join("bench", "recompute_v3_1.py"), "--check", os.path.join("results", "v3", "reviewer_audit_v3_1.json")]),
         ("Prism-ANN v3.2 Second-Round Audit Provenance (6,821 raw records)",
          [os.path.join("bench", "recompute_v3_2.py"), "--check", os.path.join("results", "v3", "reviewer_audit_v3_2.json")]),
-        ("Prism-ANN v3.3 Dynamic-DAG & Direct E2E Audit Provenance (8,521 raw records)",
+        ("Prism-ANN v3.3 Dynamic-DAG & Direct E2E Audit Provenance (8,524 raw records)",
          [os.path.join("bench", "recompute_v3_3.py"), "--check", os.path.join("results", "v3", "reviewer_audit_v3_3.json")]),
         ("Prism-ANN Blast Radius: Live UBP Zero-Leakage Proof", ["verify_blast_radius_ubp.py"]),
         ("Prism-ANN v3/v3.1/v3.2/v3.3 Brake 1: Raw-Record Provenance & Zero-Hallucination Sensor",

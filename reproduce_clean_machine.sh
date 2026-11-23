@@ -12,7 +12,7 @@
 #              - v3-confirmatory-001   (169,810 raw records)
 #              - v3.1-reviewer-audit   ( 22,533 raw records)
 #              - v3.2-reviewer-audit   (  6,821 raw records)
-#              - v3.3-reviewer-audit   (  8,521 raw records)
+#              - v3.3-reviewer-audit   (  8,524 raw records)
 #         3. 376-scenario Blast-Radius live UBP fuzzer (0 FP, 0 FN)
 #         4. Full pytest suite (unit, C++ NEON kernel parity, provenance,
 #            Theorem 2 dynamic multi-parent diamond DAG & ZedToken snapshot tests)

@@ -72,11 +72,11 @@
 
 ### v3.3 Third-Round Dynamic-DAG & Direct-E2E Audit Sign-Off
 
-- **Verified Revised PDF**: `paper/prism_ann.pdf` & `prism_ann_paper.pdf` (12 pages, SHA-256 `f1b3b1b30edb47037f6af800f01b41ad18412f0bf8b06bf41152fd18599394f9`)
+- **Verified Revised PDF**: `paper/prism_ann.pdf` & `prism_ann_paper.pdf` (12 pages, SHA-256 `426f080ccb132dcd59da36d641131ca90ea2efb8a5512de0c63d9a6892337181`)
 - **Audit Scope**:
   - `FREEZE.md` (`5/5`), `FREEZE_v3.md` (`7/7`), `FREEZE_v3_1.md` (`8/8`), and `FREEZE_v3_3.md` (`9/9`, adding `src/modules/prism_ann_v3/dynamic_dag_ubp.py`) all intact (`0` frozen files modified).
-  - Deterministic recomputation bit-for-bit `MATCH` across all four v3 campaigns plus v2 (`207,685` v3-series JSONL records: `169,810` `v3.0` + `22,533` `v3.1` + `6,821` `v3.2` + `8,521` `v3.3`) via `./reproduce_clean_machine.sh --verify`.
-  - Resolved Priority Findings 1–7 (`R9a` `1,000` independent DAGs/`5,000` dynamic mutations `0` FP/FN, `R9b` `10/10` live SpiceDB matrix, `R10` unbroken direct E2E timer w/ in-timer `SQ8` quant & `efSearch` curve + honest `PR10` falsification at $S=0.01\%$ live RPC, `R11` `1,760` 8-thread live SpiceDB opaque-`ZedToken` reads, `amanbayev2026gls` + `veda2026` + `github.com/naver/racorn`, cross-doc reconciliation, and revised explainer scripts + 4-part storyboard).
+  - Deterministic recomputation bit-for-bit `MATCH` across all four v3 campaigns plus v2 (`207,688` v3-series JSONL records: `169,810` `v3.0` + `22,533` `v3.1` + `6,821` `v3.2` + `8,524` `v3.3`) via `./reproduce_clean_machine.sh --verify`.
+  - Resolved Priority Findings 1–7 plus technical review follow-ups (`R9a` `1,000` independent DAGs/`5,000` dynamic mutations incl. $P \to C$ / $P \to X \to C$ diamonds `0` FP/FN, `R9b` `13/13` live SpiceDB matrix + fail-closed expiration verification in `S10`, explicit `at_least_as_fresh`/`at_exact_snapshot` consistency modes, `R10` unbroken direct E2E timer w/ in-timer `SQ8` quant & `efSearch` curve + honest `PR10` falsification at $S=0.01\%$ live RPC `6.15x–6.50x`, `R11` `1,760` 8-thread live SpiceDB opaque-`ZedToken` reads, `R7` Track 2 reclassified as a composed request-latency estimate w/ `CRoaring` overlap disclosure, direct source inspection of `github.com/naver/racorn` `b1a587ad2f5d` + `amanbayev2026gls` + `veda2026`, cross-doc reconciliation, `30/30` `pytest` tests, and revised explainer scripts + 4-part storyboard).
 
 ---
 

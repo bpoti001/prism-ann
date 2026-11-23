@@ -36,11 +36,11 @@ To verify our gains are not an artifact of lucky entry points, we ran a strict f
 
 ## Slide 09 (00:05:03,879 – 00:05:39,681) — Scientific Transparency: Falsified Cutoffs, Memory Cost, & Scope Boundaries
 
-Scientific credibility requires reporting every limitation and falsified prediction transparently. Across our reviewer audits covering `207,685` total records, three strict pre-registered latency cutoffs—`PR7` (`0.434 ms` / `82.19×` mirror at fragmented `L5`), `PR8` (`0.329 ms` exact `FP32`), and ultra-low `S=0.01%` live-RPC `PR10` (`6.20–6.47× < 10×`)—were falsified and reported honestly alongside positive results. We separate our `+1.91%` graph-only memory cost from the `+24.8%` footprint when retaining an auxiliary `SQ8` buffer, and measure exact `FP32` Mode Three beating in-timer `SQ8` quantization+scan at $S \le 0.1\%$.
+Scientific credibility requires reporting every limitation and falsified prediction transparently. Across our reviewer audits covering `207,688` total records, three strict pre-registered latency cutoffs—`PR7` (`0.434 ms` / `82.19×` mirror at fragmented `L5`), `PR8` (`0.329 ms` exact `FP32`), and ultra-low `S=0.01%` live-RPC `PR10` (`6.15–6.50× < 10×`)—were falsified and reported honestly alongside positive results. We separate our `+1.91%` graph-only memory cost from the `+24.8%` footprint when retaining an auxiliary `SQ8` buffer, and measure exact `FP32` Mode Three beating in-timer `SQ8` quantization+scan at $S \le 0.1\%$.
 
 ## Slide 10 (00:05:39,681 – 00:06:10,110) — Open Work Before External Submission & Enterprise Pilots
 
-To summarize what remains before conference submission and pilot deployment: while zero leaks were observed across `1,000` independent dynamic multi-parent DAGs (`5,000` mutations) and live SpiceDB opaque-`ZedToken` concurrency, Prism-A-N-N has not yet been benchmarked against upstream binaries of `RACORN`, `EMA`, `Curator`, or `Veda`, or validated on billion-vector clusters. All reproducible proofs, pre-registered protocols, raw logs, and falsified checks are open in the repository for independent reproduction.
+To summarize what remains before conference submission and pilot deployment: while zero leaks were observed across `1,000` independent dynamic multi-parent DAGs (`5,000` mutations including diamond unlinks), `13/13` live SpiceDB mutation scenarios (with fail-closed snapshot expiration verification), and live SpiceDB opaque-`ZedToken` concurrency, Prism-A-N-N has not yet been benchmarked against upstream binaries of `RACORN`, `EMA`, `Curator`, or `Veda`, or validated on billion-vector clusters. All reproducible proofs, pre-registered protocols, raw logs, and falsified checks are open in the repository for independent reproduction.
 
 ---
 
@@ -68,6 +68,6 @@ Designed for mixed technical & non-specialist audiences so every core mechanism 
 
 ### Video 4 — What Remains to Be Verified (`60–90s`)
 - **Honest Scientific Scorecard:**
-  - **Falsified Strict Cutoffs:** `PR7` (`0.434 ms > 0.35 ms` at fragmented L5), `PR8` (`0.329 ms > 0.25 ms` exact FP32 at `S=1%`), and `PR10` (`6.20–6.47× < 10×` live SpiceDB speedup when only 3 leaf docs match at `S=0.01%`).
+  - **Falsified Strict Cutoffs:** `PR7` (`0.434 ms > 0.35 ms` at fragmented L5), `PR8` (`0.329 ms > 0.25 ms` exact FP32 at `S=1%`), and `PR10` (`6.15–6.50× < 10×` live SpiceDB speedup when only 3 leaf docs match at `S=0.01%`).
   - **Key Architectural Distinctions:** Static-hierarchy legacy facades (`PrismANNIndex`, `PrismANNIndexV3`) vs. versioned dynamic DAGs (`DynamicPrismANNIndex`); exact `FP32` beating in-timer `SQ8` at $S \le 0.1\%$.
   - **Open Work:** Independent clean-machine reproduction, direct benchmarking of upstream C++ `RACORN`, `EMA`, `Curator`, and `Veda` binaries, non-clustered multi-tenant workloads, and billion-scale Zanzibar clusters.

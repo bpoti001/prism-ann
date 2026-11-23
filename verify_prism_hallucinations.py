@@ -386,7 +386,7 @@ def verify() -> bool:
             "results/v3/reviewer_audit_v3_3.json matches deterministic recompute_v3_3.py bit-for-bit",
             "reviewer_audit_v3_3.json differs from recompute_v3_3.py",
         )
-        check(a33.get("raw_records_total") == 8521, "v3.3 raw JSONL total == 8521", f"Expected 8521, got {a33.get('raw_records_total')}")
+        check(a33.get("raw_records_total") == 8524, "v3.3 raw JSONL total == 8524", f"Expected 8524, got {a33.get('raw_records_total')}")
         check(a33.get("git_dirty") is False, "v3.3 audit ran on clean git tree (git_dirty == False)", f"v3.3 git_dirty={a33.get('git_dirty')}")
         check(a33.get("freeze_v3_3_match") is True and a33.get("freeze_v3_3_files") == 9,
               "v3.3 FREEZE_v3_3 match 9/9", f"v3.3 freeze mismatch: {a33.get('freeze_v3_3_match')}")
@@ -415,11 +415,12 @@ def verify() -> bool:
             f"R9a failure: {r9a}",
         )
         check(
-            r9b["scenarios_total"] == 10
+            r9b["scenarios_total"] == 13
+            and r9b.get("fail_closed_refusals_verified", 0) >= 1
             and r9b["mask_mismatches"] == 0
             and r9b["search_mismatches"] == 0
             and r9b["check_permission_mismatches"] == 0,
-            "v3.3 R9b: 10/10 live SpiceDB dynamic mutation scenarios matched",
+            "v3.3 R9b: 13/13 live SpiceDB dynamic mutation & fail-closed expiration scenarios matched",
             f"R9b failure: {r9b}",
         )
         check(
@@ -446,10 +447,11 @@ def verify() -> bool:
         r10_s0001_f32 = r10["direct_e2e_by_S"]["0.0001"]["systems"]["v3-full-guard-f32"]
         r10_s01_sq8 = r10["direct_e2e_by_S"]["0.01"]["systems"]["v3-full-guard-sq8"]
         v33_checks = [
-            ("v3.3 total records", "8,521", "8{,}521"),
+            ("v3.3 total records", "8,524", "8{,}524"),
             ("R9a 1,000 DAGs", "1,000", "1{,}000"),
             ("R9a 5,000 mutations", "5,000", "5{,}000"),
-            ("R9b 10/10 scenarios", "10 / 10", "10/10"),
+            ("R9b 13/13 scenarios", "13 / 13", "13/13"),
+            ("R7 Track 2 composed estimate disclosure", "composed request-latency estimate", "composed request-latency estimate"),
             ("R10 live-RPC S=0.01% f32 speedup", f"{r10_s0001_f32['speedup_live_rpc_vs_faiss']:.2f}", f"{r10_s0001_f32['speedup_live_rpc_vs_faiss']:.2f}"),
             ("R10 live-RPC S=5.0% sq8 speedup", f"{r10_s05_sq8['speedup_live_rpc_vs_faiss']:.2f}", f"{r10_s05_sq8['speedup_live_rpc_vs_faiss']:.2f}"),
             ("R10 mirror S=0.01% sq8 speedup", f"{r10_s0001_sq8['speedup_mirror_vs_faiss']:.2f}", f"{r10_s0001_sq8['speedup_mirror_vs_faiss']:.2f}"),
@@ -467,7 +469,13 @@ def verify() -> bool:
             check(tex_tok in tex, f"paper/prism_ann.tex contains v3.3 {label} ({tex_tok})",
                   f"paper/prism_ann.tex missing v3.3 {label}: {tex_tok}")
 
-        stale_patterns = ("23.62", "36,881", "36{,}881", "0/18,412", "0 / 18,412", "98.17%")
+        check(
+            "github.com/naver/racorn" in tex and "github.com/naver/racorn" in nov_txt,
+            "Upstream naver/racorn repository inspection cited in prism_ann.tex and RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md",
+            "Missing github.com/naver/racorn citation in prism_ann.tex or RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md",
+        )
+
+        stale_patterns = ("23.62", "36,881", "36{,}881", "0/18,412", "0 / 18,412", "98.17%", "8,521", "8{,}521", "207,685")
         cross_docs = [
             ".planning/STATE.md",
             "findings.md",
