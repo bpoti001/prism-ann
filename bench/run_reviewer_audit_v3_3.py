@@ -628,8 +628,9 @@ def run_r10_direct_e2e_and_ef_sweep(
 
         for s_val in selectivities:
             q_picks = rng.choice(len(Q_q), size=n_q, replace=False)
+            s_slug = str(s_val).replace(".", "_")
             for qi_loc, qi in enumerate(q_picks):
-                pid = f"r10_s{s_val}_q{qi_loc}"
+                pid = f"r10_s{s_slug}_q{qi_loc}"
                 grants, denies, mask = _make_quora_policy_and_mask(s_val, rng, overlay, N)
                 overlay.auth_graph.positive_grants[pid] = set(grants)
                 overlay.auth_graph.explicit_denies[pid] = set(denies)
