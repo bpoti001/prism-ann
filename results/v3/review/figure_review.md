@@ -17,6 +17,8 @@
 | `paper/figures/v3_fig4_h4_revocation_and_neon_latency.png` | `90d1d667423af29aa3e1a15ad10cf81352d50b958dca8ca6410270fa788ffcef` |
 | `paper/figures/v3_fig5_h5_portal_ablation.pdf` | `43913d04decc33a60cd933c0a5df9bed5899914ea2fb5f0986ebcf6988652fd2` |
 | `paper/figures/v3_fig5_h5_portal_ablation.png` | `13c9f7709e59f574a6c00eaa0cec1eedea5770bbbf1ea5cd4cef2a57afeac98a` |
+| `paper/figures/v3_fig6_reviewer_audit.pdf` | `f9b252cb62a471911c48f8494415cc49a66a9a2c34f616685b64ab6efcc6bba9` |
+| `paper/figures/v3_fig6_reviewer_audit.png` | `25293eed34b39a093cb11fec9a02c446f2d9fc8260686852f6d04d1a69bf6998` |
 
 ---
 
@@ -62,6 +64,13 @@
   1. **Notation mismatch within the same figure**: X-axis tick labels express selectivity in percent (`S = 0.1%`, `S = 0.5%`, `S = 1.0%`, `S = 5.0%`), whereas the green callout box writes decimal fractions (`S=0.001`, `S=0.005`, `S=0.01`).
   2. **Rounding discrepancy vs. Table III**: `S = 1.0%` `FAISS HNSW M=16` bar label shows `36.8` (`36.8467%` formatted with `:.1f`), whereas Table III displays `36.85%`. Both are exact to their respective decimal places, though `36.8` vs. `36.85` can momentarily puzzle readers.
   3. **Colorblind pairing**: Dark forest green (`#117733`) vs. vermilion (`#D55E00`) are adjacent on the right two bars; luminance contrast and fixed left-to-right legend ordering keep them distinguishable, though texture/hatching would improve deuteranopia separation.
+
+### Figure 6 (Paper Fig. 6, `v3.1` Supplementary Audit): `paper/figures/v3_fig6_reviewer_audit.png`
+- **Visual Clarity & Layout**: Three side-by-side panels generated via `bench/plot_v3_1.py` from `results/v3/reviewer_audit_v3_1.json` (`22,533` clean raw records on commit `e39260a`, `git_dirty=False`): **(a)** Ultra-low $S=0.01\%$ Recall@10 on Quora (`523k`) and NQ (`250k`); **(b)** Cold-LLC ($64\text{ MB}$ volatile flush/query) 6-way Mode-3 component isolation across $S \in [0.01\%, 1.0\%]$; and **(c)** Persistent PG17 SpiceDB single-edge $O(1)$ subtree revocation scaling (`128 -> 490,419` chunks, `0` vector writes) with the concurrent `11,244`-query `ZedToken` race callout (`0/6,039 queries leaked`).
+- **Overlaps & Readability (Verified after Remediation)**:
+  - Panel (a) separates `100.0` (bold) and `100.0` (regular) over `Prism Full` cleanly with a crisp horizontal offset and `fontsize=5.8`.
+  - Panel (b) extends the log y-axis headroom (`ylim(0.02, 14.0)`) and uses a compact `5.5 pt` legend box so all six curves (`Scattered FP32 Scalar` through `Z-Order SQ8 NEON`) sit cleanly below the legend with zero line clipping.
+  - Panel (c) right-aligns the green `R4a/R4b` callout box above the flat `65k..490k` tail (`0.74–0.80 ms`), completely clear of the `128`-chunk `5.11 ms` upper whisker on the left.
 
 ---
 

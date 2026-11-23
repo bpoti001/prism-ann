@@ -3,7 +3,7 @@
 [![Verification](https://img.shields.io/badge/Provenance%20Audit-Verified%200%20Drift-brightgreen.svg)](#reproducibility--provenance-verification)
 [![Unit Tests](https://img.shields.io/badge/pytest-19%2F19%20PASS-brightgreen.svg)](#reproducibility--provenance-verification)
 [![Reviewer Audit](https://img.shields.io/badge/Reviewer%20Audit%20v3.1-5%2F5%20PR%20Supported-blue.svg)](REVIEWER_AUDIT_REPORT.md)
-[![Confirmatory Records](https://img.shields.io/badge/Raw%20Query%20Logs-169%2C810%20%2B%2023%2C056%20Audit-blueviolet.svg)](results/v3/summary.json)
+[![Confirmatory Records](https://img.shields.io/badge/Raw%20Query%20Logs-169%2C810%20%2B%2022%2C533%20Audit-blueviolet.svg)](results/v3/summary.json)
 
 Official implementation, formal proofs, raw confirmatory & audit JSONL datasets, reproducible C++17 / ARM NEON kernels, interactive research report, executive presentation, and explainer videos for **Prism-ANN**.
 
@@ -21,11 +21,11 @@ Official implementation, formal proofs, raw confirmatory & audit JSONL datasets,
 | **Algorithm 1: Subtractive UBP (`P_UBP`)** | [`src/modules/prism_ann/ubp_resolver.py`](src/modules/prism_ann/ubp_resolver.py) | Frozen SHA-256 (`FREEZE_v3.md`). `0/1,200` SpiceDB mismatches & `0/10,000` fuzzing mismatches. |
 | **Geometric Bridges & `ACORN-GLS` (`H-HNSW v2`)** | [`src/modules/prism_ann_v3/geometric_hhnsw.py`](src/modules/prism_ann_v3/geometric_hhnsw.py) | `M_bridge=8` Vamana/RNG edges (`+32 B/node` = `+1.91%` graph RAM) on shared FAISS `M=16` base graph. |
 | **Native C++17 / ARM NEON + Local-Stall Guard Kernel** | [`bench/prism_ckernel.cpp`](bench/prism_ckernel.cpp) · [`src/modules/prism_ann_v3/trimodal_v3.py`](src/modules/prism_ann_v3/trimodal_v3.py) | Frozen C++ kernel (`FREEZE_v3.md`): NEON `vdotq_s32` (`SQ8`)+FP32 rerank & 3-stage stall guard. |
-| **6-Way Mode-3 Isolation Kernel (`Z-Order / SQ8 / NEON vs Scalar`)** | [`bench/prism_audit_kernel.cpp`](bench/prism_audit_kernel.cpp) · [`bench/run_reviewer_audit_v3_1.py`](bench/run_reviewer_audit_v3_1.py) | Isolates contiguous Z-order (`7.69×`), `SQ8` (`2.82×`), NEON (`7.18×`) under 64 MB Cold LLC flush. |
+| **6-Way Mode-3 Isolation Kernel (`Z-Order / SQ8 / NEON vs Scalar`)** | [`bench/prism_audit_kernel.cpp`](bench/prism_audit_kernel.cpp) · [`bench/run_reviewer_audit_v3_1.py`](bench/run_reviewer_audit_v3_1.py) | Isolates contiguous Z-order (`7.35×`), `SQ8` (`2.85×`), NEON (`7.46×`) under 64 MB Cold LLC flush. |
 | **Live SpiceDB & `pgvector` Benchmark Drivers** | [`bench/engines.py`](bench/engines.py) · [`bench/harness_v3.py`](bench/harness_v3.py) · [`bench/recompute_v3.py`](bench/recompute_v3.py) | Live SpiceDB `v1.57.1` (memory & PG17), PostgreSQL `17.12` + `pgvector 0.8.7`, FAISS `1.16.0`, ACORN, hnswlib. |
 | **Frozen Confirmatory Logs (`169,810` queries)** | [`results/v3/raw/`](results/v3/raw) · [`results/v3/summary.json`](results/v3/summary.json) · [`results/v3/DEVIATIONS.md`](results/v3/DEVIATIONS.md) | Bit-for-bit verified by `python -m bench.recompute_v3 --check`. Zero permission leaks. |
-| **Reviewer Audit Logs (`R1`–`R5`, `v3.1`)** | [`results/v3/reviewer_audit_v3_1.json`](results/v3/reviewer_audit_v3_1.json) · [`results/v3_1_audit/raw/v3_1_reviewer_audit.jsonl`](results/v3_1_audit/raw/v3_1_reviewer_audit.jsonl) | `10,000` fuzz trees, `S=0.01%` Quora/NQ, Cold LLC isolation, `15,563`-query concurrent `ZedToken` race, dynamic Z-order compaction. |
-| **Unit, Parity & Provenance Tests** | [`tests/test_prism_ann.py`](tests/test_prism_ann.py) · [`tests/test_prism_v3_kernel.py`](tests/test_prism_v3_kernel.py) · [`verify_prism_hallucinations.py`](verify_prism_hallucinations.py) | `19/19` pytest passing + `238/238` raw-to-LaTeX anti-hallucination checks passing. |
+| **Reviewer Audit Logs (`R1`–`R5`, `v3.1`)** | [`results/v3/reviewer_audit_v3_1.json`](results/v3/reviewer_audit_v3_1.json) · [`results/v3_1_audit/raw/v3_1_reviewer_audit.jsonl`](results/v3_1_audit/raw/v3_1_reviewer_audit.jsonl) | `10,000` fuzz trees, `S=0.01%` Quora/NQ, Cold LLC isolation, `11,244`-query concurrent `ZedToken` race, dynamic Z-order compaction. |
+| **Unit, Parity & Provenance Tests** | [`tests/test_prism_ann.py`](tests/test_prism_ann.py) · [`tests/test_prism_v3_kernel.py`](tests/test_prism_v3_kernel.py) · [`verify_prism_hallucinations.py`](verify_prism_hallucinations.py) | `19/19` pytest passing + Brake 1 raw-to-LaTeX anti-hallucination checks passing (`0` errors). |
 
 ---
 
@@ -55,10 +55,10 @@ Official implementation, formal proofs, raw confirmatory & audit JSONL datasets,
 
 ### B. Five Supplementary Reviewer-Audit Experiments (`v3.1` — [`REVIEWER_AUDIT_REPORT.md`](REVIEWER_AUDIT_REPORT.md))
 1. **`R1` (`10,000`-Hierarchy Fuzzing):** `0 / 5,000` mismatches on standard `but not` ReBAC + `0 / 5,000` mismatches on generalized depth-5 alternating `GRANT ↔ DENY` override trees (`100.0%` bound satisfaction).
-2. **`R2` (`S = 0.01%` Ultra-Low Selectivity):** On depth-5 overlays (`S_actual ≈ 0.0091%`), `FAISS` (`0.60%–0.87%`) and `ACORN-1` (`0.27%–0.40%`) collapse below `1%`, whereas `v3-geom-M8` hits **`85.73%–92.27%`** (`0.25–0.59 ms`) and `v3-full-guard-sq8` hits **`100.00%` in `0.032–0.056 ms`**.
-3. **`R3` (6-Way Cold-LLC Component Isolation, `64 MB` flush/query):** At `S=1.0%`, combined speedup of **`28.73×` cold (`33.64×` warm)** decomposes into **`7.69×`** from Z-order + `CRoaring` contiguity (`FP32` NEON), **`2.82×`** from `SQ8` bandwidth reduction, and **`7.18×`** from ARM NEON (`64`-MAC `vdotq_s32`) over portable C++ scalar (`0.734 ms` cold scalar `SQ8` still runs sub-millisecond without SIMD!).
-4. **`R4` (Single-Edge Subtree Scaling & Concurrent `ZedToken` Race):** Persistent PG17 SpiceDB single-edge deletions from `128 → 490,419` chunks stay flat at **`0.79–1.68 ms` with `0` vector writes**; across `11,767` concurrent C++ H-HNSW queries on `4` reader threads crossing a live `131,072`-chunk PG17 SpiceDB revocation (`60.35 ms` commit, `0.096 ms` atomic snapshot swap), **`0 / 5,989` post-`zeta_rev` queries** leaked any revoked chunk.
-5. **`R5` (Dynamic Ingestion & Background Z-Order Compaction):** Online delta-buffer ingestion appends `+1k..+25k` vectors in **`5.2–21.2 µs/vector`** without blocking readers; background lexicographic compaction + C++ HNSW CSR ID remapping completes off-critical-path in **`1.44–2.56 s`** (`111–119 ms` for `500k` CSR remap).
+2. **`R2` (`S = 0.01%` Ultra-Low Selectivity):** On depth-5 overlays (`S_actual ≈ 0.0091%`, `0` leaks), `FAISS` (`0.60%–0.87%`) and `ACORN-1` (`0.33%–0.40%`) collapse below `1%`, whereas `v3-geom-M8` hits **`85.73%–92.27%`** (`0.27–0.54 ms`) and `v3-full-guard-sq8` hits **`100.00%` in `0.032–0.049 ms`**.
+3. **`R3` (6-Way Cold-LLC Component Isolation, `64 MB` flush/query):** At `S=1.0%`, combined speedup of **`29.40×` cold (`34.18×` warm)** decomposes into **`7.35×`** from Z-order + `CRoaring` contiguity (`FP32` NEON), **`2.85×`** from `SQ8` bandwidth reduction, and **`7.46×`** from ARM NEON (`64`-MAC `vdotq_s32`) over portable C++ scalar (`0.728 ms` cold scalar `SQ8` still runs sub-millisecond without SIMD!).
+4. **`R4` (Single-Edge Subtree Scaling & Concurrent `ZedToken` Race):** Persistent PG17 SpiceDB single-edge deletions from `128 → 490,419` chunks stay flat at **`0.74–1.66 ms` with `0` vector writes**; across `11,244` concurrent C++ H-HNSW queries on `4` reader threads crossing a live `131,072`-chunk PG17 SpiceDB revocation (`6.82 ms` commit, `0.091 ms` atomic snapshot swap), **`0 / 6,039` post-`zeta_rev` queries** leaked any revoked chunk.
+5. **`R5` (Dynamic Ingestion & Background Z-Order Compaction):** Online delta-buffer ingestion appends `+1k..+25k` vectors in **`5.3–23.9 µs/vector`** without blocking readers; background lexicographic compaction + C++ HNSW CSR ID remapping completes off-critical-path in **`1.30–2.36 s`** (`116.3–121.6 ms` for `500k` CSR remap).
 
 ---
 
@@ -70,8 +70,9 @@ Official implementation, formal proofs, raw confirmatory & audit JSONL datasets,
 
 # 2. Verify SHA-256 freeze integrity & bit-for-bit raw JSONL -> summary.json recomputation
 .venv-bench/bin/python -m bench.recompute_v3 --raw-dir results/v3/raw --check results/v3/summary.json
+.venv-bench/bin/python -m bench.recompute_v3_1 --raw results/v3_1_audit/raw/v3_1_reviewer_audit.jsonl --check results/v3/reviewer_audit_v3_1.json
 
-# 3. Verify 0.0% numerical drift between summary.json and paper/prism_ann.tex (238 checks)
+# 3. Verify 0.0% numerical drift across summary.json, reviewer_audit_v3_1.json, paper/prism_ann.tex & reports
 .venv-bench/bin/python verify_prism_hallucinations.py
 
 # 4. Run the 5 supplementary Reviewer Audit suites (R1..R5)

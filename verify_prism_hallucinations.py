@@ -204,38 +204,73 @@ def verify() -> bool:
               "reviewer_audit_v3_1.json differs from recompute_v3_1.py")
 
         n_rec = audit.get("raw_records_total", 0)
-        check(n_rec == 23056, f"v3.1 raw JSONL total == {n_rec}", f"Expected 23056 raw records, got {n_rec}")
+        check(n_rec == 22533, f"v3.1 raw JSONL total == {n_rec}", f"Expected 22533 raw records, got {n_rec}")
+        check(audit.get("git_dirty") is False,
+              "v3.1 audit ran on clean git tree (git_dirty == False)",
+              f"git_dirty is {audit.get('git_dirty')}")
 
         verdicts = audit.get("verdicts", {})
         for pr in ("PR1", "PR2", "PR3", "PR4", "PR5"):
             st = verdicts.get(pr, {}).get("verdict")
             check(st == "supported", f"v3.1 {pr} verdict == {st}", f"v3.1 {pr} verdict is {st}")
 
+        r2_blk = audit["R2_s001_ultra_low_selectivity"]
+        check(
+            r2_blk["quora"].get("leaks_total") == 0 and r2_blk["nq"].get("leaks_total") == 0,
+            "v3.1 R2 leaks_total == 0 on both Quora and NQ",
+            f"Non-zero leaks in R2: quora={r2_blk['quora'].get('leaks_total')}, nq={r2_blk['nq'].get('leaks_total')}",
+        )
+
         report_txt = report_path.read_text(encoding="utf-8")
+        readme_txt = _Path("README.md").read_text(encoding="utf-8")
+        r1 = audit["R1_property_fuzzing"]
         pr2 = verdicts["PR2"]
         pr3_attr = verdicts["PR3"]["cold_S0.01_attribution"]
+        pr3_warm_attr = audit["R3_mode3_component_isolation"]["S=0.01"]["warm_attribution"]
+        pr3_sq8_scalar_ms = verdicts["PR3"]["cold_S0.01_sq8_scalar_ms"]
         r4 = audit["R4_revocation_scaling_and_concurrent_zedtoken"]
+        r4_sc = r4["scaling_postgres_spicedb"]
+        r4a_min = min(float(row["median_ms"]) for row in r4_sc)
+        r4a_max = max(float(row["median_ms"]) for row in r4_sc)
         r4b = r4["concurrent_zedtoken_race"]
-        max_chunks = r4["scaling_postgres_spicedb"][-1]["chunks_revoked"]
+        max_chunks = r4_sc[-1]["chunks_revoked"]
+        r5_batches = audit["R5_dynamic_ingestion_and_zorder_compaction"]["batches"]
+        r5_min_us = min(float(b["delta_append_us_per_vec"]) for b in r5_batches)
+        r5_max_us = max(float(b["delta_append_us_per_vec"]) for b in r5_batches)
+        r5_max_csr = max(float(b["cpp_csr_remap_only_ms"]) for b in r5_batches)
 
         fmt_checks = [
             ("total records", f"{n_rec:,}", f"{n_rec:,}".replace(",", "{,}")),
+            ("R1 total trials", f"{r1['total_trials']:,}", f"{r1['total_trials']:,}".replace(",", "{,}")),
             ("R2 Quora v3-geom R@10", f"{pr2['quora']['v3_geom_recall_pct']:.2f}%", f"{pr2['quora']['v3_geom_recall_pct']:.2f}\\%"),
             ("R2 NQ v3-geom R@10", f"{pr2['nq']['v3_geom_recall_pct']:.2f}%", f"{pr2['nq']['v3_geom_recall_pct']:.2f}\\%"),
+            ("R2 Quora v3-full med ms", f"{pr2['quora']['v3_full_med_ms']:.3f}", f"{pr2['quora']['v3_full_med_ms']:.3f}"),
+            ("R2 NQ v3-full med ms", f"{pr2['nq']['v3_full_med_ms']:.3f}", f"{pr2['nq']['v3_full_med_ms']:.3f}"),
             ("R3 cold total speedup", f"{pr3_attr['total_gain_over_scattered_scalar_f32']:.2f}", f"{pr3_attr['total_gain_over_scattered_scalar_f32']:.2f}"),
+            ("R3 warm total speedup", f"{pr3_warm_attr['total_gain_over_scattered_scalar_f32']:.2f}", f"{pr3_warm_attr['total_gain_over_scattered_scalar_f32']:.2f}"),
             ("R3 cold zorder gain", f"{pr3_attr['zorder_gain_on_neon_f32']:.2f}", f"{pr3_attr['zorder_gain_on_neon_f32']:.2f}"),
             ("R3 cold sq8 gain", f"{pr3_attr['sq8_gain_on_scalar']:.2f}", f"{pr3_attr['sq8_gain_on_scalar']:.2f}"),
             ("R3 cold neon gain", f"{pr3_attr['neon_gain_on_sq8']:.2f}", f"{pr3_attr['neon_gain_on_sq8']:.2f}"),
+            ("R3 cold scalar SQ8 ms", f"{pr3_sq8_scalar_ms:.4f}", f"{pr3_sq8_scalar_ms:.3f}"),
             ("R4a max chunks revoked", f"{max_chunks:,}", f"{max_chunks:,}".replace(",", "{,}")),
+            ("R4a min median ms", f"{r4a_min:.2f}", f"{r4a_min:.2f}"),
+            ("R4a max median ms", f"{r4a_max:.2f}", f"{r4a_max:.2f}"),
             ("R4b concurrent queries", f"{r4b['total_concurrent_queries']:,}", f"{r4b['total_concurrent_queries']:,}".replace(",", "{,}")),
             ("R4b post-zeta queries", f"{r4b['post_revoke_zeta2_queries']:,}", f"{r4b['post_revoke_zeta2_queries']:,}".replace(",", "{,}")),
             ("R4b PG17 commit ms", f"{r4b['spicedb_commit_ms']:.2f}", f"{r4b['spicedb_commit_ms']:.2f}"),
+            ("R4b atomic swap ms", f"{r4b['atomic_snapshot_compile_and_swap_ms']:.3f}", f"{r4b['atomic_snapshot_compile_and_swap_ms']:.3f}"),
+            ("R5 min append us/vec", f"{r5_min_us:.2f}", f"{r5_min_us:.1f}"),
+            ("R5 max append us/vec", f"{r5_max_us:.2f}", f"{r5_max_us:.1f}"),
+            ("R5 max CSR remap ms", f"{r5_max_csr:.2f}", f"{r5_max_csr:.1f}"),
         ]
         for label, md_tok, tex_tok in fmt_checks:
             check(md_tok in report_txt, f"REVIEWER_AUDIT_REPORT.md contains {label} ({md_tok})",
                   f"REVIEWER_AUDIT_REPORT.md missing {label}: {md_tok}")
             check(tex_tok in tex, f"paper/prism_ann.tex contains {label} ({tex_tok})",
                   f"paper/prism_ann.tex missing {label}: {tex_tok}")
+        conc_str = f"{r4b['total_concurrent_queries']:,}"
+        check(conc_str in readme_txt, f"README.md contains R4b concurrent queries ({conc_str})",
+              f"README.md missing R4b concurrent queries: {conc_str}")
 
     print(f"\nSUMMARY: {passed} checks passed, {len(errors)} errors.")
     return len(errors) == 0

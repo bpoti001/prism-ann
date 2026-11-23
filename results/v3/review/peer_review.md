@@ -131,3 +131,15 @@ Evaluated in a frozen confirmatory run (`v3-confirmatory-001`, 169,810 raw recor
 
 - **Updated Independent Reviewer Score (Pass 2)**: **7.5 / 10**
 - **Updated Venue Recommendation (Pass 2)**: **Accept — Ready for Publication (0 Blockers Remaining)**. All three substantive fairness/transparency/fidelity blockers from Pass 1 have been thoroughly resolved without altering frozen confirmatory data or code, leaving only negligible cosmetic/future-work nits already documented in Limitations.
+
+---
+
+## 9. v3.1 Supplementary Reviewer Audit Addendum (Phase 21 Sign-Off)
+
+- **Reviewed Revised Manuscript**: `/Users/tejap/memory_paper/paper/prism_ann.pdf` (`12` pages, IEEEtran conference format)
+- **Verified PDF SHA-256**: `98ca6c80aa2f63e7e8c0491ff76455604f6cd9aee36118baac4533dfaa21664c`
+- **Clean Post-Freeze `v3.1` Run Verification**:
+  - `FREEZE.md` (`5/5`), `FREEZE_v3.md` (`7/7`), and `FREEZE_v3_1.md` (`8/8`) SHA-256 manifests intact.
+  - Pre-registered in `experiments/v3/PROTOCOL_v3_1.md` and executed zero-reuse on clean commit `e39260a` (`git_dirty=False`, `results/run_ledger.md` row `v3.1-reviewer-audit-001`), logging `22,533` raw JSONL records to `results/v3_1_audit/raw/v3_1_reviewer_audit.jsonl`.
+  - Deterministic `bench.recompute_v3_1 --check results/v3/reviewer_audit_v3_1.json` exits `0` (`MATCH`), verifying `PR1`–`PR5` all `SUPPORTED`, `0` authorization leaks in `R2` (`0/1,200`) and `R4b` (`0/6,039` post-`ZedToken`), and `0/10,000` fuzzing mismatches in `R1`.
+  - Visual & layout verification confirms Figure 6 (`v3_fig6_reviewer_audit.png`) resolves all label/legend collisions cleanly and Section V-G + Figure 6 integrate within the `12`-page camera-ready budget alongside updated Brakes 1, 2, and 3.
