@@ -1,0 +1,5123 @@
+{
+ "freeze_match_all": true,
+ "git_shas": [
+  "9eb8538be446a6e3d55e20e97d456d72d04dfff0"
+ ],
+ "hypotheses": {
+  "H1": {
+   "auth_docs_median": 727.5,
+   "m_denies_range": [
+    0,
+    20
+   ],
+   "mismatch_chunks_total": 0,
+   "mismatch_docs_total": 0,
+   "n_principals": 80,
+   "n_principals_per_seed": {
+    "0": 40,
+    "1": 40
+   },
+   "principals_with_any_mismatch": 0,
+   "timing": {
+    "all": {
+     "SpiceDB-LookupResources+leaf-bitmap": {
+      "by_seed": {
+       "dist_mean": {
+        "ci95": null,
+        "mean": null,
+        "n_seeds": 0,
+        "per_seed": [
+         null,
+         null
+        ]
+       },
+       "latency_ms_median": {
+        "ci95": 8.288022284619144,
+        "mean": 27.599844,
+        "n_seeds": 2,
+        "per_seed": [
+         26.9475625,
+         28.252125500000002
+        ]
+       },
+       "latency_ms_p95": {
+        "ci95": 1.2064503278383765,
+        "mean": 147.02543335,
+        "n_seeds": 2,
+        "per_seed": [
+         147.12038305,
+         146.93048364999999
+        ]
+       },
+       "n_total": 80,
+       "per_seed": {
+        "0": {
+         "dist_mean": null,
+         "latency_ms_mean": 46.120507325,
+         "latency_ms_median": 26.9475625,
+         "latency_ms_p95": 147.12038305,
+         "n": 40,
+         "recall_mean": null
+        },
+        "1": {
+         "dist_mean": null,
+         "latency_ms_mean": 46.881481300000004,
+         "latency_ms_median": 28.252125500000002,
+         "latency_ms_p95": 146.93048364999999,
+         "n": 40,
+         "recall_mean": null
+        }
+       },
+       "recall_mean": {
+        "ci95": null,
+        "mean": null,
+        "n_seeds": 0,
+        "per_seed": [
+         null,
+         null
+        ]
+       },
+       "seeds": [
+        0,
+        1
+       ]
+      },
+      "latency_ms_median_pooled": 28.252125500000002,
+      "latency_ms_p95_pooled": 147.12038305,
+      "n": 80
+     },
+     "SpiceDB-ReadRelationships+UBP+bitmap": {
+      "by_seed": {
+       "dist_mean": {
+        "ci95": null,
+        "mean": null,
+        "n_seeds": 0,
+        "per_seed": [
+         null,
+         null
+        ]
+       },
+       "latency_ms_median": {
+        "ci95": 1.121853052015152,
+        "mean": 1.7282917500000001,
+        "n_seeds": 2,
+        "per_seed": [
+         1.6400000000000001,
+         1.8165835000000001
+        ]
+       },
+       "latency_ms_p95": {
+        "ci95": 0.23608191930836492,
+        "mean": 2.1804098499999993,
+        "n_seeds": 2,
+        "per_seed": [
+         2.161829799999999,
+         2.1989898999999995
+        ]
+       },
+       "n_total": 80,
+       "per_seed": {
+        "0": {
+         "dist_mean": null,
+         "latency_ms_mean": 1.756040675,
+         "latency_ms_median": 1.6400000000000001,
+         "latency_ms_p95": 2.161829799999999,
+         "n": 40,
+         "recall_mean": null
+        },
+        "1": {
+         "dist_mean": null,
+         "latency_ms_mean": 1.785232375,
+         "latency_ms_median": 1.8165835000000001,
+         "latency_ms_p95": 2.1989898999999995,
+         "n": 40,
+         "recall_mean": null
+        }
+       },
+       "recall_mean": {
+        "ci95": null,
+        "mean": null,
+        "n_seeds": 0,
+        "per_seed": [
+         null,
+         null
+        ]
+       },
+       "seeds": [
+        0,
+        1
+       ]
+      },
+      "latency_ms_median_pooled": 1.736021,
+      "latency_ms_p95_pooled": 2.1989898999999995,
+      "n": 80
+     },
+     "UBP+bitmap": {
+      "by_seed": {
+       "dist_mean": {
+        "ci95": null,
+        "mean": null,
+        "n_seeds": 0,
+        "per_seed": [
+         null,
+         null
+        ]
+       },
+       "latency_ms_median": {
+        "ci95": 0.1357943865666831,
+        "mean": 0.23110424999999998,
+        "n_seeds": 2,
+        "per_seed": [
+         0.22041699999999997,
+         0.2417915
+        ]
+       },
+       "latency_ms_p95": {
+        "ci95": 0.08410109852826823,
+        "mean": 0.4854647499999998,
+        "n_seeds": 2,
+        "per_seed": [
+         0.49208364999999993,
+         0.4788458499999997
+        ]
+       },
+       "n_total": 80,
+       "per_seed": {
+        "0": {
+         "dist_mean": null,
+         "latency_ms_mean": 0.23985415,
+         "latency_ms_median": 0.22041699999999997,
+         "latency_ms_p95": 0.49208364999999993,
+         "n": 40,
+         "recall_mean": null
+        },
+        "1": {
+         "dist_mean": null,
+         "latency_ms_mean": 0.26698750000000004,
+         "latency_ms_median": 0.2417915,
+         "latency_ms_p95": 0.4788458499999997,
+         "n": 40,
+         "recall_mean": null
+        }
+       },
+       "recall_mean": {
+        "ci95": null,
+        "mean": null,
+        "n_seeds": 0,
+        "per_seed": [
+         null,
+         null
+        ]
+       },
+       "seeds": [
+        0,
+        1
+       ]
+      },
+      "latency_ms_median_pooled": 0.23825,
+      "latency_ms_p95_pooled": 0.49208364999999993,
+      "n": 80
+     }
+    },
+    "auth_docs_ge_1000": {
+     "SpiceDB-LookupResources+leaf-bitmap": {
+      "by_seed": {
+       "dist_mean": {
+        "ci95": null,
+        "mean": null,
+        "n_seeds": 0,
+        "per_seed": [
+         null,
+         null
+        ]
+       },
+       "latency_ms_median": {
+        "ci95": 6.178385699862571,
+        "mean": 71.42979150000001,
+        "n_seeds": 2,
+        "per_seed": [
+         71.916041,
+         70.94354200000001
+        ]
+       },
+       "latency_ms_p95": {
+        "ci95": 2.8961503402708857,
+        "mean": 149.357336775,
+        "n_seeds": 2,
+        "per_seed": [
+         149.12940479999997,
+         149.58526875
+        ]
+       },
+       "n_total": 37,
+       "per_seed": {
+        "0": {
+         "dist_mean": null,
+         "latency_ms_mean": 87.55678289473684,
+         "latency_ms_median": 71.916041,
+         "latency_ms_p95": 149.12940479999997,
+         "n": 19,
+         "recall_mean": null
+        },
+        "1": {
+         "dist_mean": null,
+         "latency_ms_mean": 85.86265750000001,
+         "latency_ms_median": 70.94354200000001,
+         "latency_ms_p95": 149.58526875,
+         "n": 18,
+         "recall_mean": null
+        }
+       },
+       "recall_mean": {
+        "ci95": null,
+        "mean": null,
+        "n_seeds": 0,
+        "per_seed": [
+         null,
+         null
+        ]
+       },
+       "seeds": [
+        0,
+        1
+       ]
+      },
+      "latency_ms_median_pooled": 71.913,
+      "latency_ms_p95_pooled": 149.62665,
+      "n": 37
+     },
+     "SpiceDB-ReadRelationships+UBP+bitmap": {
+      "by_seed": {
+       "dist_mean": {
+        "ci95": null,
+        "mean": null,
+        "n_seeds": 0,
+        "per_seed": [
+         null,
+         null
+        ]
+       },
+       "latency_ms_median": {
+        "ci95": 0.21627231081442888,
+        "mean": 1.897521,
+        "n_seeds": 2,
+        "per_seed": [
+         1.8805,
+         1.914542
+        ]
+       },
+       "latency_ms_p95": {
+        "ci95": 0.7190879624264691,
+        "mean": 2.2267940499999996,
+        "n_seeds": 2,
+        "per_seed": [
+         2.1702005999999994,
+         2.2833875
+        ]
+       },
+       "n_total": 37,
+       "per_seed": {
+        "0": {
+         "dist_mean": null,
+         "latency_ms_mean": 1.8468312105263158,
+         "latency_ms_median": 1.8805,
+         "latency_ms_p95": 2.1702005999999994,
+         "n": 19,
+         "recall_mean": null
+        },
+        "1": {
+         "dist_mean": null,
+         "latency_ms_mean": 1.9374537222222221,
+         "latency_ms_median": 1.914542,
+         "latency_ms_p95": 2.2833875,
+         "n": 18,
+         "recall_mean": null
+        }
+       },
+       "recall_mean": {
+        "ci95": null,
+        "mean": null,
+        "n_seeds": 0,
+        "per_seed": [
+         null,
+         null
+        ]
+       },
+       "seeds": [
+        0,
+        1
+       ]
+      },
+      "latency_ms_median_pooled": 1.88725,
+      "latency_ms_p95_pooled": 2.279575,
+      "n": 37
+     },
+     "UBP+bitmap": {
+      "by_seed": {
+       "dist_mean": {
+        "ci95": null,
+        "mean": null,
+        "n_seeds": 0,
+        "per_seed": [
+         null,
+         null
+        ]
+       },
+       "latency_ms_median": {
+        "ci95": 0.16425628517571433,
+        "mean": 0.32501025,
+        "n_seeds": 2,
+        "per_seed": [
+         0.312083,
+         0.3379375
+        ]
+       },
+       "latency_ms_p95": {
+        "ci95": 0.46665061638169886,
+        "mean": 0.5392844999999999,
+        "n_seeds": 2,
+        "per_seed": [
+         0.5025583,
+         0.5760107
+        ]
+       },
+       "n_total": 37,
+       "per_seed": {
+        "0": {
+         "dist_mean": null,
+         "latency_ms_mean": 0.29698905263157893,
+         "latency_ms_median": 0.312083,
+         "latency_ms_p95": 0.5025583,
+         "n": 19,
+         "recall_mean": null
+        },
+        "1": {
+         "dist_mean": null,
+         "latency_ms_mean": 0.3267037222222222,
+         "latency_ms_median": 0.3379375,
+         "latency_ms_p95": 0.5760107,
+         "n": 18,
+         "recall_mean": null
+        }
+       },
+       "recall_mean": {
+        "ci95": null,
+        "mean": null,
+        "n_seeds": 0,
+        "per_seed": [
+         null,
+         null
+        ]
+       },
+       "seeds": [
+        0,
+        1
+       ]
+      },
+      "latency_ms_median_pooled": 0.327459,
+      "latency_ms_p95_pooled": 0.5175497999999997,
+      "n": 37
+     }
+    }
+   },
+   "tokens_pos_max": 276,
+   "tokens_pos_median": 79.5,
+   "within_bound_fraction": 1.0
+  },
+  "H2": {
+   "by_condition": {
+    "S=0.001": {
+     "acorn-1": {
+      "dist_mean": {
+       "ci95": 20.838175767326497,
+       "mean": 5.66,
+       "n_seeds": 2,
+       "per_seed": [
+        4.02,
+        7.3
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.021178066744019102,
+       "mean": 0.18614575,
+       "n_seeds": 2,
+       "per_seed": [
+        0.1878125,
+        0.184479
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.045577156388658537,
+       "mean": 0.23002724999999996,
+       "n_seeds": 2,
+       "per_seed": [
+        0.23361424999999994,
+        0.22644024999999995
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": 4.02,
+        "latency_ms_mean": 0.1909725,
+        "latency_ms_median": 0.1878125,
+        "latency_ms_p95": 0.23361424999999994,
+        "n": 50,
+        "recall_mean": 0.102
+       },
+       "1": {
+        "dist_mean": 7.3,
+        "latency_ms_mean": 0.18805004,
+        "latency_ms_median": 0.184479,
+        "latency_ms_p95": 0.22644024999999995,
+        "n": 50,
+        "recall_mean": 0.14400000000000002
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.2668302994596687,
+       "mean": 0.123,
+       "n_seeds": 2,
+       "per_seed": [
+        0.102,
+        0.14400000000000002
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "exact-brute-force": {
+      "dist_mean": {
+       "ci95": 2.0329927577879525,
+       "mean": 19.52,
+       "n_seeds": 2,
+       "per_seed": [
+        19.68,
+        19.36
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.005034833626709232,
+       "mean": 0.01575025,
+       "n_seeds": 2,
+       "per_seed": [
+        0.0161465,
+        0.015354
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.4182854010188049,
+       "mean": 0.05173647499999997,
+       "n_seeds": 2,
+       "per_seed": [
+        0.08465624999999995,
+        0.018816699999999995
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": 19.68,
+        "latency_ms_mean": 0.033722539999999995,
+        "latency_ms_median": 0.0161465,
+        "latency_ms_p95": 0.08465624999999995,
+        "n": 50,
+        "recall_mean": 1.0
+       },
+       "1": {
+        "dist_mean": 19.36,
+        "latency_ms_mean": 0.01574738,
+        "latency_ms_median": 0.015354,
+        "latency_ms_p95": 0.018816699999999995,
+        "n": 50,
+        "recall_mean": 1.0
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.0,
+       "mean": 1.0,
+       "n_seeds": 2,
+       "per_seed": [
+        1.0,
+        1.0
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "faiss-hnsw-M16": {
+      "dist_mean": {
+       "ci95": 84.36919944819978,
+       "mean": 824.86,
+       "n_seeds": 2,
+       "per_seed": [
+        831.5,
+        818.22
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.005422372871162419,
+       "mean": 0.13538525,
+       "n_seeds": 2,
+       "per_seed": [
+        0.1349585,
+        0.135812
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.07752341399146748,
+       "mean": 0.165230025,
+       "n_seeds": 2,
+       "per_seed": [
+        0.1591288,
+        0.17133125
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": 831.5,
+        "latency_ms_mean": 0.16251494,
+        "latency_ms_median": 0.1349585,
+        "latency_ms_p95": 0.1591288,
+        "n": 50,
+        "recall_mean": 0.084
+       },
+       "1": {
+        "dist_mean": 818.22,
+        "latency_ms_mean": 0.13892498,
+        "latency_ms_median": 0.135812,
+        "latency_ms_p95": 0.17133125,
+        "n": 50,
+        "recall_mean": 0.08
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.02541240947234941,
+       "mean": 0.082,
+       "n_seeds": 2,
+       "per_seed": [
+        0.084,
+        0.08
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "faiss-hnsw-M8": {
+      "dist_mean": {
+       "ci95": 78.39728322219806,
+       "mean": 589.1700000000001,
+       "n_seeds": 2,
+       "per_seed": [
+        583.0,
+        595.34
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.03944005950108619,
+       "mean": 0.117729,
+       "n_seeds": 2,
+       "per_seed": [
+        0.114625,
+        0.120833
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 1.6069664191887487,
+       "mean": 0.2571379999999999,
+       "n_seeds": 2,
+       "per_seed": [
+        0.130667,
+        0.38360899999999987
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": 583.0,
+        "latency_ms_mean": 0.11500500000000001,
+        "latency_ms_median": 0.114625,
+        "latency_ms_p95": 0.130667,
+        "n": 50,
+        "recall_mean": 0.066
+       },
+       "1": {
+        "dist_mean": 595.34,
+        "latency_ms_mean": 0.19610161999999998,
+        "latency_ms_median": 0.120833,
+        "latency_ms_p95": 0.38360899999999987,
+        "n": 50,
+        "recall_mean": 0.062
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.02541240947234941,
+       "mean": 0.064,
+       "n_seeds": 2,
+       "per_seed": [
+        0.066,
+        0.062
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "hnswlib-M16": {
+      "dist_mean": {
+       "ci95": null,
+       "mean": null,
+       "n_seeds": 0,
+       "per_seed": [
+        null,
+        null
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 1.361152182362713,
+       "mean": 12.529771,
+       "n_seeds": 2,
+       "per_seed": [
+        12.422646,
+        12.636896
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 1.8472836341908077,
+       "mean": 14.543594975,
+       "n_seeds": 2,
+       "per_seed": [
+        14.398210599999999,
+        14.68897935
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": null,
+        "latency_ms_mean": 12.732449160000002,
+        "latency_ms_median": 12.422646,
+        "latency_ms_p95": 14.398210599999999,
+        "n": 50,
+        "recall_mean": 1.0
+       },
+       "1": {
+        "dist_mean": null,
+        "latency_ms_mean": 12.943251740000001,
+        "latency_ms_median": 12.636896,
+        "latency_ms_p95": 14.68897935,
+        "n": 50,
+        "recall_mean": 1.0
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.0,
+       "mean": 1.0,
+       "n_seeds": 2,
+       "per_seed": [
+        1.0,
+        1.0
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "pgvector-hnsw-iter": {
+      "dist_mean": {
+       "ci95": null,
+       "mean": null,
+       "n_seeds": 0,
+       "per_seed": [
+        null,
+        null
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 2.7035087113694503,
+       "mean": 27.96758325,
+       "n_seeds": 2,
+       "per_seed": [
+        27.7548125,
+        28.180354
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 2.5259013815671802,
+       "mean": 34.4762843,
+       "n_seeds": 2,
+       "per_seed": [
+        34.27749155,
+        34.67507705
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": null,
+        "latency_ms_mean": 27.76800506,
+        "latency_ms_median": 27.7548125,
+        "latency_ms_p95": 34.27749155,
+        "n": 50,
+        "recall_mean": 1.0
+       },
+       "1": {
+        "dist_mean": null,
+        "latency_ms_mean": 27.8711341,
+        "latency_ms_median": 28.180354,
+        "latency_ms_p95": 34.67507705,
+        "n": 50,
+        "recall_mean": 1.0
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.0,
+       "mean": 1.0,
+       "n_seeds": 2,
+       "per_seed": [
+        1.0,
+        1.0
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "prism-full": {
+      "dist_mean": {
+       "ci95": 2.0329927577879525,
+       "mean": 19.52,
+       "n_seeds": 2,
+       "per_seed": [
+        19.68,
+        19.36
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.0013214452925621673,
+       "mean": 0.0792705,
+       "n_seeds": 2,
+       "per_seed": [
+        0.0791665,
+        0.0793745
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.0070732265215099534,
+       "mean": 0.09384577499999999,
+       "n_seeds": 2,
+       "per_seed": [
+        0.09440244999999998,
+        0.0932891
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": 19.68,
+        "latency_ms_mean": 0.08288741999999999,
+        "latency_ms_median": 0.0791665,
+        "latency_ms_p95": 0.09440244999999998,
+        "n": 50,
+        "recall_mean": 1.0
+       },
+       "1": {
+        "dist_mean": 19.36,
+        "latency_ms_mean": 0.08260161999999999,
+        "latency_ms_median": 0.0793745,
+        "latency_ms_p95": 0.0932891,
+        "n": 50,
+        "recall_mean": 1.0
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.0,
+       "mean": 1.0,
+       "n_seeds": 2,
+       "per_seed": [
+        1.0,
+        1.0
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "prism-graph-only": {
+      "dist_mean": {
+       "ci95": 76.49135251177142,
+       "mean": 909.48,
+       "n_seeds": 2,
+       "per_seed": [
+        903.46,
+        915.5
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 1.6122331410518969,
+       "mean": 5.450552,
+       "n_seeds": 2,
+       "per_seed": [
+        5.5774375,
+        5.3236665
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 3.9696159410646428,
+       "mean": 13.67741555,
+       "n_seeds": 2,
+       "per_seed": [
+        13.9898311,
+        13.364999999999997
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": 903.46,
+        "latency_ms_mean": 7.481419980000001,
+        "latency_ms_median": 5.5774375,
+        "latency_ms_p95": 13.9898311,
+        "n": 50,
+        "recall_mean": 0.698
+       },
+       "1": {
+        "dist_mean": 915.5,
+        "latency_ms_mean": 6.573059160000001,
+        "latency_ms_median": 5.3236665,
+        "latency_ms_p95": 13.364999999999997,
+        "n": 50,
+        "recall_mean": 0.6779999999999999
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.12706204736174703,
+       "mean": 0.688,
+       "n_seeds": 2,
+       "per_seed": [
+        0.698,
+        0.6779999999999999
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     }
+    },
+    "S=0.005": {
+     "acorn-1": {
+      "dist_mean": {
+       "ci95": 25.285347424987574,
+       "mean": 97.83,
+       "n_seeds": 2,
+       "per_seed": [
+        99.82,
+        95.84
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.07028119494696611,
+       "mean": 0.33278125000000003,
+       "n_seeds": 2,
+       "per_seed": [
+        0.3383125,
+        0.32725000000000004
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.04870732992541507,
+       "mean": 0.43658975,
+       "n_seeds": 2,
+       "per_seed": [
+        0.44042309999999996,
+        0.4327564
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": 99.82,
+        "latency_ms_mean": 0.35072662,
+        "latency_ms_median": 0.3383125,
+        "latency_ms_p95": 0.44042309999999996,
+        "n": 50,
+        "recall_mean": 0.91
+       },
+       "1": {
+        "dist_mean": 95.84,
+        "latency_ms_mean": 0.34342244,
+        "latency_ms_median": 0.32725000000000004,
+        "latency_ms_p95": 0.4327564,
+        "n": 50,
+        "recall_mean": 0.8959999999999999
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.08894343315322364,
+       "mean": 0.903,
+       "n_seeds": 2,
+       "per_seed": [
+        0.91,
+        0.8959999999999999
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "exact-brute-force": {
+      "dist_mean": {
+       "ci95": 9.656715599492744,
+       "mean": 97.32,
+       "n_seeds": 2,
+       "per_seed": [
+        98.08,
+        96.56
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.010457206497871782,
+       "mean": 0.036302,
+       "n_seeds": 2,
+       "per_seed": [
+        0.037125,
+        0.035479
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.3969081645155469,
+       "mean": 0.1405730999999998,
+       "n_seeds": 2,
+       "per_seed": [
+        0.10933574999999979,
+        0.17181044999999984
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": 98.08,
+        "latency_ms_mean": 0.046231720000000004,
+        "latency_ms_median": 0.037125,
+        "latency_ms_p95": 0.10933574999999979,
+        "n": 50,
+        "recall_mean": 1.0
+       },
+       "1": {
+        "dist_mean": 96.56,
+        "latency_ms_mean": 0.0687666,
+        "latency_ms_median": 0.035479,
+        "latency_ms_p95": 0.17181044999999984,
+        "n": 50,
+        "recall_mean": 1.0
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.0,
+       "mean": 1.0,
+       "n_seeds": 2,
+       "per_seed": [
+        1.0,
+        1.0
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "faiss-hnsw-M16": {
+      "dist_mean": {
+       "ci95": 83.73388921139164,
+       "mean": 830.23,
+       "n_seeds": 2,
+       "per_seed": [
+        823.64,
+        836.82
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.09476922802475886,
+       "mean": 0.1277915,
+       "n_seeds": 2,
+       "per_seed": [
+        0.120333,
+        0.13524999999999998
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 2.0061086521520304,
+       "mean": 0.30569287499999975,
+       "n_seeds": 2,
+       "per_seed": [
+        0.14780870000000002,
+        0.46357704999999944
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": 823.64,
+        "latency_ms_mean": 0.12171234,
+        "latency_ms_median": 0.120333,
+        "latency_ms_p95": 0.14780870000000002,
+        "n": 50,
+        "recall_mean": 0.234
+       },
+       "1": {
+        "dist_mean": 836.82,
+        "latency_ms_mean": 0.19068822000000002,
+        "latency_ms_median": 0.13524999999999998,
+        "latency_ms_p95": 0.46357704999999944,
+        "n": 50,
+        "recall_mean": 0.23800000000000002
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.02541240947234941,
+       "mean": 0.23600000000000002,
+       "n_seeds": 2,
+       "per_seed": [
+        0.234,
+        0.23800000000000002
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "faiss-hnsw-M8": {
+      "dist_mean": {
+       "ci95": 1.7788686630642838,
+       "mean": 593.48,
+       "n_seeds": 2,
+       "per_seed": [
+        593.62,
+        593.34
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.2624625415816085,
+       "mean": 0.12905175000000002,
+       "n_seeds": 2,
+       "per_seed": [
+        0.149708,
+        0.1083955
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 2.1139983071873663,
+       "mean": 0.2867646749999999,
+       "n_seeds": 2,
+       "per_seed": [
+        0.4531399499999999,
+        0.12038939999999998
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": 593.62,
+        "latency_ms_mean": 0.31533248,
+        "latency_ms_median": 0.149708,
+        "latency_ms_p95": 0.4531399499999999,
+        "n": 50,
+        "recall_mean": 0.196
+       },
+       "1": {
+        "dist_mean": 593.34,
+        "latency_ms_mean": 0.10784408,
+        "latency_ms_median": 0.1083955,
+        "latency_ms_p95": 0.12038939999999998,
+        "n": 50,
+        "recall_mean": 0.17
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.165180661570271,
+       "mean": 0.183,
+       "n_seeds": 2,
+       "per_seed": [
+        0.196,
+        0.17
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "hnswlib-M16": {
+      "dist_mean": {
+       "ci95": null,
+       "mean": null,
+       "n_seeds": 0,
+       "per_seed": [
+        null,
+        null
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 1.1529578412093189,
+       "mean": 11.17298925,
+       "n_seeds": 2,
+       "per_seed": [
+        11.0822495,
+        11.263729000000001
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.5114644475208375,
+       "mean": 12.764724474999998,
+       "n_seeds": 2,
+       "per_seed": [
+        12.724471349999998,
+        12.804977599999999
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": null,
+        "latency_ms_mean": 11.287038419999998,
+        "latency_ms_median": 11.0822495,
+        "latency_ms_p95": 12.724471349999998,
+        "n": 50,
+        "recall_mean": 1.0
+       },
+       "1": {
+        "dist_mean": null,
+        "latency_ms_mean": 11.4600391,
+        "latency_ms_median": 11.263729000000001,
+        "latency_ms_p95": 12.804977599999999,
+        "n": 50,
+        "recall_mean": 1.0
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.0,
+       "mean": 1.0,
+       "n_seeds": 2,
+       "per_seed": [
+        1.0,
+        1.0
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "pgvector-hnsw-iter": {
+      "dist_mean": {
+       "ci95": null,
+       "mean": null,
+       "n_seeds": 0,
+       "per_seed": [
+        null,
+        null
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.6587373017910535,
+       "mean": 12.32623975,
+       "n_seeds": 2,
+       "per_seed": [
+        12.378083499999999,
+        12.274396
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 1.5711609695524875,
+       "mean": 16.363309449999996,
+       "n_seeds": 2,
+       "per_seed": [
+        16.239656399999994,
+        16.4869625
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": null,
+        "latency_ms_mean": 11.947125840000002,
+        "latency_ms_median": 12.378083499999999,
+        "latency_ms_p95": 16.239656399999994,
+        "n": 50,
+        "recall_mean": 0.996
+       },
+       "1": {
+        "dist_mean": null,
+        "latency_ms_mean": 12.528405,
+        "latency_ms_median": 12.274396,
+        "latency_ms_p95": 16.4869625,
+        "n": 50,
+        "recall_mean": 0.998
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.012706204736174705,
+       "mean": 0.997,
+       "n_seeds": 2,
+       "per_seed": [
+        0.996,
+        0.998
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "prism-full": {
+      "dist_mean": {
+       "ci95": 9.656715599492744,
+       "mean": 97.32,
+       "n_seeds": 2,
+       "per_seed": [
+        98.08,
+        96.56
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.09635432706559674,
+       "mean": 0.12531225000000001,
+       "n_seeds": 2,
+       "per_seed": [
+        0.117729,
+        0.1328955
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.47050154938211625,
+       "mean": 1.0830794249999995,
+       "n_seeds": 2,
+       "per_seed": [
+        1.0460501499999995,
+        1.1201086999999996
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": 98.08,
+        "latency_ms_mean": 0.23294246000000002,
+        "latency_ms_median": 0.117729,
+        "latency_ms_p95": 1.0460501499999995,
+        "n": 50,
+        "recall_mean": 1.0
+       },
+       "1": {
+        "dist_mean": 96.56,
+        "latency_ms_mean": 0.32320676,
+        "latency_ms_median": 0.1328955,
+        "latency_ms_p95": 1.1201086999999996,
+        "n": 50,
+        "recall_mean": 1.0
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.0,
+       "mean": 1.0,
+       "n_seeds": 2,
+       "per_seed": [
+        1.0,
+        1.0
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "prism-graph-only": {
+      "dist_mean": {
+       "ci95": 54.50961831818898,
+       "mean": 951.25,
+       "n_seeds": 2,
+       "per_seed": [
+        955.54,
+        946.96
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 2.399884419544994,
+       "mean": 5.8303329999999995,
+       "n_seeds": 2,
+       "per_seed": [
+        6.019208,
+        5.641458
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 15.04153687083317,
+       "mean": 15.489713374999997,
+       "n_seeds": 2,
+       "per_seed": [
+        14.305918749999995,
+        16.673507999999998
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": 955.54,
+        "latency_ms_mean": 7.9517082,
+        "latency_ms_median": 6.019208,
+        "latency_ms_p95": 14.305918749999995,
+        "n": 50,
+        "recall_mean": 0.79
+       },
+       "1": {
+        "dist_mean": 946.96,
+        "latency_ms_mean": 8.078223379999999,
+        "latency_ms_median": 5.641458,
+        "latency_ms_p95": 16.673507999999998,
+        "n": 50,
+        "recall_mean": 0.8079999999999999
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.11435584262557164,
+       "mean": 0.7989999999999999,
+       "n_seeds": 2,
+       "per_seed": [
+        0.79,
+        0.8079999999999999
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     }
+    },
+    "S=0.01": {
+     "acorn-1": {
+      "dist_mean": {
+       "ci95": 6.353102368087347,
+       "mean": 195.74,
+       "n_seeds": 2,
+       "per_seed": [
+        195.24,
+        196.24
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.16491065471962743,
+       "mean": 0.35164575,
+       "n_seeds": 2,
+       "per_seed": [
+        0.3646245,
+        0.338667
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.6950052572797563,
+       "mean": 0.443175,
+       "n_seeds": 2,
+       "per_seed": [
+        0.4978730999999999,
+        0.3884769
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": 195.24,
+        "latency_ms_mean": 0.39225912,
+        "latency_ms_median": 0.3646245,
+        "latency_ms_p95": 0.4978730999999999,
+        "n": 50,
+        "recall_mean": 0.9159999999999999
+       },
+       "1": {
+        "dist_mean": 196.24,
+        "latency_ms_mean": 0.34195002,
+        "latency_ms_median": 0.338667,
+        "latency_ms_p95": 0.3884769,
+        "n": 50,
+        "recall_mean": 0.92
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.025412409472350114,
+       "mean": 0.9179999999999999,
+       "n_seeds": 2,
+       "per_seed": [
+        0.9159999999999999,
+        0.92
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "exact-brute-force": {
+      "dist_mean": {
+       "ci95": 6.480164415449159,
+       "mean": 200.05,
+       "n_seeds": 2,
+       "per_seed": [
+        200.56,
+        199.54
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.019456376002267517,
+       "mean": 0.06255225,
+       "n_seeds": 2,
+       "per_seed": [
+        0.061021,
+        0.0640835
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.6502816401942353,
+       "mean": 0.8393343749999986,
+       "n_seeds": 2,
+       "per_seed": [
+        0.7881560999999998,
+        0.8905126499999974
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": 200.56,
+        "latency_ms_mean": 0.19886248,
+        "latency_ms_median": 0.061021,
+        "latency_ms_p95": 0.7881560999999998,
+        "n": 50,
+        "recall_mean": 1.0
+       },
+       "1": {
+        "dist_mean": 199.54,
+        "latency_ms_mean": 0.19563,
+        "latency_ms_median": 0.0640835,
+        "latency_ms_p95": 0.8905126499999974,
+        "n": 50,
+        "recall_mean": 1.0
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.0,
+       "mean": 1.0,
+       "n_seeds": 2,
+       "per_seed": [
+        1.0,
+        1.0
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "faiss-hnsw-M16": {
+      "dist_mean": {
+       "ci95": 305.4571618576399,
+       "mean": 822.2,
+       "n_seeds": 2,
+       "per_seed": [
+        798.16,
+        846.24
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.1127675670335505,
+       "mean": 0.12766650000000002,
+       "n_seeds": 2,
+       "per_seed": [
+        0.1187915,
+        0.1365415
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.142974345207977,
+       "mean": 0.155999725,
+       "n_seeds": 2,
+       "per_seed": [
+        0.1447474,
+        0.16725205
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": 798.16,
+        "latency_ms_mean": 0.11966238000000001,
+        "latency_ms_median": 0.1187915,
+        "latency_ms_p95": 0.1447474,
+        "n": 50,
+        "recall_mean": 0.364
+       },
+       "1": {
+        "dist_mean": 846.24,
+        "latency_ms_mean": 0.13782422,
+        "latency_ms_median": 0.1365415,
+        "latency_ms_p95": 0.16725205,
+        "n": 50,
+        "recall_mean": 0.402
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.24141788998731936,
+       "mean": 0.383,
+       "n_seeds": 2,
+       "per_seed": [
+        0.364,
+        0.402
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "faiss-hnsw-M8": {
+      "dist_mean": {
+       "ci95": 118.16770404642479,
+       "mean": 583.1800000000001,
+       "n_seeds": 2,
+       "per_seed": [
+        573.88,
+        592.48
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.01773468526051584,
+       "mean": 0.10820825,
+       "n_seeds": 2,
+       "per_seed": [
+        0.10960400000000001,
+        0.1068125
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.6620155026129872,
+       "mean": 0.1716895499999998,
+       "n_seeds": 2,
+       "per_seed": [
+        0.22379129999999958,
+        0.1195878
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": 573.88,
+        "latency_ms_mean": 0.15778502,
+        "latency_ms_median": 0.10960400000000001,
+        "latency_ms_p95": 0.22379129999999958,
+        "n": 50,
+        "recall_mean": 0.292
+       },
+       "1": {
+        "dist_mean": 592.48,
+        "latency_ms_mean": 0.107015,
+        "latency_ms_median": 0.1068125,
+        "latency_ms_p95": 0.1195878,
+        "n": 50,
+        "recall_mean": 0.294
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.012706204736174705,
+       "mean": 0.293,
+       "n_seeds": 2,
+       "per_seed": [
+        0.292,
+        0.294
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "hnswlib-M16": {
+      "dist_mean": {
+       "ci95": null,
+       "mean": null,
+       "n_seeds": 0,
+       "per_seed": [
+        null,
+        null
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 1.654319267689297,
+       "mean": 8.72705225,
+       "n_seeds": 2,
+       "per_seed": [
+        8.85725,
+        8.5968545
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 2.2023315248581325,
+       "mean": 9.798358349999999,
+       "n_seeds": 2,
+       "per_seed": [
+        9.971685599999999,
+        9.6250311
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": null,
+        "latency_ms_mean": 8.8746033,
+        "latency_ms_median": 8.85725,
+        "latency_ms_p95": 9.971685599999999,
+        "n": 50,
+        "recall_mean": 1.0
+       },
+       "1": {
+        "dist_mean": null,
+        "latency_ms_mean": 8.55379084,
+        "latency_ms_median": 8.5968545,
+        "latency_ms_p95": 9.6250311,
+        "n": 50,
+        "recall_mean": 1.0
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.0,
+       "mean": 1.0,
+       "n_seeds": 2,
+       "per_seed": [
+        1.0,
+        1.0
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "pgvector-hnsw-iter": {
+      "dist_mean": {
+       "ci95": null,
+       "mean": null,
+       "n_seeds": 0,
+       "per_seed": [
+        null,
+        null
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.02130512879138239,
+       "mean": 7.492218749999999,
+       "n_seeds": 2,
+       "per_seed": [
+        7.490542,
+        7.4938955
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 4.772503229656871,
+       "mean": 10.112904,
+       "n_seeds": 2,
+       "per_seed": [
+        9.73729985,
+        10.48850815
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": null,
+        "latency_ms_mean": 7.3046384,
+        "latency_ms_median": 7.490542,
+        "latency_ms_p95": 9.73729985,
+        "n": 50,
+        "recall_mean": 0.9740000000000001
+       },
+       "1": {
+        "dist_mean": null,
+        "latency_ms_mean": 7.50827084,
+        "latency_ms_median": 7.4938955,
+        "latency_ms_p95": 10.48850815,
+        "n": 50,
+        "recall_mean": 0.988
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.08894343315322221,
+       "mean": 0.9810000000000001,
+       "n_seeds": 2,
+       "per_seed": [
+        0.9740000000000001,
+        0.988
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "prism-full": {
+      "dist_mean": {
+       "ci95": 6.480164415449159,
+       "mean": 200.05,
+       "n_seeds": 2,
+       "per_seed": [
+        200.56,
+        199.54
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.031895750438982594,
+       "mean": 0.14086425000000002,
+       "n_seeds": 2,
+       "per_seed": [
+        0.14337450000000002,
+        0.138354
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 1.6375388184044437,
+       "mean": 1.0849932499999984,
+       "n_seeds": 2,
+       "per_seed": [
+        1.213870349999997,
+        0.9561161499999995
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": 200.56,
+        "latency_ms_mean": 0.27036908,
+        "latency_ms_median": 0.14337450000000002,
+        "latency_ms_p95": 1.213870349999997,
+        "n": 50,
+        "recall_mean": 1.0
+       },
+       "1": {
+        "dist_mean": 199.54,
+        "latency_ms_mean": 0.24711416,
+        "latency_ms_median": 0.138354,
+        "latency_ms_p95": 0.9561161499999995,
+        "n": 50,
+        "recall_mean": 1.0
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.0,
+       "mean": 1.0,
+       "n_seeds": 2,
+       "per_seed": [
+        1.0,
+        1.0
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "prism-graph-only": {
+      "dist_mean": {
+       "ci95": 168.35721275431467,
+       "mean": 987.95,
+       "n_seeds": 2,
+       "per_seed": [
+        974.7,
+        1001.2
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 6.576255088766419,
+       "mean": 6.6774165,
+       "n_seeds": 2,
+       "per_seed": [
+        7.194979,
+        6.159853999999999
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 19.207826437216895,
+       "mean": 18.584363574999998,
+       "n_seeds": 2,
+       "per_seed": [
+        20.0960523,
+        17.07267485
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": 974.7,
+        "latency_ms_mean": 9.73733416,
+        "latency_ms_median": 7.194979,
+        "latency_ms_p95": 20.0960523,
+        "n": 50,
+        "recall_mean": 0.87
+       },
+       "1": {
+        "dist_mean": 1001.2,
+        "latency_ms_mean": 7.99161082,
+        "latency_ms_median": 6.159853999999999,
+        "latency_ms_p95": 17.07267485,
+        "n": 50,
+        "recall_mean": 0.8640000000000001
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.0381186142085234,
+       "mean": 0.867,
+       "n_seeds": 2,
+       "per_seed": [
+        0.87,
+        0.8640000000000001
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     }
+    },
+    "S=0.05": {
+     "acorn-1": {
+      "dist_mean": {
+       "ci95": 152.60151888145793,
+       "mean": 856.33,
+       "n_seeds": 2,
+       "per_seed": [
+        868.34,
+        844.32
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.1037652209779702,
+       "mean": 0.5024795,
+       "n_seeds": 2,
+       "per_seed": [
+        0.5106459999999999,
+        0.494313
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.07467214164866952,
+       "mean": 0.542860675,
+       "n_seeds": 2,
+       "per_seed": [
+        0.5487375,
+        0.53698385
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": 868.34,
+        "latency_ms_mean": 0.50785174,
+        "latency_ms_median": 0.5106459999999999,
+        "latency_ms_p95": 0.5487375,
+        "n": 50,
+        "recall_mean": 0.9179999999999999
+       },
+       "1": {
+        "dist_mean": 844.32,
+        "latency_ms_mean": 0.49520496,
+        "latency_ms_median": 0.494313,
+        "latency_ms_p95": 0.53698385,
+        "n": 50,
+        "recall_mean": 0.9179999999999999
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.0,
+       "mean": 0.9179999999999999,
+       "n_seeds": 2,
+       "per_seed": [
+        0.9179999999999999,
+        0.9179999999999999
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "exact-brute-force": {
+      "dist_mean": {
+       "ci95": 30.74901546154296,
+       "mean": 997.5999999999999,
+       "n_seeds": 2,
+       "per_seed": [
+        1000.02,
+        995.18
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 1.1661945299932175,
+       "mean": 0.3928435,
+       "n_seeds": 2,
+       "per_seed": [
+        0.484625,
+        0.301062
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 3.88611266946918,
+       "mean": 1.985816499999998,
+       "n_seeds": 2,
+       "per_seed": [
+        2.2916601999999973,
+        1.6799727999999992
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": 1000.02,
+        "latency_ms_mean": 0.7424733,
+        "latency_ms_median": 0.484625,
+        "latency_ms_p95": 2.2916601999999973,
+        "n": 50,
+        "recall_mean": 1.0
+       },
+       "1": {
+        "dist_mean": 995.18,
+        "latency_ms_mean": 0.50179344,
+        "latency_ms_median": 0.301062,
+        "latency_ms_p95": 1.6799727999999992,
+        "n": 50,
+        "recall_mean": 1.0
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.0,
+       "mean": 1.0,
+       "n_seeds": 2,
+       "per_seed": [
+        1.0,
+        1.0
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "faiss-hnsw-M16": {
+      "dist_mean": {
+       "ci95": 514.7283538624367,
+       "mean": 821.65,
+       "n_seeds": 2,
+       "per_seed": [
+        862.16,
+        781.14
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.10403205127743032,
+       "mean": 0.13274999999999998,
+       "n_seeds": 2,
+       "per_seed": [
+        0.12456249999999999,
+        0.1409375
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.17844276276365326,
+       "mean": 0.17051874999999997,
+       "n_seeds": 2,
+       "per_seed": [
+        0.15647499999999998,
+        0.18456249999999996
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": 862.16,
+        "latency_ms_mean": 0.12873336,
+        "latency_ms_median": 0.12456249999999999,
+        "latency_ms_p95": 0.15647499999999998,
+        "n": 50,
+        "recall_mean": 0.816
+       },
+       "1": {
+        "dist_mean": 781.14,
+        "latency_ms_mean": 0.14225662,
+        "latency_ms_median": 0.1409375,
+        "latency_ms_p95": 0.18456249999999996,
+        "n": 50,
+        "recall_mean": 0.792
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.15247445683409575,
+       "mean": 0.804,
+       "n_seeds": 2,
+       "per_seed": [
+        0.816,
+        0.792
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "faiss-hnsw-M8": {
+      "dist_mean": {
+       "ci95": 310.28551965738626,
+       "mean": 582.0799999999999,
+       "n_seeds": 2,
+       "per_seed": [
+        606.5,
+        557.66
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.9063748789967335,
+       "mean": 0.17893775,
+       "n_seeds": 2,
+       "per_seed": [
+        0.250271,
+        0.10760449999999999
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 2.343128661884569,
+       "mean": 0.305962575,
+       "n_seeds": 2,
+       "per_seed": [
+        0.4903708,
+        0.12155434999999999
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": 606.5,
+        "latency_ms_mean": 0.27806334,
+        "latency_ms_median": 0.250271,
+        "latency_ms_p95": 0.4903708,
+        "n": 50,
+        "recall_mean": 0.7340000000000001
+       },
+       "1": {
+        "dist_mean": 557.66,
+        "latency_ms_mean": 0.10763332,
+        "latency_ms_median": 0.10760449999999999,
+        "latency_ms_p95": 0.12155434999999999,
+        "n": 50,
+        "recall_mean": 0.7240000000000001
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.06353102368087352,
+       "mean": 0.7290000000000001,
+       "n_seeds": 2,
+       "per_seed": [
+        0.7340000000000001,
+        0.7240000000000001
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "hnswlib-M16": {
+      "dist_mean": {
+       "ci95": null,
+       "mean": null,
+       "n_seeds": 0,
+       "per_seed": [
+        null,
+        null
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 1.052095988013553,
+       "mean": 3.1577392499999997,
+       "n_seeds": 2,
+       "per_seed": [
+        3.0749375,
+        3.240541
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.9819669498683034,
+       "mean": 3.7818699749999998,
+       "n_seeds": 2,
+       "per_seed": [
+        3.7045874999999997,
+        3.85915245
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": null,
+        "latency_ms_mean": 3.09497086,
+        "latency_ms_median": 3.0749375,
+        "latency_ms_p95": 3.7045874999999997,
+        "n": 50,
+        "recall_mean": 1.0
+       },
+       "1": {
+        "dist_mean": null,
+        "latency_ms_mean": 3.2517032799999996,
+        "latency_ms_median": 3.240541,
+        "latency_ms_p95": 3.85915245,
+        "n": 50,
+        "recall_mean": 1.0
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.0,
+       "mean": 1.0,
+       "n_seeds": 2,
+       "per_seed": [
+        1.0,
+        1.0
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "pgvector-hnsw-iter": {
+      "dist_mean": {
+       "ci95": null,
+       "mean": null,
+       "n_seeds": 0,
+       "per_seed": [
+        null,
+        null
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.21229844528319058,
+       "mean": 2.38643775,
+       "n_seeds": 2,
+       "per_seed": [
+        2.3697295,
+        2.403146
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.6072806668158512,
+       "mean": 3.2568039249999994,
+       "n_seeds": 2,
+       "per_seed": [
+        3.3045979499999993,
+        3.2090098999999994
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": null,
+        "latency_ms_mean": 2.41060996,
+        "latency_ms_median": 2.3697295,
+        "latency_ms_p95": 3.3045979499999993,
+        "n": 50,
+        "recall_mean": 0.99
+       },
+       "1": {
+        "dist_mean": null,
+        "latency_ms_mean": 2.31500748,
+        "latency_ms_median": 2.403146,
+        "latency_ms_p95": 3.2090098999999994,
+        "n": 50,
+        "recall_mean": 0.986
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.02541240947234941,
+       "mean": 0.988,
+       "n_seeds": 2,
+       "per_seed": [
+        0.99,
+        0.986
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "prism-full": {
+      "dist_mean": {
+       "ci95": 119.69244861476508,
+       "mean": 1316.38,
+       "n_seeds": 2,
+       "per_seed": [
+        1325.8,
+        1306.96
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 7.3979208773382545,
+       "mean": 6.920292,
+       "n_seeds": 2,
+       "per_seed": [
+        6.338063,
+        7.502521
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 17.542014407343718,
+       "mean": 14.075763524999998,
+       "n_seeds": 2,
+       "per_seed": [
+        12.695177049999998,
+        15.456349999999997
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": 1325.8,
+        "latency_ms_mean": 7.704963320000001,
+        "latency_ms_median": 6.338063,
+        "latency_ms_p95": 12.695177049999998,
+        "n": 50,
+        "recall_mean": 0.972
+       },
+       "1": {
+        "dist_mean": 1306.96,
+        "latency_ms_mean": 8.819990820000001,
+        "latency_ms_median": 7.502521,
+        "latency_ms_p95": 15.456349999999997,
+        "n": 50,
+        "recall_mean": 0.9740000000000001
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.01270620473617541,
+       "mean": 0.9730000000000001,
+       "n_seeds": 2,
+       "per_seed": [
+        0.972,
+        0.9740000000000001
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "prism-graph-only": {
+      "dist_mean": {
+       "ci95": 119.69244861476508,
+       "mean": 1316.38,
+       "n_seeds": 2,
+       "per_seed": [
+        1325.8,
+        1306.96
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 16.20319052090877,
+       "mean": 7.08898975,
+       "n_seeds": 2,
+       "per_seed": [
+        5.813771,
+        8.3642085
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.10715523640156058,
+       "mean": 17.952354199999995,
+       "n_seeds": 2,
+       "per_seed": [
+        17.9439209,
+        17.960787499999995
+       ]
+      },
+      "n_total": 100,
+      "per_seed": {
+       "0": {
+        "dist_mean": 1325.8,
+        "latency_ms_mean": 8.2614508,
+        "latency_ms_median": 5.813771,
+        "latency_ms_p95": 17.9439209,
+        "n": 50,
+        "recall_mean": 0.972
+       },
+       "1": {
+        "dist_mean": 1306.96,
+        "latency_ms_mean": 9.69862662,
+        "latency_ms_median": 8.3642085,
+        "latency_ms_p95": 17.960787499999995,
+        "n": 50,
+        "recall_mean": 0.9740000000000001
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.01270620473617541,
+       "mean": 0.9730000000000001,
+       "n_seeds": 2,
+       "per_seed": [
+        0.972,
+        0.9740000000000001
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     }
+    }
+   },
+   "condition_descriptors": {
+    "S=0.001": {
+     "S_actual_mean": 0.0009760000000000001,
+     "n_queries_x_seeds": 100,
+     "r_measured_mean": null,
+     "r_measured_median": null
+    },
+    "S=0.005": {
+     "S_actual_mean": 0.004866,
+     "n_queries_x_seeds": 100,
+     "r_measured_mean": null,
+     "r_measured_median": null
+    },
+    "S=0.01": {
+     "S_actual_mean": 0.010002500000000001,
+     "n_queries_x_seeds": 100,
+     "r_measured_mean": null,
+     "r_measured_median": null
+    },
+    "S=0.05": {
+     "S_actual_mean": 0.049879999999999994,
+     "n_queries_x_seeds": 100,
+     "r_measured_mean": null,
+     "r_measured_median": null
+    }
+   }
+  },
+  "H3": {
+   "by_condition": {
+    "r_0.5_to_2": {
+     "acorn-1": {
+      "dist_mean": {
+       "ci95": 523.0720949725248,
+       "mean": 305.16666666666663,
+       "n_seeds": 2,
+       "per_seed": [
+        346.3333333333333,
+        264.0
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.08788881816012044,
+       "mean": 0.379875,
+       "n_seeds": 2,
+       "per_seed": [
+        0.386792,
+        0.372958
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.7235128982258383,
+       "mean": 0.4298997,
+       "n_seeds": 2,
+       "per_seed": [
+        0.4868414,
+        0.372958
+       ]
+      },
+      "n_total": 4,
+      "per_seed": {
+       "0": {
+        "dist_mean": 346.3333333333333,
+        "latency_ms_mean": 0.423347,
+        "latency_ms_median": 0.386792,
+        "latency_ms_p95": 0.4868414,
+        "n": 3,
+        "recall_mean": 0.9333333333333332
+       },
+       "1": {
+        "dist_mean": 264.0,
+        "latency_ms_mean": 0.372958,
+        "latency_ms_median": 0.372958,
+        "latency_ms_p95": 0.372958,
+        "n": 1,
+        "recall_mean": 0.9
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.21177007893624414,
+       "mean": 0.9166666666666666,
+       "n_seeds": 2,
+       "per_seed": [
+        0.9333333333333332,
+        0.9
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "exact-brute-force": {
+      "dist_mean": {
+       "ci95": 489.1888823427257,
+       "mean": 330.5,
+       "n_seeds": 2,
+       "per_seed": [
+        369.0,
+        292.0
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.2726497412288367,
+       "mean": 0.126667,
+       "n_seeds": 2,
+       "per_seed": [
+        0.105209,
+        0.148125
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.2705112869717385,
+       "mean": 0.12683529999999998,
+       "n_seeds": 2,
+       "per_seed": [
+        0.10554559999999999,
+        0.148125
+       ]
+      },
+      "n_total": 4,
+      "per_seed": {
+       "0": {
+        "dist_mean": 369.0,
+        "latency_ms_mean": 0.09790266666666665,
+        "latency_ms_median": 0.105209,
+        "latency_ms_p95": 0.10554559999999999,
+        "n": 3,
+        "recall_mean": 1.0
+       },
+       "1": {
+        "dist_mean": 292.0,
+        "latency_ms_mean": 0.148125,
+        "latency_ms_median": 0.148125,
+        "latency_ms_p95": 0.148125,
+        "n": 1,
+        "recall_mean": 1.0
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.0,
+       "mean": 1.0,
+       "n_seeds": 2,
+       "per_seed": [
+        1.0,
+        1.0
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "faiss-hnsw-M16": {
+      "dist_mean": {
+       "ci95": 904.2582370577659,
+       "mean": 839.1666666666667,
+       "n_seeds": 2,
+       "per_seed": [
+        910.3333333333334,
+        768.0
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.12441280367425452,
+       "mean": 0.1265415,
+       "n_seeds": 2,
+       "per_seed": [
+        0.136333,
+        0.11675
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.12560782222969175,
+       "mean": 0.12663555,
+       "n_seeds": 2,
+       "per_seed": [
+        0.1365211,
+        0.11675
+       ]
+      },
+      "n_total": 4,
+      "per_seed": {
+       "0": {
+        "dist_mean": 910.3333333333334,
+        "latency_ms_mean": 0.136375,
+        "latency_ms_median": 0.136333,
+        "latency_ms_p95": 0.1365211,
+        "n": 3,
+        "recall_mean": 0.3333333333333333
+       },
+       "1": {
+        "dist_mean": 768.0,
+        "latency_ms_mean": 0.11675,
+        "latency_ms_median": 0.11675,
+        "latency_ms_p95": 0.11675,
+        "n": 1,
+        "recall_mean": 0.6
+       }
+      },
+      "recall_mean": {
+       "ci95": 1.694160631489959,
+       "mean": 0.4666666666666667,
+       "n_seeds": 2,
+       "per_seed": [
+        0.3333333333333333,
+        0.6
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "faiss-hnsw-M8": {
+      "dist_mean": {
+       "ci95": 228.71168525114447,
+       "mean": 619.0,
+       "n_seeds": 2,
+       "per_seed": [
+        637.0,
+        601.0
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.020914412995743564,
+       "mean": 0.11568700000000001,
+       "n_seeds": 2,
+       "per_seed": [
+        0.114041,
+        0.117333
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.07557332921958297,
+       "mean": 0.12328075,
+       "n_seeds": 2,
+       "per_seed": [
+        0.1292285,
+        0.117333
+       ]
+      },
+      "n_total": 4,
+      "per_seed": {
+       "0": {
+        "dist_mean": 637.0,
+        "latency_ms_mean": 0.11959666666666667,
+        "latency_ms_median": 0.114041,
+        "latency_ms_p95": 0.1292285,
+        "n": 3,
+        "recall_mean": 0.20000000000000004
+       },
+       "1": {
+        "dist_mean": 601.0,
+        "latency_ms_mean": 0.117333,
+        "latency_ms_median": 0.117333,
+        "latency_ms_p95": 0.117333,
+        "n": 1,
+        "recall_mean": 0.4
+       }
+      },
+      "recall_mean": {
+       "ci95": 1.2706204736174693,
+       "mean": 0.30000000000000004,
+       "n_seeds": 2,
+       "per_seed": [
+        0.20000000000000004,
+        0.4
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "hnswlib-M16": {
+      "dist_mean": {
+       "ci95": null,
+       "mean": null,
+       "n_seeds": 0,
+       "per_seed": [
+        null,
+        null
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 10.122874485751174,
+       "mean": 7.8035205,
+       "n_seeds": 2,
+       "per_seed": [
+        7.006833,
+        8.600208
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 5.532676705097759,
+       "mean": 8.1647769,
+       "n_seeds": 2,
+       "per_seed": [
+        7.7293458,
+        8.600208
+       ]
+      },
+      "n_total": 4,
+      "per_seed": {
+       "0": {
+        "dist_mean": null,
+        "latency_ms_mean": 7.090319333333333,
+        "latency_ms_median": 7.006833,
+        "latency_ms_p95": 7.7293458,
+        "n": 3,
+        "recall_mean": 1.0
+       },
+       "1": {
+        "dist_mean": null,
+        "latency_ms_mean": 8.600208,
+        "latency_ms_median": 8.600208,
+        "latency_ms_p95": 8.600208,
+        "n": 1,
+        "recall_mean": 1.0
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.0,
+       "mean": 1.0,
+       "n_seeds": 2,
+       "per_seed": [
+        1.0,
+        1.0
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "prism-full": {
+      "dist_mean": {
+       "ci95": 1431.5657336090158,
+       "mean": 404.6666666666667,
+       "n_seeds": 2,
+       "per_seed": [
+        517.3333333333334,
+        292.0
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 27.290812190214666,
+       "mean": 2.4168335,
+       "n_seeds": 2,
+       "per_seed": [
+        4.564667,
+        0.269
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 39.38465727188534,
+       "mean": 3.36863975,
+       "n_seeds": 2,
+       "per_seed": [
+        6.4682794999999995,
+        0.269
+       ]
+      },
+      "n_total": 4,
+      "per_seed": {
+       "0": {
+        "dist_mean": 517.3333333333334,
+        "latency_ms_mean": 5.208306,
+        "latency_ms_median": 4.564667,
+        "latency_ms_p95": 6.4682794999999995,
+        "n": 3,
+        "recall_mean": 0.5333333333333333
+       },
+       "1": {
+        "dist_mean": 292.0,
+        "latency_ms_mean": 0.269,
+        "latency_ms_median": 0.269,
+        "latency_ms_p95": 0.269,
+        "n": 1,
+        "recall_mean": 1.0
+       }
+      },
+      "recall_mean": {
+       "ci95": 2.9647811051074284,
+       "mean": 0.7666666666666666,
+       "n_seeds": 2,
+       "per_seed": [
+        0.5333333333333333,
+        1.0
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "prism-graph-only": {
+      "dist_mean": {
+       "ci95": 656.4872447023595,
+       "mean": 465.6666666666667,
+       "n_seeds": 2,
+       "per_seed": [
+        517.3333333333334,
+        414.0
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.5842185875645761,
+       "mean": 4.411479,
+       "n_seeds": 2,
+       "per_seed": [
+        4.457458,
+        4.3655
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 10.165334174807812,
+       "mean": 5.165529149999999,
+       "n_seeds": 2,
+       "per_seed": [
+        5.9655583,
+        4.3655
+       ]
+      },
+      "n_total": 4,
+      "per_seed": {
+       "0": {
+        "dist_mean": 517.3333333333334,
+        "latency_ms_mean": 4.977902666666666,
+        "latency_ms_median": 4.457458,
+        "latency_ms_p95": 5.9655583,
+        "n": 3,
+        "recall_mean": 0.5333333333333333
+       },
+       "1": {
+        "dist_mean": 414.0,
+        "latency_ms_mean": 4.3655,
+        "latency_ms_median": 4.3655,
+        "latency_ms_p95": 4.3655,
+        "n": 1,
+        "recall_mean": 0.7
+       }
+      },
+      "recall_mean": {
+       "ci95": 1.0588503946812242,
+       "mean": 0.6166666666666667,
+       "n_seeds": 2,
+       "per_seed": [
+        0.5333333333333333,
+        0.7
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "prism-static-2hop": {
+      "dist_mean": {
+       "ci95": 1681.4544267537851,
+       "mean": 923.3333333333334,
+       "n_seeds": 2,
+       "per_seed": [
+        1055.6666666666667,
+        791.0
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 15.753311459468591,
+       "mean": 8.1386875,
+       "n_seeds": 2,
+       "per_seed": [
+        6.898875,
+        9.3785
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 13.906065626236874,
+       "mean": 10.4729311,
+       "n_seeds": 2,
+       "per_seed": [
+        11.5673622,
+        9.3785
+       ]
+      },
+      "n_total": 4,
+      "per_seed": {
+       "0": {
+        "dist_mean": 1055.6666666666667,
+        "latency_ms_mean": 8.086847,
+        "latency_ms_median": 6.898875,
+        "latency_ms_p95": 11.5673622,
+        "n": 3,
+        "recall_mean": 0.6
+       },
+       "1": {
+        "dist_mean": 791.0,
+        "latency_ms_mean": 9.3785,
+        "latency_ms_median": 9.3785,
+        "latency_ms_p95": 9.3785,
+        "n": 1,
+        "recall_mean": 0.8
+       }
+      },
+      "recall_mean": {
+       "ci95": 1.2706204736174695,
+       "mean": 0.7,
+       "n_seeds": 2,
+       "per_seed": [
+        0.6,
+        0.8
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     }
+    },
+    "r_ge_2": {
+     "acorn-1": {
+      "dist_mean": {
+       "ci95": 152.72858092881995,
+       "mean": 426.78,
+       "n_seeds": 2,
+       "per_seed": [
+        414.76,
+        438.8
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.042356133488038204,
+       "mean": 0.4589165,
+       "n_seeds": 2,
+       "per_seed": [
+        0.46225,
+        0.455583
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.19784323146508154,
+       "mean": 0.5994708,
+       "n_seeds": 2,
+       "per_seed": [
+        0.6150414,
+        0.5839002
+       ]
+      },
+      "n_total": 50,
+      "per_seed": {
+       "0": {
+        "dist_mean": 414.76,
+        "latency_ms_mean": 0.48918987999999997,
+        "latency_ms_median": 0.46225,
+        "latency_ms_p95": 0.6150414,
+        "n": 25,
+        "recall_mean": 0.9279999999999999
+       },
+       "1": {
+        "dist_mean": 438.8,
+        "latency_ms_mean": 0.46515500000000004,
+        "latency_ms_median": 0.455583,
+        "latency_ms_p95": 0.5839002,
+        "n": 25,
+        "recall_mean": 0.924
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.025412409472348706,
+       "mean": 0.9259999999999999,
+       "n_seeds": 2,
+       "per_seed": [
+        0.9279999999999999,
+        0.924
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "exact-brute-force": {
+      "dist_mean": {
+       "ci95": 146.62960265545584,
+       "mean": 433.74,
+       "n_seeds": 2,
+       "per_seed": [
+        422.2,
+        445.28
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.034675232725020766,
+       "mean": 0.121479,
+       "n_seeds": 2,
+       "per_seed": [
+        0.11875,
+        0.124208
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.9362363660574521,
+       "mean": 0.45793339999999916,
+       "n_seeds": 2,
+       "per_seed": [
+        0.38424999999999937,
+        0.531616799999999
+       ]
+      },
+      "n_total": 50,
+      "per_seed": {
+       "0": {
+        "dist_mean": 422.2,
+        "latency_ms_mean": 0.16557155999999998,
+        "latency_ms_median": 0.11875,
+        "latency_ms_p95": 0.38424999999999937,
+        "n": 25,
+        "recall_mean": 1.0
+       },
+       "1": {
+        "dist_mean": 445.28,
+        "latency_ms_mean": 0.18461680000000003,
+        "latency_ms_median": 0.124208,
+        "latency_ms_p95": 0.531616799999999,
+        "n": 25,
+        "recall_mean": 1.0
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.0,
+       "mean": 1.0,
+       "n_seeds": 2,
+       "per_seed": [
+        1.0,
+        1.0
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "faiss-hnsw-M16": {
+      "dist_mean": {
+       "ci95": 210.41475043105297,
+       "mean": 825.3199999999999,
+       "n_seeds": 2,
+       "per_seed": [
+        808.76,
+        841.88
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.07729819651251882,
+       "mean": 0.14070850000000001,
+       "n_seeds": 2,
+       "per_seed": [
+        0.134625,
+        0.146792
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.2854614074643212,
+       "mean": 0.1879999,
+       "n_seeds": 2,
+       "per_seed": [
+        0.1655336,
+        0.21046619999999996
+       ]
+      },
+      "n_total": 50,
+      "per_seed": {
+       "0": {
+        "dist_mean": 808.76,
+        "latency_ms_mean": 0.14296676,
+        "latency_ms_median": 0.134625,
+        "latency_ms_p95": 0.1655336,
+        "n": 25,
+        "recall_mean": 0.996
+       },
+       "1": {
+        "dist_mean": 841.88,
+        "latency_ms_mean": 0.16068008,
+        "latency_ms_median": 0.146792,
+        "latency_ms_p95": 0.21046619999999996,
+        "n": 25,
+        "recall_mean": 0.988
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.05082481894469882,
+       "mean": 0.992,
+       "n_seeds": 2,
+       "per_seed": [
+        0.996,
+        0.988
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "faiss-hnsw-M8": {
+      "dist_mean": {
+       "ci95": 265.8138030807748,
+       "mean": 594.2,
+       "n_seeds": 2,
+       "per_seed": [
+        573.28,
+        615.12
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.0015882755920218381,
+       "mean": 0.127125,
+       "n_seeds": 2,
+       "per_seed": [
+        0.12725,
+        0.127
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.3870665736371421,
+       "mean": 0.18249559999999998,
+       "n_seeds": 2,
+       "per_seed": [
+        0.21295839999999994,
+        0.1520328
+       ]
+      },
+      "n_total": 50,
+      "per_seed": {
+       "0": {
+        "dist_mean": 573.28,
+        "latency_ms_mean": 0.14240348,
+        "latency_ms_median": 0.12725,
+        "latency_ms_p95": 0.21295839999999994,
+        "n": 25,
+        "recall_mean": 0.988
+       },
+       "1": {
+        "dist_mean": 615.12,
+        "latency_ms_mean": 0.13568492,
+        "latency_ms_median": 0.127,
+        "latency_ms_p95": 0.1520328,
+        "n": 25,
+        "recall_mean": 0.956
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.20329927577879528,
+       "mean": 0.972,
+       "n_seeds": 2,
+       "per_seed": [
+        0.988,
+        0.956
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "hnswlib-M16": {
+      "dist_mean": {
+       "ci95": null,
+       "mean": null,
+       "n_seeds": 0,
+       "per_seed": [
+        null,
+        null
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.21256209903146636,
+       "mean": 0.435979,
+       "n_seeds": 2,
+       "per_seed": [
+        0.452708,
+        0.41925
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.47219687474903776,
+       "mean": 1.0647204999999997,
+       "n_seeds": 2,
+       "per_seed": [
+        1.0275577999999999,
+        1.1018831999999996
+       ]
+      },
+      "n_total": 50,
+      "per_seed": {
+       "0": {
+        "dist_mean": null,
+        "latency_ms_mean": 0.54166164,
+        "latency_ms_median": 0.452708,
+        "latency_ms_p95": 1.0275577999999999,
+        "n": 25,
+        "recall_mean": 0.996
+       },
+       "1": {
+        "dist_mean": null,
+        "latency_ms_mean": 0.55979008,
+        "latency_ms_median": 0.41925,
+        "latency_ms_p95": 1.1018831999999996,
+        "n": 25,
+        "recall_mean": 1.0
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.02541240947234941,
+       "mean": 0.998,
+       "n_seeds": 2,
+       "per_seed": [
+        0.996,
+        1.0
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "prism-full": {
+      "dist_mean": {
+       "ci95": 33.03613231405413,
+       "mean": 367.79999999999995,
+       "n_seeds": 2,
+       "per_seed": [
+        365.2,
+        370.4
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 1.4159476902874673,
+       "mean": 1.7263125000000001,
+       "n_seeds": 2,
+       "per_seed": [
+        1.83775,
+        1.614875
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 14.944402700451862,
+       "mean": 5.242483599999999,
+       "n_seeds": 2,
+       "per_seed": [
+        6.418633599999999,
+        4.066333599999999
+       ]
+      },
+      "n_total": 50,
+      "per_seed": {
+       "0": {
+        "dist_mean": 365.2,
+        "latency_ms_mean": 2.47754336,
+        "latency_ms_median": 1.83775,
+        "latency_ms_p95": 6.418633599999999,
+        "n": 25,
+        "recall_mean": 0.988
+       },
+       "1": {
+        "dist_mean": 370.4,
+        "latency_ms_mean": 1.76607168,
+        "latency_ms_median": 1.614875,
+        "latency_ms_p95": 4.066333599999999,
+        "n": 25,
+        "recall_mean": 0.9840000000000001
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.025412409472348706,
+       "mean": 0.986,
+       "n_seeds": 2,
+       "per_seed": [
+        0.988,
+        0.9840000000000001
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "prism-graph-only": {
+      "dist_mean": {
+       "ci95": 4.574233705022702,
+       "mean": 368.91999999999996,
+       "n_seeds": 2,
+       "per_seed": [
+        369.28,
+        368.56
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 4.101454886096934,
+       "mean": 1.5474584999999998,
+       "n_seeds": 2,
+       "per_seed": [
+        1.224667,
+        1.87025
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 26.555806529804904,
+       "mean": 4.740504099999995,
+       "n_seeds": 2,
+       "per_seed": [
+        2.650516799999999,
+        6.83049139999999
+       ]
+      },
+      "n_total": 50,
+      "per_seed": {
+       "0": {
+        "dist_mean": 369.28,
+        "latency_ms_mean": 1.40182664,
+        "latency_ms_median": 1.224667,
+        "latency_ms_p95": 2.650516799999999,
+        "n": 25,
+        "recall_mean": 0.988
+       },
+       "1": {
+        "dist_mean": 368.56,
+        "latency_ms_mean": 2.27769668,
+        "latency_ms_median": 1.87025,
+        "latency_ms_p95": 6.83049139999999,
+        "n": 25,
+        "recall_mean": 0.9840000000000001
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.025412409472348706,
+       "mean": 0.986,
+       "n_seeds": 2,
+       "per_seed": [
+        0.988,
+        0.9840000000000001
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "prism-static-2hop": {
+      "dist_mean": {
+       "ci95": 131.63628106677,
+       "mean": 974.28,
+       "n_seeds": 2,
+       "per_seed": [
+        963.92,
+        984.64
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 13.640104431181165,
+       "mean": 6.4947915,
+       "n_seeds": 2,
+       "per_seed": [
+        5.421292,
+        7.568291
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 24.733584296180645,
+       "mean": 15.255258099999997,
+       "n_seeds": 2,
+       "per_seed": [
+        13.3086828,
+        17.201833399999995
+       ]
+      },
+      "n_total": 50,
+      "per_seed": {
+       "0": {
+        "dist_mean": 963.92,
+        "latency_ms_mean": 7.3548932,
+        "latency_ms_median": 5.421292,
+        "latency_ms_p95": 13.3086828,
+        "n": 25,
+        "recall_mean": 1.0
+       },
+       "1": {
+        "dist_mean": 984.64,
+        "latency_ms_mean": 9.2695984,
+        "latency_ms_median": 7.568291,
+        "latency_ms_p95": 17.201833399999995,
+        "n": 25,
+        "recall_mean": 1.0
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.0,
+       "mean": 1.0,
+       "n_seeds": 2,
+       "per_seed": [
+        1.0,
+        1.0
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     }
+    },
+    "r_le_0.5": {
+     "acorn-1": {
+      "dist_mean": {
+       "ci95": 68.48836871051756,
+       "mean": 369.5265151515151,
+       "n_seeds": 2,
+       "per_seed": [
+        364.1363636363636,
+        374.9166666666667
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.049236543352676805,
+       "mean": 0.396417,
+       "n_seeds": 2,
+       "per_seed": [
+        0.392542,
+        0.400292
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.12853151993948664,
+       "mean": 0.5015343499999998,
+       "n_seeds": 2,
+       "per_seed": [
+        0.5116499999999999,
+        0.49141869999999976
+       ]
+      },
+      "n_total": 46,
+      "per_seed": {
+       "0": {
+        "dist_mean": 364.1363636363636,
+        "latency_ms_mean": 0.4019357272727273,
+        "latency_ms_median": 0.392542,
+        "latency_ms_p95": 0.5116499999999999,
+        "n": 22,
+        "recall_mean": 0.9136363636363637
+       },
+       "1": {
+        "dist_mean": 374.9166666666667,
+        "latency_ms_mean": 0.40725170833333335,
+        "latency_ms_median": 0.400292,
+        "latency_ms_p95": 0.49141869999999976,
+        "n": 24,
+        "recall_mean": 0.8916666666666666
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.13957573384434396,
+       "mean": 0.9026515151515151,
+       "n_seeds": 2,
+       "per_seed": [
+        0.9136363636363637,
+        0.8916666666666666
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "exact-brute-force": {
+      "dist_mean": {
+       "ci95": 72.31466900038814,
+       "mean": 385.1003787878788,
+       "n_seeds": 2,
+       "per_seed": [
+        379.40909090909093,
+        390.7916666666667
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.09476605147357489,
+       "mean": 0.11112525,
+       "n_seeds": 2,
+       "per_seed": [
+        0.103667,
+        0.1185835
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 3.3193771843113478,
+       "mean": 0.8447673999999991,
+       "n_seeds": 2,
+       "per_seed": [
+        0.5835267499999996,
+        1.1060080499999985
+       ]
+      },
+      "n_total": 46,
+      "per_seed": {
+       "0": {
+        "dist_mean": 379.40909090909093,
+        "latency_ms_mean": 0.17017040909090908,
+        "latency_ms_median": 0.103667,
+        "latency_ms_p95": 0.5835267499999996,
+        "n": 22,
+        "recall_mean": 1.0
+       },
+       "1": {
+        "dist_mean": 390.7916666666667,
+        "latency_ms_mean": 0.23097233333333334,
+        "latency_ms_median": 0.1185835,
+        "latency_ms_p95": 1.1060080499999985,
+        "n": 24,
+        "recall_mean": 1.0
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.0,
+       "mean": 1.0,
+       "n_seeds": 2,
+       "per_seed": [
+        1.0,
+        1.0
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "faiss-hnsw-M16": {
+      "dist_mean": {
+       "ci95": 206.30737349095713,
+       "mean": 796.0549242424242,
+       "n_seeds": 2,
+       "per_seed": [
+        779.8181818181819,
+        812.2916666666666
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.012045482089893663,
+       "mean": 0.127948,
+       "n_seeds": 2,
+       "per_seed": [
+        0.128896,
+        0.127
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.19125157010307253,
+       "mean": 0.16624817499999997,
+       "n_seeds": 2,
+       "per_seed": [
+        0.18129999999999996,
+        0.15119634999999998
+       ]
+      },
+      "n_total": 46,
+      "per_seed": {
+       "0": {
+        "dist_mean": 779.8181818181819,
+        "latency_ms_mean": 0.13323495454545456,
+        "latency_ms_median": 0.128896,
+        "latency_ms_p95": 0.18129999999999996,
+        "n": 22,
+        "recall_mean": 0.17272727272727273
+       },
+       "1": {
+        "dist_mean": 812.2916666666666,
+        "latency_ms_mean": 0.12955729166666666,
+        "latency_ms_median": 0.127,
+        "latency_ms_p95": 0.15119634999999998,
+        "n": 24,
+        "recall_mean": 0.21666666666666667
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.2791514676886865,
+       "mean": 0.1946969696969697,
+       "n_seeds": 2,
+       "per_seed": [
+        0.17272727272727273,
+        0.21666666666666667
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "faiss-hnsw-M8": {
+      "dist_mean": {
+       "ci95": 158.82755920218366,
+       "mean": 575.0,
+       "n_seeds": 2,
+       "per_seed": [
+        562.5,
+        587.5
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.019326137403721817,
+       "mean": 0.109,
+       "n_seeds": 2,
+       "per_seed": [
+        0.10747899999999999,
+        0.11052100000000001
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.06633528306614707,
+       "mean": 0.12501059999999997,
+       "n_seeds": 2,
+       "per_seed": [
+        0.11978989999999999,
+        0.13023129999999997
+       ]
+      },
+      "n_total": 46,
+      "per_seed": {
+       "0": {
+        "dist_mean": 562.5,
+        "latency_ms_mean": 0.1091819090909091,
+        "latency_ms_median": 0.10747899999999999,
+        "latency_ms_p95": 0.11978989999999999,
+        "n": 22,
+        "recall_mean": 0.11363636363636363
+       },
+       "1": {
+        "dist_mean": 587.5,
+        "latency_ms_mean": 0.12081420833333334,
+        "latency_ms_median": 0.11052100000000001,
+        "latency_ms_p95": 0.13023129999999997,
+        "n": 24,
+        "recall_mean": 0.1375
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.15160812469299362,
+       "mean": 0.12556818181818183,
+       "n_seeds": 2,
+       "per_seed": [
+        0.11363636363636363,
+        0.1375
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "hnswlib-M16": {
+      "dist_mean": {
+       "ci95": null,
+       "mean": null,
+       "n_seeds": 0,
+       "per_seed": [
+        null,
+        null
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.39772962065173667,
+       "mean": 7.336885499999999,
+       "n_seeds": 2,
+       "per_seed": [
+        7.3681874999999994,
+        7.3055835
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 5.02496948231741,
+       "mean": 8.641936075,
+       "n_seeds": 2,
+       "per_seed": [
+        9.03740975,
+        8.2464624
+       ]
+      },
+      "n_total": 46,
+      "per_seed": {
+       "0": {
+        "dist_mean": null,
+        "latency_ms_mean": 7.444952681818182,
+        "latency_ms_median": 7.3681874999999994,
+        "latency_ms_p95": 9.03740975,
+        "n": 22,
+        "recall_mean": 1.0
+       },
+       "1": {
+        "dist_mean": null,
+        "latency_ms_mean": 7.3795538333333335,
+        "latency_ms_median": 7.3055835,
+        "latency_ms_p95": 8.2464624,
+        "n": 24,
+        "recall_mean": 1.0
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.0,
+       "mean": 1.0,
+       "n_seeds": 2,
+       "per_seed": [
+        1.0,
+        1.0
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "prism-full": {
+      "dist_mean": {
+       "ci95": 13.235629933515185,
+       "mean": 429.54166666666663,
+       "n_seeds": 2,
+       "per_seed": [
+        428.5,
+        430.5833333333333
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.040767857896010194,
+       "mean": 4.665146,
+       "n_seeds": 2,
+       "per_seed": [
+        4.6619375000000005,
+        4.6683544999999995
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 16.176519879512387,
+       "mean": 11.226590874999998,
+       "n_seeds": 2,
+       "per_seed": [
+        9.95347115,
+        12.499710599999995
+       ]
+      },
+      "n_total": 46,
+      "per_seed": {
+       "0": {
+        "dist_mean": 428.5,
+        "latency_ms_mean": 5.661742363636363,
+        "latency_ms_median": 4.6619375000000005,
+        "latency_ms_p95": 9.95347115,
+        "n": 22,
+        "recall_mean": 0.6181818181818182
+       },
+       "1": {
+        "dist_mean": 430.5833333333333,
+        "latency_ms_mean": 6.055465333333333,
+        "latency_ms_median": 4.6683544999999995,
+        "latency_ms_p95": 12.499710599999995,
+        "n": 24,
+        "recall_mean": 0.5166666666666667
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.6449361494876544,
+       "mean": 0.5674242424242424,
+       "n_seeds": 2,
+       "per_seed": [
+        0.6181818181818182,
+        0.5166666666666667
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "prism-graph-only": {
+      "dist_mean": {
+       "ci95": 202.72172101806004,
+       "mean": 452.4545454545455,
+       "n_seeds": 2,
+       "per_seed": [
+        468.40909090909093,
+        436.5
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 4.710695167338225,
+       "mean": 4.81903125,
+       "n_seeds": 2,
+       "per_seed": [
+        4.4482915,
+        5.189771
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 49.507490144815996,
+       "mean": 10.622807275,
+       "n_seeds": 2,
+       "per_seed": [
+        6.7264833,
+        14.519131249999997
+       ]
+      },
+      "n_total": 46,
+      "per_seed": {
+       "0": {
+        "dist_mean": 468.40909090909093,
+        "latency_ms_mean": 4.703941181818181,
+        "latency_ms_median": 4.4482915,
+        "latency_ms_p95": 6.7264833,
+        "n": 22,
+        "recall_mean": 0.5772727272727273
+       },
+       "1": {
+        "dist_mean": 436.5,
+        "latency_ms_mean": 7.677513875,
+        "latency_ms_median": 5.189771,
+        "latency_ms_p95": 14.519131249999997,
+        "n": 24,
+        "recall_mean": 0.5
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.4909215466249313,
+       "mean": 0.5386363636363636,
+       "n_seeds": 2,
+       "per_seed": [
+        0.5772727272727273,
+        0.5
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "prism-static-2hop": {
+      "dist_mean": {
+       "ci95": 148.72035088931796,
+       "mean": 1027.2045454545455,
+       "n_seeds": 2,
+       "per_seed": [
+        1038.909090909091,
+        1015.5
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 4.549218364448549,
+       "mean": 6.384322750000001,
+       "n_seeds": 2,
+       "per_seed": [
+        6.0262915,
+        6.742354000000001
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 26.46349245819029,
+       "mean": 19.108888674999992,
+       "n_seeds": 2,
+       "per_seed": [
+        17.026166649999997,
+        21.191610699999988
+       ]
+      },
+      "n_total": 46,
+      "per_seed": {
+       "0": {
+        "dist_mean": 1038.909090909091,
+        "latency_ms_mean": 8.198568227272728,
+        "latency_ms_median": 6.0262915,
+        "latency_ms_p95": 17.026166649999997,
+        "n": 22,
+        "recall_mean": 0.6409090909090909
+       },
+       "1": {
+        "dist_mean": 1015.5,
+        "latency_ms_mean": 8.794531166666667,
+        "latency_ms_median": 6.742354000000001,
+        "latency_ms_p95": 21.191610699999988,
+        "n": 24,
+        "recall_mean": 0.625
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.10107208312866209,
+       "mean": 0.6329545454545454,
+       "n_seeds": 2,
+       "per_seed": [
+        0.6409090909090909,
+        0.625
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     }
+    },
+    "regime=far": {
+     "acorn-1": {
+      "dist_mean": {
+       "ci95": 53.87430808138081,
+       "mean": 366.24,
+       "n_seeds": 2,
+       "per_seed": [
+        362.0,
+        370.48
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.042089303188578626,
+       "mean": 0.3958545,
+       "n_seeds": 2,
+       "per_seed": [
+        0.392542,
+        0.399167
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.16263942062303793,
+       "mean": 0.5001915999999998,
+       "n_seeds": 2,
+       "per_seed": [
+        0.5129916,
+        0.4873915999999997
+       ]
+      },
+      "n_total": 50,
+      "per_seed": {
+       "0": {
+        "dist_mean": 362.0,
+        "latency_ms_mean": 0.40450508,
+        "latency_ms_median": 0.392542,
+        "latency_ms_p95": 0.5129916,
+        "n": 25,
+        "recall_mean": 0.9159999999999999
+       },
+       "1": {
+        "dist_mean": 370.48,
+        "latency_ms_mean": 0.40587996,
+        "latency_ms_median": 0.399167,
+        "latency_ms_p95": 0.4873915999999997,
+        "n": 25,
+        "recall_mean": 0.892
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.15247445683409575,
+       "mean": 0.9039999999999999,
+       "n_seeds": 2,
+       "per_seed": [
+        0.9159999999999999,
+        0.892
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "exact-brute-force": {
+      "dist_mean": {
+       "ci95": 55.144928554997854,
+       "mean": 382.5,
+       "n_seeds": 2,
+       "per_seed": [
+        378.16,
+        386.84
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.0971452883104236,
+       "mean": 0.1113545,
+       "n_seeds": 2,
+       "per_seed": [
+        0.103709,
+        0.119
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 3.5527082102943313,
+       "mean": 0.7924621999999983,
+       "n_seeds": 2,
+       "per_seed": [
+        0.5128579999999987,
+        1.072066399999998
+       ]
+      },
+      "n_total": 50,
+      "per_seed": {
+       "0": {
+        "dist_mean": 378.16,
+        "latency_ms_mean": 0.16149828,
+        "latency_ms_median": 0.103709,
+        "latency_ms_p95": 0.5128579999999987,
+        "n": 25,
+        "recall_mean": 1.0
+       },
+       "1": {
+        "dist_mean": 386.84,
+        "latency_ms_mean": 0.22765844000000002,
+        "latency_ms_median": 0.119,
+        "latency_ms_p95": 1.072066399999998,
+        "n": 25,
+        "recall_mean": 1.0
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.0,
+       "mean": 1.0,
+       "n_seeds": 2,
+       "per_seed": [
+        1.0,
+        1.0
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "faiss-hnsw-M16": {
+      "dist_mean": {
+       "ci95": 95.55065961603347,
+       "mean": 803.0,
+       "n_seeds": 2,
+       "per_seed": [
+        795.48,
+        810.52
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.06114861029284067,
+       "mean": 0.1269795,
+       "n_seeds": 2,
+       "per_seed": [
+        0.131792,
+        0.122167
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.16496592671022925,
+       "mean": 0.16396689999999994,
+       "n_seeds": 2,
+       "per_seed": [
+        0.1769499999999999,
+        0.15098379999999997
+       ]
+      },
+      "n_total": 50,
+      "per_seed": {
+       "0": {
+        "dist_mean": 795.48,
+        "latency_ms_mean": 0.13361176,
+        "latency_ms_median": 0.131792,
+        "latency_ms_p95": 0.1769499999999999,
+        "n": 25,
+        "recall_mean": 0.192
+       },
+       "1": {
+        "dist_mean": 810.52,
+        "latency_ms_mean": 0.129045,
+        "latency_ms_median": 0.122167,
+        "latency_ms_p95": 0.15098379999999997,
+        "n": 25,
+        "recall_mean": 0.23199999999999998
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.25412409472349373,
+       "mean": 0.212,
+       "n_seeds": 2,
+       "per_seed": [
+        0.192,
+        0.23199999999999998
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "faiss-hnsw-M8": {
+      "dist_mean": {
+       "ci95": 105.4614993102494,
+       "mean": 579.74,
+       "n_seeds": 2,
+       "per_seed": [
+        571.44,
+        588.04
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.005298487374984856,
+       "mean": 0.111125,
+       "n_seeds": 2,
+       "per_seed": [
+        0.111542,
+        0.110708
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.013073414053049955,
+       "mean": 0.12865449999999995,
+       "n_seeds": 2,
+       "per_seed": [
+        0.12762559999999998,
+        0.12968339999999995
+       ]
+      },
+      "n_total": 50,
+      "per_seed": {
+       "0": {
+        "dist_mean": 571.44,
+        "latency_ms_mean": 0.11043167999999999,
+        "latency_ms_median": 0.111542,
+        "latency_ms_p95": 0.12762559999999998,
+        "n": 25,
+        "recall_mean": 0.124
+       },
+       "1": {
+        "dist_mean": 588.04,
+        "latency_ms_mean": 0.12067496,
+        "latency_ms_median": 0.110708,
+        "latency_ms_p95": 0.12968339999999995,
+        "n": 25,
+        "recall_mean": 0.14800000000000002
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.15247445683409647,
+       "mean": 0.136,
+       "n_seeds": 2,
+       "per_seed": [
+        0.124,
+        0.14800000000000002
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "hnswlib-M16": {
+      "dist_mean": {
+       "ci95": null,
+       "mean": null,
+       "n_seeds": 0,
+       "per_seed": [
+        null,
+        null
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 1.0940614057059515,
+       "mean": 7.3231874999999995,
+       "n_seeds": 2,
+       "per_seed": [
+        7.237083,
+        7.409292
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 2.973725849701546,
+       "mean": 8.7651037,
+       "n_seeds": 2,
+       "per_seed": [
+        8.999141,
+        8.531066399999998
+       ]
+      },
+      "n_total": 50,
+      "per_seed": {
+       "0": {
+        "dist_mean": null,
+        "latency_ms_mean": 7.402396680000001,
+        "latency_ms_median": 7.237083,
+        "latency_ms_p95": 8.999141,
+        "n": 25,
+        "recall_mean": 1.0
+       },
+       "1": {
+        "dist_mean": null,
+        "latency_ms_mean": 7.42838,
+        "latency_ms_median": 7.409292,
+        "latency_ms_p95": 8.531066399999998,
+        "n": 25,
+        "recall_mean": 1.0
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.0,
+       "mean": 1.0,
+       "n_seeds": 2,
+       "per_seed": [
+        1.0,
+        1.0
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "prism-full": {
+      "dist_mean": {
+       "ci95": 89.70580543739337,
+       "mean": 432.1,
+       "n_seeds": 2,
+       "per_seed": [
+        439.16,
+        425.04
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.6120134104249556,
+       "mean": 4.6128335,
+       "n_seeds": 2,
+       "per_seed": [
+        4.564667,
+        4.661
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 15.660449432774682,
+       "mean": 11.158012699999997,
+       "n_seeds": 2,
+       "per_seed": [
+        9.9255086,
+        12.390516799999993
+       ]
+      },
+      "n_total": 50,
+      "per_seed": {
+       "0": {
+        "dist_mean": 439.16,
+        "latency_ms_mean": 5.607329999999999,
+        "latency_ms_median": 4.564667,
+        "latency_ms_p95": 9.9255086,
+        "n": 25,
+        "recall_mean": 0.608
+       },
+       "1": {
+        "dist_mean": 425.04,
+        "latency_ms_mean": 5.82400672,
+        "latency_ms_median": 4.661,
+        "latency_ms_p95": 12.390516799999993,
+        "n": 25,
+        "recall_mean": 0.536
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.45742337050228865,
+       "mean": 0.5720000000000001,
+       "n_seeds": 2,
+       "per_seed": [
+        0.608,
+        0.536
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "prism-graph-only": {
+      "dist_mean": {
+       "ci95": 245.73799959761828,
+       "mean": 454.94,
+       "n_seeds": 2,
+       "per_seed": [
+        474.28,
+        435.6
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 3.569388915871987,
+       "mean": 4.738375,
+       "n_seeds": 2,
+       "per_seed": [
+        4.457458,
+        5.019292
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 49.582787431737685,
+       "mean": 10.560174999999997,
+       "n_seeds": 2,
+       "per_seed": [
+        6.657924999999999,
+        14.462424999999996
+       ]
+      },
+      "n_total": 50,
+      "per_seed": {
+       "0": {
+        "dist_mean": 474.28,
+        "latency_ms_mean": 4.736816559999999,
+        "latency_ms_median": 4.457458,
+        "latency_ms_p95": 6.657924999999999,
+        "n": 25,
+        "recall_mean": 0.5720000000000001
+       },
+       "1": {
+        "dist_mean": 435.6,
+        "latency_ms_mean": 7.54503332,
+        "latency_ms_median": 5.019292,
+        "latency_ms_p95": 14.462424999999996,
+        "n": 25,
+        "recall_mean": 0.508
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.40659855155759056,
+       "mean": 0.54,
+       "n_seeds": 2,
+       "per_seed": [
+        0.5720000000000001,
+        0.508
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "prism-static-2hop": {
+      "dist_mean": {
+       "ci95": 218.54672146220534,
+       "mean": 1023.72,
+       "n_seeds": 2,
+       "per_seed": [
+        1040.92,
+        1006.52
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 7.848997498574829,
+       "mean": 6.6972705,
+       "n_seeds": 2,
+       "per_seed": [
+        6.079541,
+        7.315
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 27.62784427084164,
+       "mean": 18.70040009999999,
+       "n_seeds": 2,
+       "per_seed": [
+        16.526041599999992,
+        20.874758599999982
+       ]
+      },
+      "n_total": 50,
+      "per_seed": {
+       "0": {
+        "dist_mean": 1040.92,
+        "latency_ms_mean": 8.18516168,
+        "latency_ms_median": 6.079541,
+        "latency_ms_p95": 16.526041599999992,
+        "n": 25,
+        "recall_mean": 0.636
+       },
+       "1": {
+        "dist_mean": 1006.52,
+        "latency_ms_mean": 8.81788992,
+        "latency_ms_median": 7.315,
+        "latency_ms_p95": 20.874758599999982,
+        "n": 25,
+        "recall_mean": 0.632
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.02541240947234941,
+       "mean": 0.634,
+       "n_seeds": 2,
+       "per_seed": [
+        0.636,
+        0.632
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     }
+    },
+    "regime=near": {
+     "acorn-1": {
+      "dist_mean": {
+       "ci95": 152.72858092881995,
+       "mean": 426.78,
+       "n_seeds": 2,
+       "per_seed": [
+        414.76,
+        438.8
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.042356133488038204,
+       "mean": 0.4589165,
+       "n_seeds": 2,
+       "per_seed": [
+        0.46225,
+        0.455583
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.19784323146508154,
+       "mean": 0.5994708,
+       "n_seeds": 2,
+       "per_seed": [
+        0.6150414,
+        0.5839002
+       ]
+      },
+      "n_total": 50,
+      "per_seed": {
+       "0": {
+        "dist_mean": 414.76,
+        "latency_ms_mean": 0.48918987999999997,
+        "latency_ms_median": 0.46225,
+        "latency_ms_p95": 0.6150414,
+        "n": 25,
+        "recall_mean": 0.9279999999999999
+       },
+       "1": {
+        "dist_mean": 438.8,
+        "latency_ms_mean": 0.46515500000000004,
+        "latency_ms_median": 0.455583,
+        "latency_ms_p95": 0.5839002,
+        "n": 25,
+        "recall_mean": 0.924
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.025412409472348706,
+       "mean": 0.9259999999999999,
+       "n_seeds": 2,
+       "per_seed": [
+        0.9279999999999999,
+        0.924
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "exact-brute-force": {
+      "dist_mean": {
+       "ci95": 146.62960265545584,
+       "mean": 433.74,
+       "n_seeds": 2,
+       "per_seed": [
+        422.2,
+        445.28
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.034675232725020766,
+       "mean": 0.121479,
+       "n_seeds": 2,
+       "per_seed": [
+        0.11875,
+        0.124208
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.9362363660574521,
+       "mean": 0.45793339999999916,
+       "n_seeds": 2,
+       "per_seed": [
+        0.38424999999999937,
+        0.531616799999999
+       ]
+      },
+      "n_total": 50,
+      "per_seed": {
+       "0": {
+        "dist_mean": 422.2,
+        "latency_ms_mean": 0.16557155999999998,
+        "latency_ms_median": 0.11875,
+        "latency_ms_p95": 0.38424999999999937,
+        "n": 25,
+        "recall_mean": 1.0
+       },
+       "1": {
+        "dist_mean": 445.28,
+        "latency_ms_mean": 0.18461680000000003,
+        "latency_ms_median": 0.124208,
+        "latency_ms_p95": 0.531616799999999,
+        "n": 25,
+        "recall_mean": 1.0
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.0,
+       "mean": 1.0,
+       "n_seeds": 2,
+       "per_seed": [
+        1.0,
+        1.0
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "faiss-hnsw-M16": {
+      "dist_mean": {
+       "ci95": 210.41475043105297,
+       "mean": 825.3199999999999,
+       "n_seeds": 2,
+       "per_seed": [
+        808.76,
+        841.88
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.07729819651251882,
+       "mean": 0.14070850000000001,
+       "n_seeds": 2,
+       "per_seed": [
+        0.134625,
+        0.146792
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.2854614074643212,
+       "mean": 0.1879999,
+       "n_seeds": 2,
+       "per_seed": [
+        0.1655336,
+        0.21046619999999996
+       ]
+      },
+      "n_total": 50,
+      "per_seed": {
+       "0": {
+        "dist_mean": 808.76,
+        "latency_ms_mean": 0.14296676,
+        "latency_ms_median": 0.134625,
+        "latency_ms_p95": 0.1655336,
+        "n": 25,
+        "recall_mean": 0.996
+       },
+       "1": {
+        "dist_mean": 841.88,
+        "latency_ms_mean": 0.16068008,
+        "latency_ms_median": 0.146792,
+        "latency_ms_p95": 0.21046619999999996,
+        "n": 25,
+        "recall_mean": 0.988
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.05082481894469882,
+       "mean": 0.992,
+       "n_seeds": 2,
+       "per_seed": [
+        0.996,
+        0.988
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "faiss-hnsw-M8": {
+      "dist_mean": {
+       "ci95": 265.8138030807748,
+       "mean": 594.2,
+       "n_seeds": 2,
+       "per_seed": [
+        573.28,
+        615.12
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.0015882755920218381,
+       "mean": 0.127125,
+       "n_seeds": 2,
+       "per_seed": [
+        0.12725,
+        0.127
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.3870665736371421,
+       "mean": 0.18249559999999998,
+       "n_seeds": 2,
+       "per_seed": [
+        0.21295839999999994,
+        0.1520328
+       ]
+      },
+      "n_total": 50,
+      "per_seed": {
+       "0": {
+        "dist_mean": 573.28,
+        "latency_ms_mean": 0.14240348,
+        "latency_ms_median": 0.12725,
+        "latency_ms_p95": 0.21295839999999994,
+        "n": 25,
+        "recall_mean": 0.988
+       },
+       "1": {
+        "dist_mean": 615.12,
+        "latency_ms_mean": 0.13568492,
+        "latency_ms_median": 0.127,
+        "latency_ms_p95": 0.1520328,
+        "n": 25,
+        "recall_mean": 0.956
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.20329927577879528,
+       "mean": 0.972,
+       "n_seeds": 2,
+       "per_seed": [
+        0.988,
+        0.956
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "hnswlib-M16": {
+      "dist_mean": {
+       "ci95": null,
+       "mean": null,
+       "n_seeds": 0,
+       "per_seed": [
+        null,
+        null
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 0.21256209903146636,
+       "mean": 0.435979,
+       "n_seeds": 2,
+       "per_seed": [
+        0.452708,
+        0.41925
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 0.47219687474903776,
+       "mean": 1.0647204999999997,
+       "n_seeds": 2,
+       "per_seed": [
+        1.0275577999999999,
+        1.1018831999999996
+       ]
+      },
+      "n_total": 50,
+      "per_seed": {
+       "0": {
+        "dist_mean": null,
+        "latency_ms_mean": 0.54166164,
+        "latency_ms_median": 0.452708,
+        "latency_ms_p95": 1.0275577999999999,
+        "n": 25,
+        "recall_mean": 0.996
+       },
+       "1": {
+        "dist_mean": null,
+        "latency_ms_mean": 0.55979008,
+        "latency_ms_median": 0.41925,
+        "latency_ms_p95": 1.1018831999999996,
+        "n": 25,
+        "recall_mean": 1.0
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.02541240947234941,
+       "mean": 0.998,
+       "n_seeds": 2,
+       "per_seed": [
+        0.996,
+        1.0
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "prism-full": {
+      "dist_mean": {
+       "ci95": 33.03613231405413,
+       "mean": 367.79999999999995,
+       "n_seeds": 2,
+       "per_seed": [
+        365.2,
+        370.4
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 1.4159476902874673,
+       "mean": 1.7263125000000001,
+       "n_seeds": 2,
+       "per_seed": [
+        1.83775,
+        1.614875
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 14.944402700451862,
+       "mean": 5.242483599999999,
+       "n_seeds": 2,
+       "per_seed": [
+        6.418633599999999,
+        4.066333599999999
+       ]
+      },
+      "n_total": 50,
+      "per_seed": {
+       "0": {
+        "dist_mean": 365.2,
+        "latency_ms_mean": 2.47754336,
+        "latency_ms_median": 1.83775,
+        "latency_ms_p95": 6.418633599999999,
+        "n": 25,
+        "recall_mean": 0.988
+       },
+       "1": {
+        "dist_mean": 370.4,
+        "latency_ms_mean": 1.76607168,
+        "latency_ms_median": 1.614875,
+        "latency_ms_p95": 4.066333599999999,
+        "n": 25,
+        "recall_mean": 0.9840000000000001
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.025412409472348706,
+       "mean": 0.986,
+       "n_seeds": 2,
+       "per_seed": [
+        0.988,
+        0.9840000000000001
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "prism-graph-only": {
+      "dist_mean": {
+       "ci95": 4.574233705022702,
+       "mean": 368.91999999999996,
+       "n_seeds": 2,
+       "per_seed": [
+        369.28,
+        368.56
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 4.101454886096934,
+       "mean": 1.5474584999999998,
+       "n_seeds": 2,
+       "per_seed": [
+        1.224667,
+        1.87025
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 26.555806529804904,
+       "mean": 4.740504099999995,
+       "n_seeds": 2,
+       "per_seed": [
+        2.650516799999999,
+        6.83049139999999
+       ]
+      },
+      "n_total": 50,
+      "per_seed": {
+       "0": {
+        "dist_mean": 369.28,
+        "latency_ms_mean": 1.40182664,
+        "latency_ms_median": 1.224667,
+        "latency_ms_p95": 2.650516799999999,
+        "n": 25,
+        "recall_mean": 0.988
+       },
+       "1": {
+        "dist_mean": 368.56,
+        "latency_ms_mean": 2.27769668,
+        "latency_ms_median": 1.87025,
+        "latency_ms_p95": 6.83049139999999,
+        "n": 25,
+        "recall_mean": 0.9840000000000001
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.025412409472348706,
+       "mean": 0.986,
+       "n_seeds": 2,
+       "per_seed": [
+        0.988,
+        0.9840000000000001
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     },
+     "prism-static-2hop": {
+      "dist_mean": {
+       "ci95": 131.63628106677,
+       "mean": 974.28,
+       "n_seeds": 2,
+       "per_seed": [
+        963.92,
+        984.64
+       ]
+      },
+      "latency_ms_median": {
+       "ci95": 13.640104431181165,
+       "mean": 6.4947915,
+       "n_seeds": 2,
+       "per_seed": [
+        5.421292,
+        7.568291
+       ]
+      },
+      "latency_ms_p95": {
+       "ci95": 24.733584296180645,
+       "mean": 15.255258099999997,
+       "n_seeds": 2,
+       "per_seed": [
+        13.3086828,
+        17.201833399999995
+       ]
+      },
+      "n_total": 50,
+      "per_seed": {
+       "0": {
+        "dist_mean": 963.92,
+        "latency_ms_mean": 7.3548932,
+        "latency_ms_median": 5.421292,
+        "latency_ms_p95": 13.3086828,
+        "n": 25,
+        "recall_mean": 1.0
+       },
+       "1": {
+        "dist_mean": 984.64,
+        "latency_ms_mean": 9.2695984,
+        "latency_ms_median": 7.568291,
+        "latency_ms_p95": 17.201833399999995,
+        "n": 25,
+        "recall_mean": 1.0
+       }
+      },
+      "recall_mean": {
+       "ci95": 0.0,
+       "mean": 1.0,
+       "n_seeds": 2,
+       "per_seed": [
+        1.0,
+        1.0
+       ]
+      },
+      "seeds": [
+       0,
+       1
+      ]
+     }
+    }
+   },
+   "condition_descriptors": {
+    "r_0.5_to_2": {
+     "S_actual_mean": 0.0174875,
+     "n_queries_x_seeds": 4,
+     "r_measured_mean": 0.7002868032730979,
+     "r_measured_median": 0.673591581239227
+    },
+    "r_ge_2": {
+     "S_actual_mean": 0.021686999999999998,
+     "n_queries_x_seeds": 50,
+     "r_measured_mean": 30.550385476927794,
+     "r_measured_median": 28.889375869837686
+    },
+    "r_le_0.5": {
+     "S_actual_mean": 0.019267391304347826,
+     "n_queries_x_seeds": 46,
+     "r_measured_mean": 0.0,
+     "r_measured_median": 0.0
+    },
+    "regime=far": {
+     "S_actual_mean": 0.019125,
+     "n_queries_x_seeds": 50,
+     "r_measured_mean": 0.05602294426184783,
+     "r_measured_median": 0.0
+    },
+    "regime=near": {
+     "S_actual_mean": 0.021686999999999998,
+     "n_queries_x_seeds": 50,
+     "r_measured_mean": 30.550385476927794,
+     "r_measured_median": 28.889375869837686
+    }
+   }
+  },
+  "H4": {
+   "systems": {
+    "P4a-path(SpiceDB-Delete+mirror+UBP+bitmap)": {
+     "chunks_covered": [
+      6000
+     ],
+     "docs_covered": [
+      1024
+     ],
+     "latency_ms_max": 2.645041,
+     "latency_ms_median": 0.88225,
+     "latency_ms_min": 0.848166,
+     "n_trials": 3,
+     "rows_affected_median": null,
+     "vector_writes_max": 0
+    },
+    "pgvector-UPDATE-acl": {
+     "chunks_covered": [
+      6000
+     ],
+     "docs_covered": [
+      1024
+     ],
+     "latency_ms_max": 4055.174375,
+     "latency_ms_median": 3957.985792,
+     "latency_ms_min": 3935.586958,
+     "n_trials": 3,
+     "rows_affected_median": 6000.0,
+     "vector_writes_max": 6000
+    }
+   }
+  }
+ },
+ "n_records": 4326,
+ "n_records_by_hypothesis": {
+  "H1": 320,
+  "H2": 3200,
+  "H3": 800,
+  "H4": 6
+ },
+ "run_id": "v2-smoke-004",
+ "run_types": [
+  "smoke"
+ ],
+ "schema": "prism-ann-v2-summary/1",
+ "systems_by_hypothesis": {
+  "H1": [
+   "H1-oracle-check",
+   "SpiceDB-LookupResources+leaf-bitmap",
+   "SpiceDB-ReadRelationships+UBP+bitmap",
+   "UBP+bitmap"
+  ],
+  "H2": [
+   "acorn-1",
+   "exact-brute-force",
+   "faiss-hnsw-M16",
+   "faiss-hnsw-M8",
+   "hnswlib-M16",
+   "pgvector-hnsw-iter",
+   "prism-full",
+   "prism-graph-only"
+  ],
+  "H3": [
+   "acorn-1",
+   "exact-brute-force",
+   "faiss-hnsw-M16",
+   "faiss-hnsw-M8",
+   "hnswlib-M16",
+   "prism-full",
+   "prism-graph-only",
+   "prism-static-2hop"
+  ],
+  "H4": [
+   "P4a-path(SpiceDB-Delete+mirror+UBP+bitmap)",
+   "pgvector-UPDATE-acl"
+  ]
+ },
+ "verdicts": {
+  "P1a": {
+   "mismatches": 0,
+   "reason": "only 80 principals (<200)",
+   "verdict": "untestable"
+  },
+  "P1b": {
+   "tokens_pos_max": 276,
+   "verdict": "supported",
+   "within_bound_fraction": 1.0
+  },
+  "P1c": {
+   "n_principals": 37,
+   "ratio_spicedb_over_ubp": 219.60917244601615,
+   "spicedb_median_ms": 71.913,
+   "strict_ratio_including_grant_fetch": 38.104649622466546,
+   "strict_verdict": "supported",
+   "ubp_median_ms": 0.327459,
+   "verdict": "supported"
+  },
+  "P2a": {
+   "by_S": {
+    "S=0.001": {
+     "diff": 0.606,
+     "faiss_recall": 0.082,
+     "paired_diff": {
+      "ci95": 0.10164963788939764,
+      "mean": 0.606,
+      "n_seeds": 2,
+      "per_seed": [
+       0.614,
+       0.598
+      ]
+     },
+     "prism_recall": 0.688,
+     "threshold": 0.1
+    },
+    "S=0.005": {
+     "diff": 0.563,
+     "faiss_recall": 0.23600000000000002,
+     "paired_diff": {
+      "ci95": 0.08894343315322221,
+      "mean": 0.563,
+      "n_seeds": 2,
+      "per_seed": [
+       0.556,
+       0.57
+      ]
+     },
+     "prism_recall": 0.7989999999999999,
+     "threshold": 0.1
+    }
+   },
+   "verdict": "supported"
+  },
+  "P2b": {
+   "by_S": {
+    "S=0.001": {
+     "acorn_dist": 5.66,
+     "acorn_recall": 0.123,
+     "dist_ratio": 160.68551236749116,
+     "holds": false,
+     "prism_dist": 909.48,
+     "prism_recall": 0.688
+    },
+    "S=0.005": {
+     "acorn_dist": 97.83,
+     "acorn_recall": 0.903,
+     "dist_ratio": 9.723499948890934,
+     "holds": false,
+     "prism_dist": 951.25,
+     "prism_recall": 0.7989999999999999
+    },
+    "S=0.01": {
+     "acorn_dist": 195.74,
+     "acorn_recall": 0.9179999999999999,
+     "dist_ratio": 5.0472565648308985,
+     "holds": false,
+     "prism_dist": 987.95,
+     "prism_recall": 0.867
+    },
+    "S=0.05": {
+     "acorn_dist": 856.33,
+     "acorn_recall": 0.9179999999999999,
+     "dist_ratio": 1.537234477362699,
+     "holds": false,
+     "prism_dist": 1316.38,
+     "prism_recall": 0.9730000000000001
+    }
+   },
+   "verdict": "falsified"
+  },
+  "P2c": {
+   "by_S": {
+    "S=0.001": {
+     "prism_full_recall": 1.0,
+     "threshold": 0.99
+    },
+    "S=0.005": {
+     "prism_full_recall": 1.0,
+     "threshold": 0.99
+    }
+   },
+   "verdict": "supported"
+  },
+  "P3a": {
+   "diff": 0.3439393939393939,
+   "faiss_recall": 0.1946969696969697,
+   "n_queries_x_seeds": 46,
+   "paired_diff": {
+    "ci95": 0.7700730143136179,
+    "mean": 0.34393939393939393,
+    "n_seeds": 2,
+    "per_seed": [
+     0.40454545454545454,
+     0.2833333333333333
+    ]
+   },
+   "prism_recall": 0.5386363636363636,
+   "verdict": "supported"
+  },
+  "P3b": {
+   "dist_ratio": 0.3786591123701605,
+   "n_queries_x_seeds": 50,
+   "prism_dist": 368.91999999999996,
+   "prism_recall": 0.986,
+   "static_dist": 974.28,
+   "static_recall": 1.0,
+   "verdict": "falsified"
+  },
+  "P4a": {
+   "latency_ms_median": 0.88225,
+   "vector_writes_max": 0,
+   "verdict": "supported"
+  },
+  "P4b": {
+   "p4a_median_ms": 0.88225,
+   "pgvector_median_ms": 3957.985792,
+   "ratio": 4486.2406256729955,
+   "rows_updated_median": 6000.0,
+   "verdict": "supported"
+  }
+ }
+}
