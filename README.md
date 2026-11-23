@@ -2,13 +2,15 @@
 
 [![Verification](https://img.shields.io/badge/Provenance%20Audit-Verified%200%20Drift-brightgreen.svg)](#reproducibility--provenance-verification)
 [![Unit Tests](https://img.shields.io/badge/pytest-19%2F19%20PASS-brightgreen.svg)](#reproducibility--provenance-verification)
-[![Reviewer Audit](https://img.shields.io/badge/Reviewer%20Audit%20v3.1-5%2F5%20PR%20Supported-blue.svg)](REVIEWER_AUDIT_REPORT.md)
-[![Confirmatory Records](https://img.shields.io/badge/Raw%20Query%20Logs-169%2C810%20%2B%2022%2C533%20Audit-blueviolet.svg)](results/v3/summary.json)
+[![Reviewer Audit](https://img.shields.io/badge/Reviewer%20Audit%20v3.1%2Bv3.2-5%2F5%20PR1--5%20%7C%20R6--R8-blue.svg)](REVIEWER_AUDIT_REPORT.md)
+[![Confirmatory Records](https://img.shields.io/badge/Raw%20Logs-169%2C810%20%2B%2022%2C533%20%2B%206%2C821-blueviolet.svg)](results/v3/summary.json)
 
 Official implementation, formal proofs, raw confirmatory & audit JSONL datasets, reproducible C++17 / ARM NEON kernels, interactive research report, executive presentation, and explainer videos for **Prism-ANN**.
 
-> **New-Grad / Team Onboarding?** Start with our dedicated beginner explainer video ([`prism_ann_onboarding_explainer.mp4`](prism_ann_onboarding_explainer.mp4) · `4m 26s`) or interactive timeline on [invideo](https://invideo.io/@bhavyateja-320639/prism-ann-v3-executive-explainer/tree/main/seq-5.1).  
-> **Research Reviewer Audit?** Start with [`REVIEWER_AUDIT_REPORT.md`](REVIEWER_AUDIT_REPORT.md) and [`prism_ann_paper.pdf`](prism_ann_paper.pdf) (`12 pages`, compiled from [`paper/prism_ann.tex`](paper/prism_ann.tex)).
+> **Three-Tier Audience Guides (`New-Grad -> Senior Architect -> Researcher`):**
+> - **New-Grad / Associate Engineer:** [`docs/ONBOARDING_NEW_GRAD.md`](docs/ONBOARDING_NEW_GRAD.md) (mirrored in [`prism_ann_onboarding_guide.md`](prism_ann_onboarding_guide.md)) + explainer video [`prism_ann_onboarding_explainer.mp4`](prism_ann_onboarding_explainer.mp4) (`4m 26s`) / [invideo](https://invideo.io/@bhavyateja-320639/prism-ann-v3-executive-explainer/tree/main/seq-5.1).
+> - **Senior Systems Engineer / Architect:** [`docs/ARCHITECTURE_SENIOR_ENGINEER.md`](docs/ARCHITECTURE_SENIOR_ENGINEER.md) (CSR/Z-order layout, C++17 & NEON kernels, `ZedToken` snapshots, memory/latency budgets).
+> - **Researcher / External Reviewer:** [`docs/RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md`](docs/RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md), [`REVIEWER_AUDIT_REPORT.md`](REVIEWER_AUDIT_REPORT.md), & [`prism_ann_paper.pdf`](prism_ann_paper.pdf) (`12 pages`, [`paper/prism_ann.tex`](paper/prism_ann.tex)).
 
 ---
 
@@ -17,14 +19,14 @@ Official implementation, formal proofs, raw confirmatory & audit JSONL datasets,
 | Review Question / Section | Exact Asset in This Repository | Summary Finding |
 | :--- | :--- | :--- |
 | **Paper & Formal Proofs (§3 Theorem 1, Corollary 1, Props 2–4)** | [`prism_ann_paper.pdf`](prism_ann_paper.pdf) · [`paper/prism_ann.tex`](paper/prism_ann.tex) | 12-page IEEE manuscript separating formal guarantees, frozen confirmatory data, & audit suites. |
-| **Detailed Point-by-Point Reviewer Response (§6.1–§6.6)** | [`REVIEWER_AUDIT_REPORT.md`](REVIEWER_AUDIT_REPORT.md) | Reconciles all §6.6 table items & documents `R1`–`R5` hardening experiments. |
+| **Detailed Point-by-Point Reviewer Response & Novelty Matrix** | [`REVIEWER_AUDIT_REPORT.md`](REVIEWER_AUDIT_REPORT.md) · [`docs/RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md`](docs/RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md) | Reconciles §6.6 table items, splits Theorems 1A/1B, compares `RACORN`/`EMA`/`Curator`, & documents `R1`–`R8`. |
 | **Algorithm 1: Subtractive UBP (`P_UBP`)** | [`src/modules/prism_ann/ubp_resolver.py`](src/modules/prism_ann/ubp_resolver.py) | Frozen SHA-256 (`FREEZE_v3.md`). `0/1,200` SpiceDB mismatches & `0/10,000` fuzzing mismatches. |
 | **Geometric Bridges & `ACORN-GLS` (`H-HNSW v2`)** | [`src/modules/prism_ann_v3/geometric_hhnsw.py`](src/modules/prism_ann_v3/geometric_hhnsw.py) | `M_bridge=8` Vamana/RNG edges (`+32 B/node` = `+1.91%` graph RAM) on shared FAISS `M=16` base graph. |
 | **Native C++17 / ARM NEON + Local-Stall Guard Kernel** | [`bench/prism_ckernel.cpp`](bench/prism_ckernel.cpp) · [`src/modules/prism_ann_v3/trimodal_v3.py`](src/modules/prism_ann_v3/trimodal_v3.py) | Frozen C++ kernel (`FREEZE_v3.md`): NEON `vdotq_s32` (`SQ8`)+FP32 rerank & 3-stage stall guard. |
 | **6-Way Mode-3 Isolation Kernel (`Z-Order / SQ8 / NEON vs Scalar`)** | [`bench/prism_audit_kernel.cpp`](bench/prism_audit_kernel.cpp) · [`bench/run_reviewer_audit_v3_1.py`](bench/run_reviewer_audit_v3_1.py) | Isolates contiguous Z-order (`7.35×`), `SQ8` (`2.85×`), NEON (`7.46×`) under 64 MB Cold LLC flush. |
 | **Live SpiceDB & `pgvector` Benchmark Drivers** | [`bench/engines.py`](bench/engines.py) · [`bench/harness_v3.py`](bench/harness_v3.py) · [`bench/recompute_v3.py`](bench/recompute_v3.py) | Live SpiceDB `v1.57.1` (memory & PG17), PostgreSQL `17.12` + `pgvector 0.8.7`, FAISS `1.16.0`, ACORN, hnswlib. |
 | **Frozen Confirmatory Logs (`169,810` queries)** | [`results/v3/raw/`](results/v3/raw) · [`results/v3/summary.json`](results/v3/summary.json) · [`results/v3/DEVIATIONS.md`](results/v3/DEVIATIONS.md) | Bit-for-bit verified by `python -m bench.recompute_v3 --check`. Zero permission leaks. |
-| **Reviewer Audit Logs (`R1`–`R5`, `v3.1`)** | [`results/v3/reviewer_audit_v3_1.json`](results/v3/reviewer_audit_v3_1.json) · [`results/v3_1_audit/raw/v3_1_reviewer_audit.jsonl`](results/v3_1_audit/raw/v3_1_reviewer_audit.jsonl) | `10,000` fuzz trees, `S=0.01%` Quora/NQ, Cold LLC isolation, `11,244`-query concurrent `ZedToken` race, dynamic Z-order compaction. |
+| **Reviewer Audit Logs (`R1`–`R8`, `v3.1` + `v3.2`)** | [`results/v3/reviewer_audit_v3_1.json`](results/v3/reviewer_audit_v3_1.json) · [`results/v3/reviewer_audit_v3_2.json`](results/v3/reviewer_audit_v3_2.json) | `10,000` tree + `5,000` multi-parent DAG fuzz trials, `S=0.01%`, Cold LLC, Two-Track `RACORN-1`/`FP32`, `11,244`-query `ZedToken` race, dynamic Z-order compaction. |
 | **Unit, Parity & Provenance Tests** | [`tests/test_prism_ann.py`](tests/test_prism_ann.py) · [`tests/test_prism_v3_kernel.py`](tests/test_prism_v3_kernel.py) · [`verify_prism_hallucinations.py`](verify_prism_hallucinations.py) | `19/19` pytest passing + Brake 1 raw-to-LaTeX anti-hallucination checks passing (`0` errors). |
 
 ---
@@ -60,6 +62,11 @@ Official implementation, formal proofs, raw confirmatory & audit JSONL datasets,
 4. **`R4` (Single-Edge Subtree Scaling & Concurrent `ZedToken` Race):** Persistent PG17 SpiceDB single-edge deletions from `128 → 490,419` chunks stay flat at **`0.74–1.66 ms` with `0` vector writes**; across `11,244` concurrent C++ H-HNSW queries on `4` reader threads crossing a live `131,072`-chunk PG17 SpiceDB revocation (`6.82 ms` commit, `0.091 ms` atomic snapshot swap), **`0 / 6,039` post-`zeta_rev` queries** leaked any revoked chunk.
 5. **`R5` (Dynamic Ingestion & Background Z-Order Compaction):** Online delta-buffer ingestion appends `+1k..+25k` vectors in **`5.3–23.9 µs/vector`** without blocking readers; background lexicographic compaction + C++ HNSW CSR ID remapping completes off-critical-path in **`1.30–2.36 s`** (`116.3–121.6 ms` for `500k` CSR remap).
 
+### C. Second-Round Research Audit (`v3.2` — [`docs/RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md`](docs/RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md))
+6. **`R6` (`5,000` Multi-Parent DAG Fuzz Trials, `PR6: SUPPORTED`):** `0 / 5,000` mismatches (`0` FP, `0` FN) with `>= 672` secondary parents per DAG (`1,170.0` mean), verifying Theorem 1B under ancestor posting bitmaps.
+7. **`R7` (Two-Track Fair Benchmark + `RACORN-1` & Zero-RAM `FP32`, `PR7: FALSIFIED` on strict `<=0.35 ms` / `>=100x` fragmented-L5 cutoffs; `0 / 1,500` leaks):** Track 1 excludes all filter materialization (`v3-geom-M8` achieves `71.4%–87.4%` R@10 at $S \le 1\%$ vs. `0.2%–30.4%` `ACORN-1`, `0.8%–33.6%` `FAISS`, `6.0%–45.6%` `RACORN-1`), while `v3-full-guard-f32` (`0` extra vector RAM) and `v3-full-guard-sq8` hit **`100.0%` R@10** in **`0.021–0.453 ms`** / **`0.038–0.434 ms`**, cutting Track-2 PG17 latency by **`24.18×–28.07×`** (`3.65–4.13 ms` vs. `~100 ms`).
+8. **`R8` (Exact vs. Empirical Recall Shortlist Audit, `PR8: FALSIFIED` on strict `<=0.25 ms` exact-FP32 cutoff at fragmented `S=1.0%`):** Mathematical top-$k$ exactness holds for `SQ8`+top-64 when $N_{\text{cand}} \le 64$ (`100.0%` of queries at `S=0.01%`) and unconditionally for `FP32` Mode 3 (`0.0035 ms` at `S=0.01%`, `0.0235 ms` at `S=0.1%`, `0.3289 ms` at `S=1.0%`), while `SQ8 + M_rerank >= 32` retains `100.0%` empirical R@10 (`0.0780 ms` at `S=1.0%`).
+
 ---
 
 ## 🛠 Reproducibility & Provenance Verification
@@ -68,14 +75,16 @@ Official implementation, formal proofs, raw confirmatory & audit JSONL datasets,
 # 1. Verify unit tests & C++ / Python kernel parity (19 tests)
 .venv-bench/bin/python -m pytest -q
 
-# 2. Verify SHA-256 freeze integrity & bit-for-bit raw JSONL -> summary.json recomputation
+# 2. Verify SHA-256 freeze integrity & bit-for-bit raw JSONL -> summary JSON recomputation
 .venv-bench/bin/python -m bench.recompute_v3 --raw-dir results/v3/raw --check results/v3/summary.json
 .venv-bench/bin/python -m bench.recompute_v3_1 --raw results/v3_1_audit/raw/v3_1_reviewer_audit.jsonl --check results/v3/reviewer_audit_v3_1.json
+.venv-bench/bin/python -m bench.recompute_v3_2 --raw results/v3_2_audit/raw/v3_2_reviewer_audit.jsonl --check results/v3/reviewer_audit_v3_2.json
 
-# 3. Verify 0.0% numerical drift across summary.json, reviewer_audit_v3_1.json, paper/prism_ann.tex & reports
+# 3. Verify 0.0% numerical drift across summary.json, reviewer audits, paper/prism_ann.tex & reports
 .venv-bench/bin/python verify_prism_hallucinations.py
 
-# 4. Run the 5 supplementary Reviewer Audit suites (R1..R5)
+# 4. Run the Reviewer Audit suites (v3.1 R1..R5 and v3.2 R6..R8)
 clang++ -O3 -mcpu=native -std=c++17 -shared -fPIC bench/prism_audit_kernel.cpp -o bench/_build/libprism_audit_kernel.dylib
 .venv-bench/bin/python -m bench.run_reviewer_audit_v3_1
+.venv-bench/bin/python -m bench.run_reviewer_audit_v3_2
 ```

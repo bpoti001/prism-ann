@@ -143,3 +143,15 @@ Evaluated in a frozen confirmatory run (`v3-confirmatory-001`, 169,810 raw recor
   - Pre-registered in `experiments/v3/PROTOCOL_v3_1.md` and executed zero-reuse on clean commit `e39260a` (`git_dirty=False`, `results/run_ledger.md` row `v3.1-reviewer-audit-001`), logging `22,533` raw JSONL records to `results/v3_1_audit/raw/v3_1_reviewer_audit.jsonl`.
   - Deterministic `bench.recompute_v3_1 --check results/v3/reviewer_audit_v3_1.json` exits `0` (`MATCH`), verifying `PR1`–`PR5` all `SUPPORTED`, `0` authorization leaks in `R2` (`0/1,200`) and `R4b` (`0/6,039` post-`ZedToken`), and `0/10,000` fuzzing mismatches in `R1`.
   - Visual & layout verification confirms Figure 6 (`v3_fig6_reviewer_audit.png`) resolves all label/legend collisions cleanly and Section V-G + Figure 6 integrate within the `12`-page camera-ready budget alongside updated Brakes 1, 2, and 3.
+
+---
+
+## 10. v3.2 Second-Round Research Audit Addendum (Phase 22 Sign-Off)
+
+- **Reviewed Revised Manuscript**: `/Users/tejap/memory_paper/paper/prism_ann.pdf` (`12` pages, IEEEtran conference format)
+- **Verified PDF SHA-256**: `c48a841794c5cb9959c71a4ee7d00e096d8cac2b26d7a47b4d16458585aed4a2`
+- **Second-Round Remediation & `v3.2` Verification**:
+  - **Theoretical Tightening**: Theorem 1 split into **Theorem 1** (Single-Parent Tree Token Compression Bound) and **Theorem 2** (Multi-Parent DAG Exact Set Equivalence under Deny-Dominates-Grant Precedence) with separate standalone proofs; **Corollary 1** scoped strictly to `$0$` vector writes and `$O(1)$` edge deletion relative to `$N_{\text{chunks}}$` alongside decomposed end-to-end propagation `$T_{\text{revoke}}$` and pre-/post-`$\zeta_{\text{rev}}$` boundaries; Exact vs. Empirical Recall@10 scope clarified in Abstract, Proposition 4, Section V-G, and Section VI-C.
+  - **Literature & Novelty Positioning**: Added Nov. 2026 baselines **RACORN** (`arXiv:2607.00768v2`) and **EMA** (`arXiv:2606.00734v2`) to Table I, Section VI-B, and References `[17]`, `[18]`.
+  - **Additive `v3.2` Empirical Verification (`R6`–`R8`)**: Executed zero-reuse on clean commit `a435bab` (`git_dirty=False`, `FREEZE_v3_1.md` `8/8` intact), logging `6,821` raw JSONL records to `results/v3_2_audit/raw/v3_2_reviewer_audit.jsonl` recomputed bit-for-bit by `bench/recompute_v3_2.py --check results/v3/reviewer_audit_v3_2.json`: `R6` (`0 / 5,000` multi-parent DAG mismatches, `PR6: SUPPORTED`), `R7` (Two-Track fairness vs. `RACORN-1` and `FP32` Mode 3, `0 / 1,500` leaks), and `R8` (shortlist exactness audit), transparently flagging `PR7` and `PR8` as `FALSIFIED` against strict fragmented depth-5 latency cutoffs (`0.434 ms > 0.35 ms`, `82.19x < 100x`, `0.329 ms > 0.25 ms`).
+  - **Three-Tier Audience Suite**: Added [`docs/ONBOARDING_NEW_GRAD.md`](docs/ONBOARDING_NEW_GRAD.md), [`docs/ARCHITECTURE_SENIOR_ENGINEER.md`](docs/ARCHITECTURE_SENIOR_ENGINEER.md), and [`docs/RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md`](docs/RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md).

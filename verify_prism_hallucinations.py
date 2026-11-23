@@ -162,9 +162,10 @@ def verify() -> bool:
             f"Zero occurrences of placeholder/typography pattern '{ph}'",
             f"Placeholder/typography pattern '{ph}' found in prism_ann.tex!",
         )
+    n_thms = tex.count(r"\begin{theorem}")
     check(
-        r"\begin{proposition}" in tex and tex.count(r"\begin{theorem}") == 1,
-        "Theorem 1 + Propositions 2-4 structure verified",
+        r"\begin{proposition}" in tex and n_thms in (1, 2),
+        f"Theorems 1..{n_thms} + Propositions 2-4 structure verified",
         "Unexpected theorem/proposition count in prism_ann.tex",
     )
     check("tab:deviations" in tex, "Protocol Deviations table present", "Missing tab:deviations")
@@ -271,6 +272,68 @@ def verify() -> bool:
         conc_str = f"{r4b['total_concurrent_queries']:,}"
         check(conc_str in readme_txt, f"README.md contains R4b concurrent queries ({conc_str})",
               f"README.md missing R4b concurrent queries: {conc_str}")
+
+    print("\n[8/8] Checking v3.2 Second-Round Audit provenance, R6-R8 metrics, citations & 3-tier docs...")
+    from bench.recompute_v3_2 import recompute_v3_2_summary as _recompute_v3_2
+
+    audit32_path = _Path("results/v3/reviewer_audit_v3_2.json")
+    raw_v32_path = _Path("results/v3_2_audit/raw/v3_2_reviewer_audit.jsonl")
+    nov_path = _Path("docs/RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md")
+    onb_path = _Path("docs/ONBOARDING_NEW_GRAD.md")
+    arch_path = _Path("docs/ARCHITECTURE_SENIOR_ENGINEER.md")
+    check(
+        audit32_path.exists() and raw_v32_path.exists() and nov_path.exists() and onb_path.exists() and arch_path.exists(),
+        "v3.2 audit JSON/JSONL and all 3 audience docs exist",
+        "Missing v3.2 audit JSON/JSONL or one of the 3 audience docs",
+    )
+    if audit32_path.exists() and raw_v32_path.exists() and nov_path.exists():
+        audit32_txt = audit32_path.read_text(encoding="utf-8")
+        a32 = _json.loads(audit32_txt)
+        recomp_v32 = _recompute_v3_2(str(raw_v32_path))
+        check(
+            _dumps_summary(recomp_v32) == audit32_txt,
+            "results/v3/reviewer_audit_v3_2.json matches deterministic recompute_v3_2.py bit-for-bit",
+            "reviewer_audit_v3_2.json differs from recompute_v3_2.py",
+        )
+        check(a32.get("raw_records_total") == 6821, "v3.2 raw JSONL total == 6821", f"Expected 6821 raw records, got {a32.get('raw_records_total')}")
+        check(a32.get("git_dirty") is False, "v3.2 audit ran on clean git tree (git_dirty == False)", f"v3.2 git_dirty is {a32.get('git_dirty')}")
+        check(a32.get("freeze_v3_1_match") is True and a32.get("freeze_v3_1_files") == 8,
+              "v3.2 FREEZE_v3_1 match 8/8",
+              f"v3.2 freeze mismatch: {a32.get('freeze_v3_1_match')} ({a32.get('freeze_v3_1_files')})")
+        v32 = a32["verdicts"]
+        check(
+            v32["PR6"]["verdict"] == "supported" and v32["PR7"]["verdict"] == "falsified" and v32["PR8"]["verdict"] == "falsified",
+            "v3.2 verdicts verified transparent (PR6=supported, PR7=falsified, PR8=falsified)",
+            f"Unexpected v3.2 verdicts: {v32}",
+        )
+        r6 = a32["R6_multiparent_dag_fuzzing"]
+        r7 = a32["R7_two_track_fair_benchmark"]
+        r8 = a32["R8_exact_vs_empirical_recall_audit"]
+        check(r6["total_dag_trials"] == 5000 and r6["total_mismatches"] == 0,
+              "v3.2 R6: 0/5000 multi-parent DAG mismatches",
+              f"R6 mismatch: {r6['total_mismatches']}/{r6['total_dag_trials']}")
+        check(r7["total_queries"] == 1500 and r7["total_leaks"] == 0,
+              "v3.2 R7: 0/1500 leaks across Two-Track benchmark",
+              f"R7 leaks={r7['total_leaks']}, q={r7['total_queries']}")
+        check(r8["by_selectivity"]["0.0001"]["exact_guarantee_coverage_m64_pct"] == 100.0,
+              "v3.2 R8: 100.0% M=64 mathematical guarantee coverage at S=0.01%",
+              "Unexpected R8 M=64 guarantee coverage")
+
+        nov_txt = nov_path.read_text(encoding="utf-8")
+        check("kim2026racorn" in cited and "li2026ema" in cited,
+              "RACORN (kim2026racorn) and EMA (li2026ema) cited in prism_ann.tex",
+              "Missing RACORN/EMA citation in prism_ann.tex")
+        r7_s01 = r7["by_selectivity"]["0.0001"]["systems"]
+        r7_10 = r7["by_selectivity"]["0.01"]["systems"]
+        for tok in (
+            f"{r6['mean_secondary_edges_per_dag']:,.1f}",
+            f"{r7_s01['v3-geom-M8']['recall_pct']:.1f}%",
+            f"{r7_s01['v3-full-guard-f32']['track1_cpp_med_ms']:.4f}",
+            f"{r7_s01['v3-full-guard-sq8']['track1_cpp_med_ms']:.4f}",
+            f"{r7_10['v3-full-guard-sq8']['track1_cpp_med_ms']:.4f}",
+            f"{r8['by_selectivity']['0.01']['exact_f32_med_ms']:.4f}",
+        ):
+            check(tok in nov_txt, f"RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md contains {tok}", f"RESEARCH_AUDIT missing {tok}")
 
     print(f"\nSUMMARY: {passed} checks passed, {len(errors)} errors.")
     return len(errors) == 0
