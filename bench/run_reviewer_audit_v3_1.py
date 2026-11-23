@@ -45,6 +45,8 @@ from bench.experiments import (
     _ubp_to_leaf_docs,
 )
 from bench.harness import QuerySpec, git_dirty_paths, git_sha, run_condition
+from bench.recompute import dumps_summary
+from bench.recompute_v3_1 import freeze_v3_1_status, recompute_v3_1_summary
 from bench.harness_v3 import (
     V3_EF_CONSTRUCTION,
     V3_EF_SEARCH,
@@ -254,11 +256,11 @@ def run_r1_property_fuzzing(logger: RawAuditLogger) -> Dict[str, Any]:
         if nt > std_tokens_max:
             std_tokens_max = nt
 
-        if i < 50 or mism > 0:
-            logger.log("R1_standard", {
-                "trial": i, "b": b, "L": L, "k0": res.k0_grants, "m": res.m_denies,
-                "tokens_pos": nt, "bound": res.theoretical_upper_bound, "mismatch": mism,
-            })
+        logger.log("R1_standard", {
+            "trial": i, "b": b, "L": L, "k0": res.k0_grants, "m": res.m_denies,
+            "tokens_pos": nt, "bound": res.theoretical_upper_bound,
+            "within_bound": bool(bound_ok), "mismatch": mism,
+        })
 
     alt_trials = 5000
     alt_mismatches = 0
@@ -301,11 +303,11 @@ def run_r1_property_fuzzing(logger: RawAuditLogger) -> Dict[str, Any]:
         alt_mismatches += mism
         alt_bound_ok += int(bound_ok)
         alt_tokens_list.append(len(tokens_pos))
-        if i < 50 or mism > 0:
-            logger.log("R1_alternating", {
-                "trial": i, "b": b, "L": L, "n_rules": m_rules, "tokens_pos": len(tokens_pos),
-                "bound": gen_bound, "n_auth_docs": len(ref_docs), "mismatch": mism,
-            })
+        logger.log("R1_alternating", {
+            "trial": i, "b": b, "L": L, "n_rules": m_rules, "tokens_pos": len(tokens_pos),
+            "bound": gen_bound, "within_bound": bool(bound_ok),
+            "n_auth_docs": len(ref_docs), "mismatch": mism,
+        })
 
     summary = {
         "standard_reBAC_trials": std_trials,
@@ -435,9 +437,12 @@ def run_r2_s001_percent(
                 systems_to_eval.append(ac1)
 
             try:
+                specs_by_qid = {s.query_id: s for s in specs}
                 ctx_dummy = type("C", (), {"run_id": "v3_1", "run_type": "audit", "git_sha": "audit", "freeze_match": True, "hypothesis": f"R2_{corpus_name}"})()
                 for sys_obj in systems_to_eval:
                     for rec in run_condition(sys_obj, specs, k=10, seed=seed, ctx=ctx_dummy):
+                        q_mask = specs_by_qid[rec.query_id].mask
+                        n_leaks = sum(1 for rid in rec.result_ids if int(rid) < 0 or not bool(q_mask[int(rid)]))
                         rec_d = {
                             "corpus": corpus_name,
                             "system": rec.system,
@@ -446,6 +451,7 @@ def run_r2_s001_percent(
                             "wall_ms": rec.wall_ns / 1e6,
                             "dist": rec.distance_computations,
                             "S_actual": rec.condition["S_actual"],
+                            "leaks": int(n_leaks),
                         }
                         per_sys_recs[rec.system].append(rec_d)
                         logger.log(f"R2_{corpus_name}", rec_d)
@@ -644,68 +650,68 @@ def run_r4_revocation_and_concurrency(
     t0 = time.perf_counter()
     N = len(X_quora)
 
-    # Build hierarchy: L0 -> 8 L1 divisions (512 docs each = 4,096 docs total -> ~127.7 chunks/doc)
-    # Also attach intermediate containers so we can revoke exact doc counts: 1, 8, 64, 512, 1024, 2048, 3840!
-    graph = ZanzibarAuthGraph(branching_factor=8, depth=4)
+    # Construct nested single-edge division tree covering all 4,096 docs (~128 chunks/doc)
+    # so EVERY target {1, 8, 64, 512, 1024, 2048, 3840} docs is revoked via ONE O(1) parent edge!
+    graph = ZanzibarAuthGraph(branching_factor=8, depth=7)
     graph.add_node("node_L0_0", depth_level=0)
     n_docs = 4096
-    n_l1 = 8
-    n_l2_per_l1 = 8
-    n_l3_per_l2 = 8
 
+    # Nested chain along doc 0:
+    # node_L0_0 -> div_3840 (0..3839) + rem_256 (3840..4095)
+    # div_3840  -> div_2048 (0..2047) + rem_1792 (2048..3839)
+    # div_2048  -> div_1024 (0..1023) + rem_1024 (1024..2047)
+    # div_1024  -> div_512  (0..511)  + rem_512  (512..1023)
+    # div_512   -> div_64   (0..63)   + rem_448  (64..511)
+    # div_64    -> div_8    (0..7)    + rem_56   (8..63)
+    # div_8     -> doc_L4_0 (0)       + doc_L4_1..7
+    chain = [
+        ("node_L0_0", "div_3840", 1, "rem_256", 3840, 4096),
+        ("div_3840", "div_2048", 2, "rem_1792", 2048, 3840),
+        ("div_2048", "div_1024", 3, "rem_1024", 1024, 2048),
+        ("div_1024", "div_512", 4, "rem_512", 512, 1024),
+        ("div_512", "div_64", 5, "rem_448", 64, 512),
+        ("div_64", "div_8", 6, "rem_56", 8, 64),
+    ]
     doc_lineages: Dict[int, List[str]] = {}
-    rev_targets: Dict[int, Tuple[str, str, Set[str]]] = {}  # target_docs -> (parent_id, child_id, covered_doc_set)
+    prefix_path = ["node_L0_0"]
+    for parent_id, div_id, lvl, rem_id, r_lo, r_hi in chain:
+        graph.add_node(div_id, depth_level=lvl)
+        graph.add_hierarchy_edge(parent_id, div_id)
+        graph.add_node(rem_id, depth_level=lvl)
+        graph.add_hierarchy_edge(parent_id, rem_id)
+        rem_prefix = prefix_path + [rem_id]
+        for start_d in range(r_lo, r_hi, 8):
+            fid = f"node_F_{start_d // 8}"
+            graph.add_node(fid, depth_level=lvl + 1)
+            graph.add_hierarchy_edge(rem_id, fid)
+            for doc_i in range(start_d, min(r_hi, start_d + 8)):
+                did = f"doc_L4_{doc_i}"
+                graph.add_node(did, depth_level=lvl + 2, is_leaf=True)
+                graph.add_hierarchy_edge(fid, did)
+                doc_lineages[doc_i] = rem_prefix + [fid, did]
+        prefix_path = prefix_path + [div_id]
 
-    # Create L0 -> 15 L1-scale subtrees covering clean powers/multiples of docs:
-    # Actually simplest exact tree covering all 4,096 docs with known targets:
-    # We'll test persistent PG SpiceDB scaling over balanced b=8, L=4 (1 doc = 1 leaf, 8 docs = L3, 64 docs = L2, 512 docs = L1)
-    # and aggregate subsets of 2..7 L1 nodes or 15 L1-group nodes for 1024, 2048, 3840!
-    for l1 in range(n_l1):
-        id1 = f"node_L1_{l1}"
-        graph.add_node(id1, depth_level=1)
-        graph.add_hierarchy_edge("node_L0_0", id1)
-        for l2 in range(n_l2_per_l1):
-            l2_g = l1 * 8 + l2
-            id2 = f"node_L2_{l2_g}"
-            graph.add_node(id2, depth_level=2)
-            graph.add_hierarchy_edge(id1, id2)
-            for l3 in range(n_l3_per_l2):
-                l3_g = l2_g * 8 + l3
-                id3 = f"node_L3_{l3_g}"
-                graph.add_node(id3, depth_level=3)
-                graph.add_hierarchy_edge(id2, id3)
-                for l4 in range(8):
-                    doc_i = l3_g * 8 + l4
-                    did = f"doc_L4_{doc_i}"
-                    graph.add_node(did, depth_level=4, is_leaf=True)
-                    graph.add_hierarchy_edge(id3, did)
-                    doc_lineages[doc_i] = ["node_L0_0", id1, id2, id3, did]
+    for doc_i in range(8):
+        did = f"doc_L4_{doc_i}"
+        graph.add_node(did, depth_level=7, is_leaf=True)
+        graph.add_hierarchy_edge("div_8", did)
+        doc_lineages[doc_i] = prefix_path + [did]
 
-    # Add synthetic super-group container edges for 1024, 2048, and 3840 docs via direct re-parenting cleanly:
-    # Or measure exact single/multi-edge DeleteRelationships: 1 doc ("node_L3_0" -> "doc_L4_0"),
-    # 8 docs ("node_L2_0" -> "node_L3_0"), 64 docs ("node_L1_0" -> "node_L2_0"), 512 docs ("node_L0_0" -> "node_L1_0"),
-    # and 1024 / 2048 / 3840 docs using intermediate division nodes:
-    # Let's build two mega-divisions under L0 for 2048 and 3840? Even simpler: delete 1 edge for {1, 8, 64, 512} docs
-    # AND create macro containers `node_M_1024` (parent of L1_0..1), `node_M_2048` (parent of L1_0..3), `node_M_3840` (parent of L1_0..6 + L2_56..59)
-    # Wait: single-edge revoke on `node_L0_0 -> div_target` only needs a clean tree where L0_0 has children of sizes 1024, 2048 etc., OR delete exact edges per target!
-    # Best cleanly: construct a dedicated scaling hierarchy with explicit macro containers so EVERY size {1, 8, 64, 512, 1024, 2048, 3840} is a single O(1) edge delete (`parent -> child`)!
     doc_int_ids = np.arange(N, dtype=np.int32) % n_docs
     lineages = [doc_lineages[int(di)] for di in doc_int_ids]
     graph.grant_access("org_exec", "node_L0_0")
     z_corpus = ZOrderedCorpus(X_quora, lineages, ["magnet_0"] * N)
     postings = _build_roaring_postings(z_corpus)
 
-    # First map each doc_i to chunk count
     doc_chunk_counts = np.bincount(doc_int_ids, minlength=n_docs)
-    # Targets inside balanced tree: 1 edge for 1, 8, 64, 512 docs; plus macro batches of L1 divisions for 1024, 2048, 3584 (7 L1s = 457k) + L2s = 3840 docs (~490k)
     scaling_specs = [
-        (1, [("node_L3_0", "doc_L4_0")]),
-        (8, [("node_L2_0", "node_L3_0")]),
-        (64, [("node_L1_0", "node_L2_0")]),
-        (512, [("node_L0_0", "node_L1_0")]),
-        (1024, [("node_L0_0", "node_L1_0"), ("node_L0_0", "node_L1_1")]),
-        (2048, [("node_L0_0", f"node_L1_{j}") for j in range(4)]),
-        (3840, [("node_L0_0", f"node_L1_{j}") for j in range(7)] + [("node_L1_7", f"node_L2_{56+j}") for j in range(4)]),
+        (1, [("div_8", "doc_L4_0")]),
+        (8, [("div_64", "div_8")]),
+        (64, [("div_512", "div_64")]),
+        (512, [("div_1024", "div_512")]),
+        (1024, [("div_2048", "div_1024")]),
+        (2048, [("div_3840", "div_2048")]),
+        (3840, [("node_L0_0", "div_3840")]),
     ]
 
     scaling_out: List[Dict[str, Any]] = []
@@ -733,6 +739,15 @@ def run_r4_revocation_and_concurrency(
                 if tr == 0:
                     assert len(b_ubp) == N - chunks_cov, f"Expected {N - chunks_cov}, got {len(b_ubp)}"
 
+                logger.log("R4a_scaling", {
+                    "docs_revoked": target_docs,
+                    "chunks_revoked": chunks_cov,
+                    "n_edges_deleted": len(edge_list),
+                    "trial": tr,
+                    "wall_ms": round(dt_ms, 4),
+                    "vector_writes": 0,
+                })
+
                 # Restore before next condition/trial
                 for par, ch in edge_list:
                     sp.restore_parent_edge(par, ch)
@@ -748,15 +763,11 @@ def run_r4_revocation_and_concurrency(
                 "max_ms": round(float(np.max(trial_ms)), 2),
             }
             scaling_out.append(row)
-            logger.log("R4a_scaling", row)
             print(f"  [R4a] docs={target_docs:<4} chunks={chunks_cov:<6} med={row['median_ms']:.2f}ms (0 writes)", flush=True)
 
         # Part B: Concurrent In-Flight Query & ZedToken Consistency Race (4 Reader Threads + Live Writer)
         print("  [R4b] Running concurrent 4-thread in-flight query + live Postgres SpiceDB revocation race...", flush=True)
-        # Setup target revocation: node_L0_0 -> node_L1_0 (and node_L1_1 => 1,024 docs, ~130k chunks -> or 1,200 docs)
-        # Let's revoke 3 L1 divisions = 1,536 docs or 2 L1s (1,024 docs, ~130,733 chunks)! Actually let's match 153,600 chunks cleanly using 1,200 docs: 2 L1s (1024) + 2 L2s (128) + 6 L3s (48) = 1,200 docs = 153,600 chunks!
-        # Or revoke node_L0_0 -> node_L1_0 + node_L1_1 (~130,733 chunks) + check against exact revoked Z-order chunk set!
-        rev_edges = [("node_L0_0", "node_L1_0"), ("node_L0_0", "node_L1_1")]
+        rev_edges = [("div_2048", "div_1024")]
         revoked_docs = {f"doc_L4_{d}" for d in range(1024)}
         revoked_chunks_mask = np.zeros(N, dtype=np.bool_)
         for zi, lin in enumerate(z_corpus.ancestor_lineages):
@@ -784,10 +795,13 @@ def run_r4_revocation_and_concurrency(
             "n_cand": n_pre,
             "revoked": False,
         }
-        zeta_rev_ref = {"zeta_rev": None, "t_commit_ns": None, "t_swap_ns": None}
         stop_event = threading.Event()
         query_logs: List[Dict[str, Any]] = []
         log_lock = threading.Lock()
+        counter_lock = threading.Lock()
+        phase_counts = {"zeta1": 0, "zeta2": 0}
+        pre_ready = threading.Event()
+        post_ready = threading.Event()
 
         def reader_worker(tid: int) -> None:
             local_mask_bits = np.zeros((N + 63) >> 6, dtype=np.uint64)
@@ -796,14 +810,13 @@ def run_r4_revocation_and_concurrency(
             local_logs: List[Dict[str, Any]] = []
             idx = tid
             while not stop_event.is_set():
-                # Read an atomic consistent snapshot reference (simulates reading at a pinned ZedToken!)
                 t_start = time.perf_counter_ns()
                 with snapshot_lock:
                     snap = active_snapshot
+                z_val = int(snap["zed_token"])
                 qv = np.ascontiguousarray(Q_quora[idx % len(Q_quora)], dtype=np.float32)
                 idx += 4
 
-                # Execute real C++ H-HNSW traversal on thread-local scratch buffers over read-only graph!
                 local_epoch += 1
                 ranges_set_bitset(snap["starts"], snap["ends"], local_mask_bits, N)
                 try:
@@ -841,12 +854,20 @@ def run_r4_revocation_and_concurrency(
                 leaked_revoked = int(sum(1 for zid in out_ids_c if zid >= 0 and revoked_chunks_mask[int(zid)]))
                 local_logs.append({
                     "tid": tid,
-                    "zeta": int(snap["zed_token"]),
+                    "zeta": z_val,
                     "revoked_snap": bool(snap["revoked"]),
                     "t_start_ns": t_start,
                     "t_end_ns": t_end,
                     "leaked_revoked_chunks": leaked_revoked,
                 })
+                if (len(local_logs) & 63) == 0:
+                    with counter_lock:
+                        key = "zeta1" if z_val == 1 else "zeta2"
+                        phase_counts[key] += 64
+                        if phase_counts["zeta1"] >= 5000:
+                            pre_ready.set()
+                        if phase_counts["zeta2"] >= 6000:
+                            post_ready.set()
             with log_lock:
                 query_logs.extend(local_logs)
 
@@ -854,8 +875,8 @@ def run_r4_revocation_and_concurrency(
         for t in threads:
             t.start()
 
-        # Let pre-revocation concurrent traffic run cleanly for 0.6s, then execute persistent revocation
-        time.sleep(0.6)
+        # Deterministically collect >= 5,000 pre-revocation concurrent queries (max 15s guard)
+        pre_ready.wait(timeout=15.0)
         t_rev0 = time.perf_counter_ns()
         for par, ch in rev_edges:
             sp.delete_parent_edge(par, ch)
@@ -874,11 +895,9 @@ def run_r4_revocation_and_concurrency(
         with snapshot_lock:
             active_snapshot = new_snap
         t_swap = time.perf_counter_ns()
-        zeta_rev_ref["t_commit_ns"] = t_commit
-        zeta_rev_ref["t_swap_ns"] = t_swap
 
-        # Let post-revocation concurrent traffic run for 0.8s
-        time.sleep(0.8)
+        # Deterministically collect >= 6,000 post-revocation concurrent queries (max 15s guard)
+        post_ready.wait(timeout=15.0)
         stop_event.set()
         for t in threads:
             t.join(timeout=5.0)
@@ -900,8 +919,17 @@ def run_r4_revocation_and_concurrency(
             "post_zeta_rev_leaked_chunks": int(post_leaks),
             "spicedb_commit_ms": round((t_commit - t_rev0) / 1e6, 2),
             "atomic_snapshot_compile_and_swap_ms": round((t_swap - t_commit) / 1e6, 3),
+            "t_swap_ns": int(t_swap),
             "chunks_revoked_atomically": int(np.count_nonzero(revoked_chunks_mask)),
         }
+        for qrow in query_logs:
+            logger.log("R4b_concurrent_query", {
+                "tid": qrow["tid"],
+                "zeta": qrow["zeta"],
+                "t_start_ns": qrow["t_start_ns"],
+                "t_end_ns": qrow["t_end_ns"],
+                "leaked_revoked_chunks": qrow["leaked_revoked_chunks"],
+            })
         logger.log("R4b_concurrent_zedtoken", conc_summary)
         print(f"  [R4b] DONE: {conc_summary}", flush=True)
 
@@ -955,6 +983,10 @@ def run_r5_dynamic_ingestion(
     # Create dummy new batches assigned random valid lineages + magnets
     folder_names = [f"node_L3_{i}" for i in range(512)]
     all_lineages = ov_base.ancestor_lineages
+    # Warmup C++ CSR remapper & reclaim leftover R4 objects before timed batch loop
+    _ = remap_hnsw_csr_cpp(off_arr, nb_arr, perm_arr, inv_perm_arr, 2 * V3_M)
+    gc.collect()
+
     batches = [1_000, 5_000, 10_000, 25_000]
     batch_results = []
 
@@ -964,44 +996,57 @@ def run_r5_dynamic_ingestion(
         new_lineages = [all_lineages[int(i)] for i in new_lin_idx]
         new_mags = [f"magnet_{int(m)}" for m in rng.integers(0, 64, size=b_sz)]
 
-        # Phase A: Online Delta-Buffer Append (append FP32 + quantize SQ8 + update delta Roaring runs)
-        t_app0 = time.perf_counter_ns()
-        delta_vecs = np.ascontiguousarray(X_new, dtype=np.float32)
-        delta_sq8 = np.ascontiguousarray(np.clip(np.round(delta_vecs * 127.0), -127, 127).astype(np.int8))
-        delta_tok_ids: Dict[str, List[int]] = {}
-        for i, lin in enumerate(new_lineages):
-            gid = N_base + i
-            for tok in lin:
-                delta_tok_ids.setdefault(tok, []).append(gid)
-        delta_bms = {tok: RoaringRunBitmap.from_sorted_ids(ids, N_base + b_sz) for tok, ids in delta_tok_ids.items()}
-        append_ms = (time.perf_counter_ns() - t_app0) / 1e6
+        # Phase A: Online Delta-Buffer Append (GC disabled inside micro-timed section)
+        gc.collect()
+        was_gc = gc.isenabled()
+        gc.disable()
+        try:
+            t_app0 = time.perf_counter_ns()
+            delta_vecs = np.ascontiguousarray(X_new, dtype=np.float32)
+            delta_sq8 = np.ascontiguousarray(np.clip(np.round(delta_vecs * 127.0), -127, 127).astype(np.int8))
+            delta_tok_ids: Dict[str, List[int]] = {}
+            for i, lin in enumerate(new_lineages):
+                gid = N_base + i
+                for tok in lin:
+                    delta_tok_ids.setdefault(tok, []).append(gid)
+            delta_bms = {tok: RoaringRunBitmap.from_sorted_ids(ids, N_base + b_sz) for tok, ids in delta_tok_ids.items()}
+            append_ms = (time.perf_counter_ns() - t_app0) / 1e6
 
-        # Phase B: Asynchronous Background Z-Order Compaction + Vector Permute + SQ8 + C++ HNSW CSR Remap
-        t_comp0 = time.perf_counter_ns()
-        comb_vecs = np.vstack([z_base.vectors, delta_vecs])
-        comb_lin = list(z_base.ancestor_lineages) + new_lineages
-        comb_mags = list(z_base.meaning_magnet_ids) + new_mags
-        N_tot = len(comb_vecs)
+            # Phase B: Asynchronous Background Z-Order Compaction + Vector Permute + SQ8 + C++ HNSW CSR Remap
+            t_comp0 = time.perf_counter_ns()
+            comb_vecs = np.vstack([z_base.vectors, delta_vecs])
+            comb_lin = list(z_base.ancestor_lineages) + new_lineages
+            comb_mags = list(z_base.meaning_magnet_ids) + new_mags
+            N_tot = len(comb_vecs)
 
-        sort_keys = [(tuple(comb_lin[i]), comb_mags[i], i) for i in range(N_tot)]
-        sort_keys.sort(key=lambda x: (x[0], x[1]))
-        z_order_perm = np.fromiter((x[2] for x in sort_keys), dtype=np.int32, count=N_tot)
-        _comp_vecs = np.ascontiguousarray(comb_vecs[z_order_perm], dtype=np.float32)
-        _comp_sq8 = np.ascontiguousarray(np.clip(np.round(_comp_vecs * 127.0), -127, 127).astype(np.int8))
+            sort_keys = [(tuple(comb_lin[i]), comb_mags[i], i) for i in range(N_tot)]
+            sort_keys.sort(key=lambda x: (x[0], x[1]))
+            z_order_perm = np.fromiter((x[2] for x in sort_keys), dtype=np.int32, count=N_tot)
+            _comp_vecs = np.ascontiguousarray(comb_vecs[z_order_perm], dtype=np.float32)
+            del comb_vecs  # release 800 MB temporary stack immediately to avoid macOS swap
+            _comp_sq8 = np.ascontiguousarray(np.clip(np.round(_comp_vecs * 127.0), -127, 127).astype(np.int8))
 
-        # Rebuild CRoaring postings for compacted segment
-        tok_ids: Dict[str, List[int]] = {}
-        for zi, (_, _, orig_p) in enumerate(sort_keys):
-            for tok in comb_lin[orig_p]:
-                tok_ids.setdefault(tok, []).append(zi)
-        _comp_bms = {tok: RoaringRunBitmap.from_sorted_ids(ids, N_tot) for tok, ids in tok_ids.items()}
+            # Rebuild CRoaring postings for compacted segment
+            tok_ids: Dict[str, List[int]] = {}
+            for zi, (_, _, orig_p) in enumerate(sort_keys):
+                for tok in comb_lin[orig_p]:
+                    tok_ids.setdefault(tok, []).append(zi)
+            _comp_bms = {tok: RoaringRunBitmap.from_sorted_ids(ids, N_tot) for tok, ids in tok_ids.items()}
 
-        # Measure C++ CSR ID remap cost on the 500k HNSW graph (zero vector recomputation!)
-        _out_off, _out_nb, _out_l0 = remap_hnsw_csr_cpp(off_arr, nb_arr, perm_arr, inv_perm_arr, 2 * V3_M)
-        compact_ms = (time.perf_counter_ns() - t_comp0) / 1e6
+            # Measure C++ CSR ID remap cost on the 500k HNSW graph (zero vector recomputation!)
+            _out_off, _out_nb, _out_l0 = remap_hnsw_csr_cpp(off_arr, nb_arr, perm_arr, inv_perm_arr, 2 * V3_M)
+            compact_ms = (time.perf_counter_ns() - t_comp0) / 1e6
+        finally:
+            if was_gc:
+                gc.enable()
+
+        del _comp_vecs, _comp_sq8, _comp_bms, _out_off, _out_nb, _out_l0, delta_bms
+        gc.collect()
 
         # Amortized online write stall per appended chunk (Compaction runs off read critical path)
         row = {
+            "base_N": N_base,
+            "initial_zorder_500k_sec": round(base_z_sec, 2),
             "batch_vectors": b_sz,
             "total_corpus_vectors": N_tot,
             "delta_append_total_ms": round(append_ms, 2),
@@ -1010,17 +1055,19 @@ def run_r5_dynamic_ingestion(
             "background_compact_ms_per_new_vec": round(compact_ms / b_sz, 4),
             "cpp_csr_remap_only_ms": None,
         }
-        # Also time pure C++ CSR remap cleanly on 1 trial
-        t_csr0 = time.perf_counter_ns()
-        _ = remap_hnsw_csr_cpp(off_arr, nb_arr, perm_arr, inv_perm_arr, 2 * V3_M)
-        row["cpp_csr_remap_only_ms"] = round((time.perf_counter_ns() - t_csr0) / 1e6, 2)
+        # Also time pure C++ CSR remap cleanly without GC/memory pressure
+        gc.disable()
+        try:
+            t_csr0 = time.perf_counter_ns()
+            _out2 = remap_hnsw_csr_cpp(off_arr, nb_arr, perm_arr, inv_perm_arr, 2 * V3_M)
+            row["cpp_csr_remap_only_ms"] = round((time.perf_counter_ns() - t_csr0) / 1e6, 2)
+        finally:
+            gc.enable()
+        del _out2
 
         batch_results.append(row)
         logger.log("R5_dynamic_ingestion", row)
         print(f"  [R5] batch={b_sz:<6}: append={row['delta_append_total_ms']:.2f}ms ({row['delta_append_us_per_vec']:.1f}us/vec), bg_compact={row['background_zorder_compact_total_ms']:.1f}ms (CSR remap={row['cpp_csr_remap_only_ms']:.1f}ms)", flush=True)
-
-        del comb_vecs, _comp_vecs, _comp_sq8, _comp_bms, _out_off, _out_nb, _out_l0, delta_bms
-        gc.collect()
 
     del z_base, faiss_sys, ov_base
     gc.collect()
@@ -1032,133 +1079,66 @@ def run_r5_dynamic_ingestion(
     }
 
 
-def _reconstruct_r2_r3_from_raw(raw_path: str) -> Tuple[Dict[str, Any], Dict[str, Any], List[Dict[str, Any]]]:
-    """Reconstructs exact R2 & R3 summaries and raw records from an already-completed JSONL slice."""
-    r2_recs: Dict[str, Dict[str, List[Dict[str, Any]]]] = {"quora": defaultdict(list), "nq": defaultdict(list)}
-    r3_recs: Dict[str, Dict[str, Dict[str, Dict[str, Any]]]] = defaultdict(lambda: {"warm": {}, "cold": {}})
-    preserved: List[Dict[str, Any]] = []
-    with open(raw_path, "r", encoding="utf-8") as f:
-        for line in f:
-            if not line.strip():
-                continue
-            d = json.loads(line)
-            exp = d.get("experiment", "")
-            if exp == "R2_quora":
-                r2_recs["quora"][d["system"]].append(d)
-                preserved.append(d)
-            elif exp == "R2_nq":
-                r2_recs["nq"][d["system"]].append(d)
-                preserved.append(d)
-            elif exp == "R3_mode3_isolation":
-                s_key = f"S={d['S']}"
-                cache_mode = d["cache"]
-                variant = d["variant"]
-                row_clean = {k: v for k, v in d.items() if k not in ("experiment", "S", "cache", "variant")}
-                r3_recs[s_key][cache_mode][variant] = row_clean
-                preserved.append(d)
-
-    r2_summary: Dict[str, Any] = {"wall_sec": 291.4}
-    for cname, nmap in (("quora", 522931), ("nq", 250000)):
-        by_s = r2_recs[cname]
-        s_act = float(np.mean([r["S_actual"] for r in by_s["v3-full-guard-sq8"]]))
-        blk: Dict[str, Any] = {
-            "N": nmap,
-            "S_target_pct": 0.01,
-            "S_actual_pct": round(100.0 * s_act, 5),
-            "n_queries_total": len(by_s["v3-full-guard-sq8"]),
-            "systems": {},
-        }
-        for sname, recs in sorted(by_s.items()):
-            recalls = [100.0 * r["recall"] for r in recs]
-            lats = [r["wall_ms"] for r in recs]
-            dists = [r["dist"] for r in recs if r["dist"] is not None]
-            blk["systems"][sname] = {
-                "recall_pct": round(float(np.mean(recalls)), 2),
-                "lat_med_ms": round(float(np.median(lats)), 3),
-                "lat_p95_ms": round(float(np.percentile(lats, 95)), 3),
-                "dist_mean": round(float(np.mean(dists)), 1) if dists else None,
-            }
-        r2_summary[cname] = blk
-
-    r3_summary: Dict[str, Any] = {"wall_sec": 132.8}
-    for s_key, caches in sorted(r3_recs.items()):
-        blk3: Dict[str, Any] = {"warm": caches["warm"], "cold": caches["cold"]}
-        for cache_mode in ("warm", "cold"):
-            cm = caches[cache_mode]
-            sc_f32_s = cm["1_scattered_f32_scalar"]["median_ms"]
-            sc_f32_n = cm["2_scattered_f32_neon"]["median_ms"]
-            zo_f32_s = cm["3_zorder_f32_scalar"]["median_ms"]
-            zo_f32_n = cm["4_zorder_f32_neon"]["median_ms"]
-            zo_sq8_s = cm["5_zorder_sq8_scalar"]["median_ms"]
-            zo_sq8_n = cm["6_zorder_sq8_neon"]["median_ms"]
-            blk3[f"{cache_mode}_attribution"] = {
-                "zorder_gain_on_scalar_f32": round(sc_f32_s / max(1e-6, zo_f32_s), 2),
-                "zorder_gain_on_neon_f32": round(sc_f32_n / max(1e-6, zo_f32_n), 2),
-                "sq8_gain_on_scalar": round(zo_f32_s / max(1e-6, zo_sq8_s), 2),
-                "neon_gain_on_sq8": round(zo_sq8_s / max(1e-6, zo_sq8_n), 2),
-                "total_gain_over_scattered_scalar_f32": round(sc_f32_s / max(1e-6, zo_sq8_n), 2),
-            }
-        r3_summary[s_key] = blk3
-    return r2_summary, r3_summary, preserved
+def _repo_is_dirty() -> bool:
+    import subprocess
+    if git_dirty_paths():
+        return True
+    try:
+        out = subprocess.check_output(["git", "status", "--porcelain"], cwd=REPO_ROOT, text=True)
+        return bool(out.strip())
+    except Exception:
+        return True
 
 
 def main() -> int:
     import argparse
     ap = argparse.ArgumentParser()
-    ap.add_argument("--reuse-r2-r3", action="store_true", help="Reuse completed R2/R3 raw JSONL slice while running R1/R4/R5 fresh")
+    ap.add_argument("--allow-dirty", action="store_true", help="Allow running with uncommitted git changes")
     args = ap.parse_args()
 
     t_all = time.perf_counter()
     fz3 = freeze_v3_status()
     assert fz3["match"], f"FREEZE_v3 mismatch before audit! {fz3}"
-    print(f"[audit_v3.1] git_sha={git_sha()[:10]} freeze_v3=INTACT ({fz3['n_files']}/7)", flush=True)
-
-    reused_r2 = reused_r3 = None
-    preserved: List[Dict[str, Any]] = []
-    if args.reuse_r2_r3 and os.path.exists(RAW_OUT_PATH):
-        reused_r2, reused_r3, preserved = _reconstruct_r2_r3_from_raw(RAW_OUT_PATH)
+    fz31 = freeze_v3_1_status()
+    assert fz31["match"], f"FREEZE_v3_1 mismatch before audit! {fz31}"
+    sha_now = git_sha()
+    is_dirty = _repo_is_dirty()
+    if is_dirty and not args.allow_dirty:
+        raise RuntimeError("Refusing v3.1 audit on dirty working tree; commit changes first or pass --allow-dirty")
+    print(f"[audit_v3.1] git_sha={sha_now[:10]} git_dirty={is_dirty} freeze_v3=INTACT ({fz3['n_files']}/7) freeze_v3_1=INTACT ({fz31['n_files']}/8)", flush=True)
 
     logger = RawAuditLogger(RAW_OUT_PATH)
     try:
-        for rec in preserved:
-            exp = rec.pop("experiment")
-            logger.log(exp, rec)
+        logger.log(
+            "R0_meta",
+            {
+                "git_sha": sha_now,
+                "git_dirty": bool(is_dirty),
+                "freeze_v3_1_match": fz31["match"],
+                "freeze_v3_1_files": fz31["n_files"],
+            },
+        )
 
-        r1 = run_r1_property_fuzzing(logger)
+        _ = run_r1_property_fuzzing(logger)
 
         X_q, Q_q, qids_q, _ = load_corpus_v3("quora")
-        if reused_r2 is not None and reused_r3 is not None:
-            r2, r3 = reused_r2, reused_r3
-            print(f"[audit_v3.1] Reused verified R2 (n=1200) & R3 (n=48) raw records from {RAW_OUT_PATH}", flush=True)
-        else:
-            X_n, Q_n, qids_n, _ = load_corpus_v3("nq")
-            r2 = run_r2_s001_percent((X_q, Q_q, qids_q), (X_n, Q_n, qids_n), logger, seeds=(0, 1, 2), n_queries=50)
-            del X_n, Q_n, qids_n
-            gc.collect()
-            r3 = run_r3_mode3_isolation(X_q, Q_q, logger, n_queries=80)
+        X_n, Q_n, qids_n, _ = load_corpus_v3("nq")
+        _ = run_r2_s001_percent((X_q, Q_q, qids_q), (X_n, Q_n, qids_n), logger, seeds=(0, 1, 2), n_queries=50)
+        del X_n, Q_n, qids_n
+        gc.collect()
+        _ = run_r3_mode3_isolation(X_q, Q_q, logger, n_queries=80)
 
-        r4 = run_r4_revocation_and_concurrency(X_q, Q_q, logger)
-        r5 = run_r5_dynamic_ingestion(X_q, logger)
+        _ = run_r4_revocation_and_concurrency(X_q, Q_q, logger)
+        _ = run_r5_dynamic_ingestion(X_q, logger)
     finally:
         logger.close()
 
-    summary = {
-        "schema": "prism-ann-v3.1-reviewer-audit/1",
-        "git_sha_start": git_sha(),
-        "freeze_v3_intact": freeze_v3_status()["match"],
-        "raw_jsonl_path": os.path.relpath(RAW_OUT_PATH, REPO_ROOT),
-        "raw_records_written": logger.count,
-        "total_wall_sec": round(time.perf_counter() - t_all, 2),
-        "R1_property_fuzzing": r1,
-        "R2_s001_ultra_low_selectivity": r2,
-        "R3_mode3_component_isolation": r3,
-        "R4_revocation_scaling_and_concurrent_zedtoken": r4,
-        "R5_dynamic_ingestion_and_zorder_compaction": r5,
-    }
+    # Delegate summary generation strictly to deterministic `bench.recompute_v3_1`!
+    summary = recompute_v3_1_summary(RAW_OUT_PATH)
     os.makedirs(os.path.dirname(SUMMARY_OUT_PATH), exist_ok=True)
     with open(SUMMARY_OUT_PATH, "w", encoding="utf-8") as f:
-        json.dump(summary, f, indent=2, sort_keys=True)
-    print(f"\n[audit_v3.1] COMPLETE in {summary['total_wall_sec']}s -> {SUMMARY_OUT_PATH}", flush=True)
+        f.write(dumps_summary(summary))
+    print(f"\n[audit_v3.1] COMPLETE in {time.perf_counter()-t_all:.2f}s | recs={summary['raw_records_total']} | verdicts={ {k: v['verdict'] for k, v in summary['verdicts'].items()} } -> {SUMMARY_OUT_PATH}", flush=True)
     return 0
 
 

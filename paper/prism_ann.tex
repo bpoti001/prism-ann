@@ -11,7 +11,7 @@
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{enumitem}
-\setlist{noitemsep,topsep=2pt,parsep=1pt,partopsep=1pt}
+\setlist{noitemsep,topsep=1pt,parsep=0pt,partopsep=0pt}
 
 \newtheorem{theorem}{Theorem}
 \newtheorem{proposition}{Proposition}
@@ -28,10 +28,13 @@
 \setcounter{bottomnumber}{3}
 \setcounter{totalnumber}{6}
 \setcounter{dbltopnumber}{4}
-\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
-\setlength{\dbltextfloatsep}{9pt plus 2pt minus 2pt}
-\setlength{\floatsep}{7pt plus 2pt minus 2pt}
-\setlength{\dblfloatsep}{7pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{6pt plus 1.5pt minus 1.5pt}
+\setlength{\dbltextfloatsep}{6pt plus 1.5pt minus 1.5pt}
+\setlength{\floatsep}{5pt plus 1.5pt minus 1.5pt}
+\setlength{\dblfloatsep}{5pt plus 1.5pt minus 1.5pt}
+\setlength{\abovecaptionskip}{3pt}
+\setlength{\belowcaptionskip}{-2pt}
+\renewcommand{\baselinestretch}{0.95}
 
 \title{\textbf{Prism-ANN: Co-Designed SpiceDB ReBAC Upward Boundary Pruning, Geometric Express Bridges, and Native SIMD Tri-Modal Filtered HNSW}}
 
@@ -335,7 +338,7 @@ Table~\ref{tab:verdicts} summarizes all $11$ pre-registered verdicts (\textbf{11
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.93\textwidth]{figures/v3_fig1_h1_spicedb_mem_and_postgres.pdf}
+\includegraphics[width=0.84\textwidth]{figures/v3_fig1_h1_spicedb_mem_and_postgres.pdf}
 \caption{\textbf{Experiment H1v3: Live SpiceDB~v1.57.1 Memory vs.\ Persistent PostgreSQL~17 Datastore ($N=522{,}931$, $1{,}200$ principals across $3$ seeds, $m \in [0, 20]$ \texttt{DENY}s).} \textbf{(a)} Broad-principal ($n=271$, $\ge 1{,}000$ docs) pooled median latency: \texttt{UBP+CRoaring} cuts latency by \textbf{$225.9\times$} on memory SpiceDB and \textbf{$278.2\times$} on persistent PostgreSQL~17 SpiceDB ($29.1\times$ and $28.2\times$ even with live \texttt{ReadRelationships} RPCs). \textbf{(b)} Pooled P95 tail latency and zero-mismatch oracle invariants ($0/1{,}200$ mismatches, $100\%$ within Theorem~\ref{thm:ubp_bound}).}
 \label{fig:v3_h1}
 \end{figure*}
@@ -347,7 +350,7 @@ Table~\ref{tab:verdicts} summarizes all $11$ pre-registered verdicts (\textbf{11
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.93\textwidth]{figures/v3_fig2_h2_multi_corpus_recall.pdf}
+\includegraphics[width=0.84\textwidth]{figures/v3_fig2_h2_multi_corpus_recall.pdf}
 \caption{\textbf{Experiment H2v3: Multi-Corpus Random-Overlay Selectivity Sweep ($3$ seeds $\times$ $500$ disjoint queries per $S$).} \textbf{(a)} Corpus~1: Full BEIR Quora ($N=522{,}931$, reserved test queries \texttt{[500..9,984]}). \textbf{(b)} Corpus~2: BEIR NQ Wikipedia ($N=250{,}000$). On both corpora, \texttt{v3-geom-M8} (graph-only) leaps above \texttt{v2-ring-chord-M4}, \texttt{FAISS M=16}, \texttt{ACORN-1}, and \texttt{ACORN-$\gamma$} ($\gamma=4$), while \texttt{v3-full-guard-sq8} (hollow orange squares) achieves $100.00\%$ Recall@10 at $S \le 1\%$ in $0.05$--$0.11\text{ ms}$.}
 \label{fig:v3_h2}
 \end{figure*}
@@ -402,7 +405,7 @@ Table~\ref{tab:h2_results} and Figure~\ref{fig:v3_h2} validate \texttt{H-HNSW v2
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.93\textwidth]{figures/v3_fig3_h3_correlation_guard.pdf}
+\includegraphics[width=0.84\textwidth]{figures/v3_fig3_h3_correlation_guard.pdf}
 \caption{\textbf{Experiment H3v3: Multi-Corpus Cluster-Aligned Correlation Study ($S \approx 2\%$, $3$ seeds $\times$ $500$ queries, per-query measured $r = S_{\text{loc},100}/S$).} \textbf{(a)} Depleted pockets ($r \le 0.5$): \texttt{v3-geom-M8} beats \texttt{FAISS M=16} by $+49.0$ pts (Quora) and $+53.2$ pts (NQ), while the Local-Stall Guard (\texttt{v3-full-guard-sq8}) restores \textbf{$97.17\%$ ($0.35\text{ ms}$)} and \textbf{$96.42\%$ ($0.17\text{ ms}$)} Recall@10 (\textbf{P3a supported}). \textbf{(b)} Enriched pockets ($r \ge 2.0$): \texttt{ACORN-GLS} ($\tau_{\text{high}}=0.55$) cuts distance evaluations by \textbf{$3.82\times$ (Quora) / $3.11\times$ (NQ)} within $-0.99$ pt Recall@10 (\textbf{P3b supported}).}
 \label{fig:v3_h3}
 \end{figure*}
@@ -443,7 +446,7 @@ Table~\ref{tab:h3_results} and Figure~\ref{fig:v3_h3} report the cluster-aligned
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.93\textwidth]{figures/v3_fig4_h4_revocation_and_neon_latency.pdf}
+\includegraphics[width=0.84\textwidth]{figures/v3_fig4_h4_revocation_and_neon_latency.pdf}
 \caption{\textbf{Experiment H4v3: Persistent PostgreSQL~17 SpiceDB Revocation \& H2v3 Native C++/NEON Latency ($N=522{,}931$).} \textbf{(a)} Revoking $1{,}024$ docs ($153{,}600$ chunks, $n=5$ trials, median + min--max): persistent PostgreSQL~17 SpiceDB \texttt{DeleteRelationships} + UBP + \texttt{CRoaring} executes in \textbf{$67.28\text{ ms}$ with $0$ vector writes} versus \textbf{$179.4\text{ s}$} for PostgreSQL~17 + \texttt{pgvector}~0.8.7 \texttt{UPDATE} (\textbf{$2{,}666.2\times$} faster, \textbf{P4a \& P4b supported}). \textbf{(b)} Native C++/NEON pooled median latency across $S \in [0.1\%, 5\%]$ on full BEIR Quora.}
 \label{fig:v3_h4}
 \end{figure*}
@@ -455,7 +458,7 @@ Table~\ref{tab:h3_results} and Figure~\ref{fig:v3_h3} report the cluster-aligned
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.93\textwidth]{figures/v3_fig5_h5_portal_ablation.pdf}
+\includegraphics[width=0.84\textwidth]{figures/v3_fig5_h5_portal_ablation.pdf}
 \caption{\textbf{Experiment H5v3: 4-Way \texttt{InitEntryPortals} Ablation on Full BEIR Quora ($N=522{,}931$, shared $M=16$ base graph, $3$ seeds $\pm 95\%$ CI).} Adding $4$ authorized entry portals to \texttt{FAISS M=16} changes Recall@10 by only $-0.56$ to $+0.62$ pts. Conversely, disabling portals completely on \texttt{H-HNSW v2} (\texttt{hhnsw-v2-geom-M8-noportal}) retains \textbf{$101.0\%$--$102.3\%$} of the recall gain over \texttt{FAISS M=16} across $S \le 1\%$ (\textbf{P5 supported}).}
 \label{fig:v3_h5}
 \end{figure*}
@@ -472,24 +475,31 @@ A critical question in filtered-HNSW evaluation is whether authorized entry-port
 \end{enumerate}
 This decisively supports \textbf{P5}: geometric express bridges and \texttt{ACORN-GLS}---not \texttt{InitEntryPortals}---account for essentially $100\%$ of the recall gain.
 
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.84\textwidth]{figures/v3_fig6_reviewer_audit.pdf}
+\caption{\textbf{Supplementary Reviewer Audit (\texttt{v3.1}, \texttt{PR1}--\texttt{PR5} All \texttt{SUPPORTED}):} \textbf{(a)} Ultra-low $S{=}0.01\%$ Recall@10 on Quora ($523\text{k}$) and NQ ($250\text{k}$); \textbf{(b)} Cold-LLC ($64\text{ MB}$ flush/query) 6-way Mode-3 component isolation on Quora ($S\in[0.01\%,1\%]$); \textbf{(c)} Persistent PostgreSQL~17 SpiceDB single-edge $O(1)$ subtree revocation scaling ($128\to 490{,}419$ chunks, $0$ writes) and $11{,}767$-query concurrent \texttt{ZedToken} race.}
+\label{fig:v3_audit}
+\end{figure*}
+
 \subsection{Supplementary Reviewer Audit (\texttt{v3.1}): Deep Fuzzing, $S{=}0.01\%$, Mode-3 Isolation, Concurrent \texttt{ZedToken}s, and Dynamic Maintenance}
 \label{sec:eval_audit}
 
-To isolate component contributions and test edge-case security invariants beyond \texttt{PROTOCOL\_v3.md} (full log in \texttt{results/v3/reviewer\_audit\_v3\_1.json}), we execute five targeted audit suites (\texttt{R1}--\texttt{R5}):
+Following a pre-registered extension protocol (\texttt{PROTOCOL\_v3\_1.md}, \texttt{FREEZE\_v3\_1.md} $8/8$ SHA-256 intact, $23{,}056$ raw records recomputed via \texttt{bench/recompute\_v3\_1.py --check}), all five audit predictions (\texttt{PR1}--\texttt{PR5}) are \textbf{supported} (Figure~\ref{fig:v3_audit}):
 \begin{itemize}
     \item \textbf{R1 (10{,}000-Hierarchy Alternating Override Fuzzing):} Across $5{,}000$ standard subtractive trees and $5{,}000$ alternating \texttt{GRANT}$\leftrightarrow$\texttt{DENY} override trees up to depth $L{=}5$ spanning $(b,L)\in\{(8,4),(4,5),(6,4)\}$, $\mathcal{P}_{\text{UBP}}$ and its deepest-rule generalization achieve \textbf{$0/10{,}000$ leaf mismatches} and \textbf{$100.0\%$ bound satisfaction}.
     \item \textbf{R2 (Ultra-Low Selectivity $S{=}0.01\%$):} On depth-5 overlays ($32{,}768$ docs; $S_{\text{actual}}\approx 0.0091\%$, $150$ queries/corpus), \texttt{faiss-hnsw-M16} ($0.87\%$ Quora / $0.60\%$ NQ) and \texttt{acorn-1} ($0.27\%$ / $0.40\%$) collapse below $1\%$, whereas graph-only \texttt{v3-geom-M8} achieves \textbf{$85.73\%$ ($0.59\text{ ms}$) / $92.27\%$ ($0.25\text{ ms}$)} and \texttt{v3-full-guard-sq8} attains \textbf{$100.00\%$ in $0.056\text{ ms}$ / $0.032\text{ ms}$}.
     \item \textbf{R3 (6-Way Mode-3 Component Isolation, Cold LLC):} Flushing L1/L2/SLC via a $64\text{ MB}$ volatile sweep before each query on Quora ($S{=}1.0\%$), moving from scattered scalar \texttt{FP32} ($2.94\text{ ms}$) to contiguous Z-order \texttt{CRoaring}+\texttt{SQ8}+NEON ($0.102\text{ ms}$) yields a \textbf{$28.73\times$ cold speedup} ($33.64\times$ warm), decomposed cleanly into \textbf{$7.69\times$} from Z-order contiguity (on \texttt{FP32} NEON), \textbf{$2.82\times$} from \texttt{SQ8} bandwidth compression, and \textbf{$7.18\times$} from ARM NEON over portable scalar C++ (\texttt{0.734 ms} cold scalar \texttt{SQ8} still runs sub-millisecond).
-    \item \textbf{R4 (Subtree Revocation Scaling \& Concurrent \texttt{ZedToken} Race):} Deleting persistent Postgres SpiceDB subtrees from $128$ to $490{,}419$ chunks maintains $0$ vector writes in $0.94$--$8.34\text{ ms}$ median. Under $4$ concurrent C++ query threads executing $15{,}563$ live traversals while revoking $131{,}072$ chunks at $\zeta_{\text{rev}}$ ($60.73\text{ ms}$ PG commit, $0.273\text{ ms}$ snapshot swap), \textbf{$0/8{,}916$} post-$\zeta_{\text{rev}}$ queries leak any revoked chunk.
-    \item \textbf{R5 (Dynamic Ingestion \& Background Z-Order Compaction):} Appending $+1{,}000$ to $+25{,}000$ vectors onto $500\text{k}$ Quora vectors commits to an online delta buffer in \textbf{$5.2$--$23.8~\mu\text{s}$/vec} without blocking reads, while off-critical-path lexicographic recompaction + C++ CSR ID remapping completes in $2.10$--$3.05\text{ s}$ ($103$--$138\text{ ms}$ for the $500\text{k}$ HNSW CSR remap).
+    \item \textbf{R4 ($O(1)$ Subtree Scaling \& Concurrent \texttt{ZedToken} Race):} Deleting a single parent container edge in persistent Postgres~17 SpiceDB across $128\to 490{,}419$ chunks maintains $0$ vector writes in $0.79$--$1.68\text{ ms}$ median. Under $4$ concurrent C++ query threads executing $11{,}767$ live traversals while revoking $131{,}072$ chunks at $\zeta_{\text{rev}}$ ($60.35\text{ ms}$ PG commit, $0.096\text{ ms}$ snapshot swap), \textbf{$0/5{,}989$} post-$\zeta_{\text{rev}}$ queries leak any revoked chunk.
+    \item \textbf{R5 (Dynamic Ingestion \& Background Z-Order Compaction):} Appending $+1{,}000$ to $+25{,}000$ vectors onto $500\text{k}$ Quora vectors commits to an online delta buffer in \textbf{$5.2$--$21.2~\mu\text{s}$/vec} without blocking reads, while off-critical-path lexicographic recompaction + C++ CSR ID remapping completes in $1.44$--$2.56\text{ s}$ ($111$--$119\text{ ms}$ for the $500\text{k}$ HNSW CSR remap).
 \end{itemize}
 
 \begin{table*}[t]
 \centering
 \caption{Protocol Deviations Table: Complete record of every deviation and specification choice relative to \texttt{experiments/v3/PROTOCOL\_v3.md} in confirmatory run \texttt{v3-confirmatory-001} (mirrored in \texttt{results/v3/DEVIATIONS.md}).}
 \label{tab:deviations}
-\resizebox{0.99\textwidth}{!}{
-\begin{tabular}{clp{5.1cm}p{5.9cm}p{4.3cm}}
+\resizebox{0.98\textwidth}{!}{
+\begin{tabular}{clp{5.8cm}p{7.0cm}p{4.9cm}}
 \toprule
 \textbf{ID} & \textbf{Area} & \textbf{Pre-Registered in \texttt{PROTOCOL\_v3.md}} & \textbf{Actual in \texttt{v3-confirmatory-001}} & \textbf{Impact / Rationale} \\
 \midrule
@@ -517,7 +527,7 @@ Stamping ancestor container paths onto document records is established practice 
 Hybrid engines such as AnalyticDB-V \cite{wei2020analyticdbv} and Milvus \cite{wang2021milvus} combine bitset scans with filtered HNSW \cite{malkov2018hnsw}. Specialized graphs---Filtered-DiskANN \cite{gollapudi2023filtered}, RoarGraph \cite{chen2024roargraph}, UNG \cite{cai2024ung}, SeRF \cite{zuo2024serf}, UNIFY \cite{liang2024unify}, SIEVE \cite{li2025sieve}, and Curator \cite{curator2026}---target static label sets, 1D ranges, or workload-stable predicates rather than dynamic hierarchical ReBAC with subtractive \texttt{DENY}s. \textit{ACORN} \cite{patel2024acorn} introduces predicate-agnostic 2-hop (\texttt{ACORN-1}) and $\gamma$-expanded (\texttt{ACORN-$\gamma$}) search, and \textit{FANNBench} \cite{iff2025fannbench} formalizes Global-Local Selectivity correlation $r = S_{\text{loc}}/S$. Our multi-corpus evaluation shows that container-scoped geometric bridges ($+1.91\%$ graph RAM) outperform predicate-agnostic \texttt{ACORN-1} and \texttt{ACORN-$\gamma$} ($\gamma=4$) on hierarchical ReBAC filters across every tested selectivity while avoiding the $10\times$--$460\times$ latency penalty of unbounded iterative scans.
 
 \subsection{Limitations \& Future Work}
-Five concrete limitations remain: (1) \textbf{Auxiliary \texttt{SQ8} memory footprint:} while graph-only \texttt{v3-geom-M8} adds only $+32\text{ B/node}$ ($+1.91\%$ RAM), full \texttt{v3-full-guard-sq8} retains a $+384\text{ B/node}$ ($200.8\text{ MB}$, $+22.9\%$) \texttt{SQ8} copy alongside FP32 vectors ($+416\text{ B/node}$ = $+24.8\%$ total, exceeding \texttt{ACORN-$\gamma$}'s $+224\text{ B/node}$ level-0 graph overhead); memory-constrained deployments can substitute \texttt{prism\_mode3\_scan\_ranges\_f32} or FP16 storage; (2) \textbf{Timing boundary \& graph-only sparsity:} \texttt{H2v3}/\texttt{H3v3} include $O(N)$ Python mask marshaling for \texttt{FAISS}/\texttt{ACORN}/\texttt{BLAS} and exclude \texttt{H1v3} UBP traversal (though end-to-end \texttt{H1+H2} stays $5.5\times$--$41\times$ faster than \texttt{hnswlib}/\texttt{pgvector}), and achieving $100\%$ recall at $S \le 1\%$ relies on NEON Mode~3 beyond \texttt{v3-geom-M8}'s $66.6\%$--$86.0\%$ graph-only recall; (3) \textbf{Single operating point ($\text{efSearch}=64$):} all graph engines were fixed at $\text{efConstruction}=64, \text{efSearch}=64$ (a full $\text{efSearch}$ Pareto sweep remains future work); (4) \textbf{Real multi-parent DAG workloads:} while \texttt{R5} benchmarks online delta ingestion ($5.2$--$23.8~\mu\text{s}$/vec) and background Z-order compaction ($2.1$--$3.0\text{ s}$), evaluation on production multi-tenant enterprise Zanzibar DAGs remains future work; and (5) \textbf{Missing Docker-only baselines:} \texttt{Qdrant} could not be benchmarked natively without Docker.
+Five concrete limitations remain: (1) \textbf{Auxiliary \texttt{SQ8} memory footprint:} while graph-only \texttt{v3-geom-M8} adds only $+32\text{ B/node}$ ($+1.91\%$ RAM), full \texttt{v3-full-guard-sq8} retains a $+384\text{ B/node}$ ($200.8\text{ MB}$, $+22.9\%$) \texttt{SQ8} copy alongside FP32 vectors ($+416\text{ B/node}$ = $+24.8\%$ total, exceeding \texttt{ACORN-$\gamma$}'s $+224\text{ B/node}$ level-0 graph overhead); memory-constrained deployments can substitute \texttt{prism\_mode3\_scan\_ranges\_f32} or FP16 storage; (2) \textbf{Timing boundary \& graph-only sparsity:} \texttt{H2v3}/\texttt{H3v3} include $O(N)$ Python mask marshaling for \texttt{FAISS}/\texttt{ACORN}/\texttt{BLAS} and exclude \texttt{H1v3} UBP traversal (though end-to-end \texttt{H1+H2} stays $5.5\times$--$41\times$ faster than \texttt{hnswlib}/\texttt{pgvector}), and achieving $100\%$ recall at $S \le 1\%$ relies on NEON Mode~3 beyond \texttt{v3-geom-M8}'s $66.6\%$--$86.0\%$ graph-only recall; (3) \textbf{Single operating point ($\text{efSearch}=64$):} all graph engines were fixed at $\text{efConstruction}=64, \text{efSearch}=64$ (a full $\text{efSearch}$ Pareto sweep remains future work); (4) \textbf{Real multi-parent DAG workloads:} while \texttt{R5} benchmarks online delta ingestion ($5.2$--$21.2~\mu\text{s}$/vec) and background Z-order compaction ($1.44$--$2.56\text{ s}$), evaluation on production multi-tenant enterprise Zanzibar DAGs remains future work; and (5) \textbf{Missing Docker-only baselines:} \texttt{Qdrant} could not be benchmarked natively without Docker.
 
 \section{Conclusion}
 \label{sec:conclusion}

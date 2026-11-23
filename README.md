@@ -1,9 +1,9 @@
 # Prism-ANN: Co-Designed SpiceDB ReBAC Upward Boundary Pruning, Geometric Express Bridges, and Native SIMD Tri-Modal Filtered HNSW
 
-[![Verification](https://img.shields.io/badge/Provenance%20Audit-238%2F238%20PASS-brightgreen.svg)](#reproducibility--provenance-verification)
+[![Verification](https://img.shields.io/badge/Provenance%20Audit-Verified%200%20Drift-brightgreen.svg)](#reproducibility--provenance-verification)
 [![Unit Tests](https://img.shields.io/badge/pytest-19%2F19%20PASS-brightgreen.svg)](#reproducibility--provenance-verification)
-[![Reviewer Audit](https://img.shields.io/badge/Reviewer%20Audit%20v3.1-R1--R5%20Verified-blue.svg)](REVIEWER_AUDIT_REPORT.md)
-[![Confirmatory Records](https://img.shields.io/badge/Raw%20Query%20Logs-169%2C810%20Records-blueviolet.svg)](results/v3/summary.json)
+[![Reviewer Audit](https://img.shields.io/badge/Reviewer%20Audit%20v3.1-5%2F5%20PR%20Supported-blue.svg)](REVIEWER_AUDIT_REPORT.md)
+[![Confirmatory Records](https://img.shields.io/badge/Raw%20Query%20Logs-169%2C810%20%2B%2023%2C056%20Audit-blueviolet.svg)](results/v3/summary.json)
 
 Official implementation, formal proofs, raw confirmatory & audit JSONL datasets, reproducible C++17 / ARM NEON kernels, interactive research report, executive presentation, and explainer videos for **Prism-ANN**.
 
@@ -57,8 +57,8 @@ Official implementation, formal proofs, raw confirmatory & audit JSONL datasets,
 1. **`R1` (`10,000`-Hierarchy Fuzzing):** `0 / 5,000` mismatches on standard `but not` ReBAC + `0 / 5,000` mismatches on generalized depth-5 alternating `GRANT ↔ DENY` override trees (`100.0%` bound satisfaction).
 2. **`R2` (`S = 0.01%` Ultra-Low Selectivity):** On depth-5 overlays (`S_actual ≈ 0.0091%`), `FAISS` (`0.60%–0.87%`) and `ACORN-1` (`0.27%–0.40%`) collapse below `1%`, whereas `v3-geom-M8` hits **`85.73%–92.27%`** (`0.25–0.59 ms`) and `v3-full-guard-sq8` hits **`100.00%` in `0.032–0.056 ms`**.
 3. **`R3` (6-Way Cold-LLC Component Isolation, `64 MB` flush/query):** At `S=1.0%`, combined speedup of **`28.73×` cold (`33.64×` warm)** decomposes into **`7.69×`** from Z-order + `CRoaring` contiguity (`FP32` NEON), **`2.82×`** from `SQ8` bandwidth reduction, and **`7.18×`** from ARM NEON (`64`-MAC `vdotq_s32`) over portable C++ scalar (`0.734 ms` cold scalar `SQ8` still runs sub-millisecond without SIMD!).
-4. **`R4` (Subtree Scaling & Concurrent `ZedToken` Race):** Subtree deletes from `128` to `490,419` chunks on live PG17 SpiceDB run in **`0.94–8.34 ms` with `0` vector writes**; across `15,563` concurrent queries on `4` reader threads during a live `131,072`-chunk PG17 SpiceDB revocation (`60.73 ms` commit, `0.273 ms` atomic snapshot swap), **`0 / 8,916` post-`zeta_rev` queries** leaked any revoked chunk.
-5. **`R5` (Dynamic Ingestion & Background Z-Order Compaction):** Online delta-buffer ingestion appends `+1k..+25k` vectors in **`5.2–23.8 µs/vector`** without blocking readers; background full lexicographic compaction + C++ HNSW CSR ID remapping completes off-critical-path in **`2.10–3.05 s`** (`103–138 ms` for `500k` CSR remap).
+4. **`R4` (Single-Edge Subtree Scaling & Concurrent `ZedToken` Race):** Persistent PG17 SpiceDB single-edge deletions from `128 → 490,419` chunks stay flat at **`0.79–1.68 ms` with `0` vector writes**; across `11,767` concurrent C++ H-HNSW queries on `4` reader threads crossing a live `131,072`-chunk PG17 SpiceDB revocation (`60.35 ms` commit, `0.096 ms` atomic snapshot swap), **`0 / 5,989` post-`zeta_rev` queries** leaked any revoked chunk.
+5. **`R5` (Dynamic Ingestion & Background Z-Order Compaction):** Online delta-buffer ingestion appends `+1k..+25k` vectors in **`5.2–21.2 µs/vector`** without blocking readers; background lexicographic compaction + C++ HNSW CSR ID remapping completes off-critical-path in **`1.44–2.56 s`** (`111–119 ms` for `500k` CSR remap).
 
 ---
 

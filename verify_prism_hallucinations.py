@@ -177,6 +177,66 @@ def verify() -> bool:
     check(not (cited - bibs), f"All {len(cited)} cited keys resolve in bibliography", f"Unresolved citations: {cited - bibs}")
     check(not (bibs - cited), f"Zero unused bibitems ({len(bibs)} total)", f"Unused bibitems: {bibs - cited}")
 
+    print("\n[7/7] Checking v3.1 External Reviewer Audit provenance & paper/report consistency...")
+    import json as _json
+    from pathlib import Path as _Path
+    from bench.recompute import dumps_summary as _dumps_summary
+    from bench.recompute_v3_1 import recompute_v3_1_summary as _recompute_v3_1, freeze_v3_1_status as _freeze_v3_1
+
+    f31 = _freeze_v3_1()
+    check(f31.get("match") is True and f31.get("n_files") == 8,
+          f"FREEZE_v3_1.md {f31.get('n_files')}/8 SHA-256 intact",
+          f"FREEZE_v3_1 mismatch: {f31}")
+
+    audit_path = _Path("results/v3/reviewer_audit_v3_1.json")
+    raw_v31_path = _Path("results/v3_1_audit/raw/v3_1_reviewer_audit.jsonl")
+    report_path = _Path("REVIEWER_AUDIT_REPORT.md")
+    check(audit_path.exists() and raw_v31_path.exists() and report_path.exists(),
+          "v3.1 reviewer audit JSON, raw JSONL, and REVIEWER_AUDIT_REPORT.md exist",
+          "Missing v3.1 reviewer audit artifact")
+
+    if audit_path.exists() and raw_v31_path.exists() and report_path.exists():
+        audit_text = audit_path.read_text(encoding="utf-8")
+        audit = _json.loads(audit_text)
+        recomp_v31 = _recompute_v3_1(str(raw_v31_path))
+        check(_dumps_summary(recomp_v31) == audit_text,
+              "results/v3/reviewer_audit_v3_1.json matches deterministic recompute_v3_1.py bit-for-bit",
+              "reviewer_audit_v3_1.json differs from recompute_v3_1.py")
+
+        n_rec = audit.get("raw_records_total", 0)
+        check(n_rec == 23056, f"v3.1 raw JSONL total == {n_rec}", f"Expected 23056 raw records, got {n_rec}")
+
+        verdicts = audit.get("verdicts", {})
+        for pr in ("PR1", "PR2", "PR3", "PR4", "PR5"):
+            st = verdicts.get(pr, {}).get("verdict")
+            check(st == "supported", f"v3.1 {pr} verdict == {st}", f"v3.1 {pr} verdict is {st}")
+
+        report_txt = report_path.read_text(encoding="utf-8")
+        pr2 = verdicts["PR2"]
+        pr3_attr = verdicts["PR3"]["cold_S0.01_attribution"]
+        r4 = audit["R4_revocation_scaling_and_concurrent_zedtoken"]
+        r4b = r4["concurrent_zedtoken_race"]
+        max_chunks = r4["scaling_postgres_spicedb"][-1]["chunks_revoked"]
+
+        fmt_checks = [
+            ("total records", f"{n_rec:,}", f"{n_rec:,}".replace(",", "{,}")),
+            ("R2 Quora v3-geom R@10", f"{pr2['quora']['v3_geom_recall_pct']:.2f}%", f"{pr2['quora']['v3_geom_recall_pct']:.2f}\\%"),
+            ("R2 NQ v3-geom R@10", f"{pr2['nq']['v3_geom_recall_pct']:.2f}%", f"{pr2['nq']['v3_geom_recall_pct']:.2f}\\%"),
+            ("R3 cold total speedup", f"{pr3_attr['total_gain_over_scattered_scalar_f32']:.2f}", f"{pr3_attr['total_gain_over_scattered_scalar_f32']:.2f}"),
+            ("R3 cold zorder gain", f"{pr3_attr['zorder_gain_on_neon_f32']:.2f}", f"{pr3_attr['zorder_gain_on_neon_f32']:.2f}"),
+            ("R3 cold sq8 gain", f"{pr3_attr['sq8_gain_on_scalar']:.2f}", f"{pr3_attr['sq8_gain_on_scalar']:.2f}"),
+            ("R3 cold neon gain", f"{pr3_attr['neon_gain_on_sq8']:.2f}", f"{pr3_attr['neon_gain_on_sq8']:.2f}"),
+            ("R4a max chunks revoked", f"{max_chunks:,}", f"{max_chunks:,}".replace(",", "{,}")),
+            ("R4b concurrent queries", f"{r4b['total_concurrent_queries']:,}", f"{r4b['total_concurrent_queries']:,}".replace(",", "{,}")),
+            ("R4b post-zeta queries", f"{r4b['post_revoke_zeta2_queries']:,}", f"{r4b['post_revoke_zeta2_queries']:,}".replace(",", "{,}")),
+            ("R4b PG17 commit ms", f"{r4b['spicedb_commit_ms']:.2f}", f"{r4b['spicedb_commit_ms']:.2f}"),
+        ]
+        for label, md_tok, tex_tok in fmt_checks:
+            check(md_tok in report_txt, f"REVIEWER_AUDIT_REPORT.md contains {label} ({md_tok})",
+                  f"REVIEWER_AUDIT_REPORT.md missing {label}: {md_tok}")
+            check(tex_tok in tex, f"paper/prism_ann.tex contains {label} ({tex_tok})",
+                  f"paper/prism_ann.tex missing {label}: {tex_tok}")
+
     print(f"\nSUMMARY: {passed} checks passed, {len(errors)} errors.")
     return len(errors) == 0
 
