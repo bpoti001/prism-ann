@@ -21,17 +21,19 @@
 
 ### `PR9b` & `PR11` (`R9b` & `R11`: Live Native SpiceDB `v1.57.1` Multi-Parent Schema Matrix & Real Opaque `ZedToken` Concurrency)
 - **Live Schema & Engine:** Native Homebrew SpiceDB `v1.57.1` (`ZANZIBAR_SCHEMA` with `relation parent: container`, `viewer: user`, `ethical_wall_deny: user`, `permission denied = ethical_wall_deny + parent->denied`, `permission view = (viewer + parent->view) - denied`).
-- **9-Scenario Mutation Matrix (`R9b`):**
-  1. Multi-parent `A -> C <- B`, grant `u` on `A` & `B`, unlink `A -> C` (one surviving path keeps `C` authorized),
-  2. Unlink remaining path `B -> C` (final path removed),
-  3. Direct child grant on `C` + parent edge from denied container (deny dominates) + unlink denied parent,
-  4. Explicit deny on secondary parent + removal of uninvolved sibling path,
-  5. Post-index `add_hierarchy_edge(B, D)` where `u` is granted `A` and denied `B` (`D` hidden across Modes 1/2/3),
-  6. Deny removal (`DeleteRelationships` removing `ethical_wall_deny`),
-  7. Grant revocation + re-grant,
-  8. Real opaque SpiceDB `Consistency(at_exact_snapshot=zt_pre)` verification after mutation, and
-  9. Combined `R11` 8-thread concurrent Stress test issuing `CheckPermission` / `LookupResources` against live SpiceDB + `DynamicPrismANNIndex.search()` bound to real opaque SpiceDB `at_exact_snapshot(zt_pre)` vs `at_least_as_fresh(zt_post)` across a live edge deletion (`>= 1,600` concurrent reads).
-- **Success Criterion (`PR9b` / `PR11`):** `0` false positives and `0` false negatives against live SpiceDB `LookupResources` & `CheckPermission` at every scenario and across all concurrent reader queries (`0` post-revision leaks).
+- **13-Scenario Matrix (`R9b`) — Every Dynamic-Hierarchy Case + Snapshot Fail-Closed Contract:**
+  1. `S1`: `A -> D <- B`; grant `B`; unlink `A -> D` (`D` remains accessible),
+  2. `S2`: Same graph; grant ONLY `A`; unlink `A -> D` (`D` becomes inaccessible),
+  3. `S3`: `A -> D`; grant `A`; add `B -> D`; deny `B` (`D` excluded under deny-dominates),
+  4. `S4`: `A -> D`; add `B -> D`; grant `B` (`D` accessible without stale-posting omissions),
+  5. `S5`: `A -> D` and `A -> X -> D` under upstream parent grant; remove direct `A -> D` (`D` stays accessible through `X` and upstream postings remain valid),
+  6. `S6a`–`S6c`: Direct child grant combined with inherited deny -> matches SpiceDB schema,
+  7. `S7` & `S8a`–`S8b`: Explicit deny removal + grant revoke & re-grant -> `0` false denials across committed revisions,
+  8. `S9`: Historical `at_exact_snapshot` read via real SpiceDB `ZedToken` after mutation,
+  9. `S10`: Expired `at_exact_snapshot` / unsynced hierarchy `fail_closed` refusal (`StaleOrMissingSnapshotError`) + `safe_leaf_fallback` against live SpiceDB.
+- **Per-Scenario Logged Audit Fields (`R9b`):** Every scenario logs `write_zed_token`, `selected_read_revision`, `indexed_posting_revision`, `oracle_doc_ids`, `compiled_candidate_doc_ids`, `returned_search_doc_ids`, and `latency_ms`.
+- **Concurrent Stress (`R11`):** `8` worker threads executing `>= 1,600` concurrent live SpiceDB reads paired with `DynamicPrismANNIndex.search()` bound to real opaque SpiceDB `at_exact_snapshot(zt_pre)` vs. `at_least_as_fresh(zt_post)` across a live relationship deletion.
+- **Success Criterion (`PR9b` / `PR11`):** `0` false positives and `0` false negatives against live SpiceDB `LookupResources` & `CheckPermission` at every scenario, `fail_closed_refusals_verified >= 1` (`StaleOrMissingSnapshotError` verified when snapshot unavailable), and `0` post-revision leaks in `R11`.
 
 ### `PR10` (`R10`: Directly Timed Same-Query E2E Requests + Matched-Recall `efSearch` Sweep)
 - **Corpus & Workload:** Full BEIR Quora (`N = 522,931`, `384-d`, reserved held-out test queries `[500..9,984]`, `seed=0`) with live SpiceDB `v1.57.1`.

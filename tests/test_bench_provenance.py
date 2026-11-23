@@ -452,8 +452,11 @@ class TestFreezeAndAudits(unittest.TestCase):
         zt_decomm = idx.decommission_subtree("C")
         self.assertEqual(g.lookup_resources_leaf("u"), set())
         self.assertEqual(idx.search(X[0], principal_id="u", k=4, zed_token=zt_decomm).top_k_ids, [])
-        # Historical ZedToken pinned before decommission retains pre-decommission view
-        self.assertEqual(len(idx.search(X[0], principal_id="u", k=4, zed_token=zt_regrant_b).top_k_ids), 4)
+        # Historical ZedToken pinned before decommission retains pre-decommission view under at_exact_snapshot
+        self.assertEqual(
+            len(idx.search(X[0], principal_id="u", k=4, zed_token=zt_regrant_b, consistency_mode="at_exact_snapshot").top_k_ids),
+            4,
+        )
 
     def test_freeze_v3_3_and_recompute_v3_3_parity(self):
         from bench.recompute_v3_3 import freeze_v3_3_status, recompute_v3_3_summary
@@ -466,6 +469,134 @@ class TestFreezeAndAudits(unittest.TestCase):
         with open(committed_path, "r", encoding="utf-8") as f:
             committed = f.read()
         self.assertEqual(recompute.dumps_summary(recompute_v3_3_summary(raw_path)), committed)
+
+    def test_dynamic_dag_same_parent_alternate_path_and_upstream_propagation(self):
+        """P->C and P->X->C under upstream A->P: unlinking P->C preserves C in B_P & B_A; unlinking X->C removes C upstream."""
+        from src.modules.prism_ann_v3.dynamic_dag_ubp import (
+            DynamicMultiParentAuthGraph,
+            DynamicPrismANNIndex,
+        )
+
+        g = DynamicMultiParentAuthGraph(branching_factor=4, depth=3)
+        for nid, lvl in (("A", 0), ("P", 1), ("X", 2)):
+            g.add_node(nid, depth_level=lvl, is_leaf=False)
+        g.add_node("doc_c", depth_level=3, is_leaf=True)
+        g.add_hierarchy_edge("A", "P")
+        g.add_hierarchy_edge("P", "doc_c")
+        g.add_hierarchy_edge("P", "X")
+        g.add_hierarchy_edge("X", "doc_c")
+        g.grant_access("u_up", "A")
+        g.grant_access("u_p", "P")
+
+        rng = np.random.default_rng(19)
+        X = rng.standard_normal((4, 16)).astype(np.float32)
+        X /= np.linalg.norm(X, axis=1, keepdims=True)
+        idx = DynamicPrismANNIndex(
+            auth_graph=g,
+            raw_vectors=X,
+            leaf_doc_ids=["doc_c", "doc_c", "doc_c", "doc_c"],
+            ancestor_lineages=[["A", "P", "X", "doc_c"] for _ in range(4)],
+            meaning_magnet_ids=["m0", "m0", "m0", "m0"],
+            M=4, m_bridge=2, ef_construction=16, ef_search=16, seed=19,
+        )
+
+        # Unlink direct P -> doc_c; alternate path P -> X -> doc_c survives for BOTH P and upstream A
+        zt1 = idx.remove_hierarchy_edge("P", "doc_c")
+        self.assertEqual(g.lookup_resources_leaf("u_p"), {"doc_c"})
+        self.assertEqual(g.lookup_resources_leaf("u_up"), {"doc_c"})
+        self.assertEqual(len(idx.search(X[0], "u_p", k=4, zed_token=zt1).top_k_ids), 4)
+        self.assertEqual(len(idx.search(X[0], "u_up", k=4, zed_token=zt1).top_k_ids), 4)
+        snap1 = idx.vcorpus.get_snapshot(g, zed_token=zt1)
+        self.assertEqual(snap1.token_bitmaps["P"].popcount(), 4)
+        self.assertEqual(snap1.token_bitmaps["A"].popcount(), 4)
+
+        # Now unlink X -> doc_c: upstream A and P must both drop doc_c (no stale ancestor retention)
+        zt2 = idx.remove_hierarchy_edge("X", "doc_c")
+        self.assertEqual(g.lookup_resources_leaf("u_up"), set())
+        self.assertEqual(idx.search(X[0], "u_up", k=4, zed_token=zt2).top_k_ids, [])
+        snap2 = idx.vcorpus.get_snapshot(g, zed_token=zt2)
+        self.assertNotIn("A", snap2.token_bitmaps)
+        self.assertNotIn("P", snap2.token_bitmaps)
+
+    def test_dynamic_dag_postindex_add_grant_edge_no_stale_omission(self):
+        """A -> D; add B -> D; grant B -> D becomes immediately accessible with 0 stale-posting omissions."""
+        from src.modules.prism_ann_v3.dynamic_dag_ubp import (
+            DynamicMultiParentAuthGraph,
+            DynamicPrismANNIndex,
+        )
+
+        g = DynamicMultiParentAuthGraph(branching_factor=4, depth=2)
+        g.add_node("A", depth_level=0, is_leaf=False)
+        g.add_node("B", depth_level=0, is_leaf=False)
+        g.add_node("doc_d", depth_level=1, is_leaf=True)
+        g.add_hierarchy_edge("A", "doc_d")
+
+        rng = np.random.default_rng(23)
+        X = rng.standard_normal((4, 16)).astype(np.float32)
+        X /= np.linalg.norm(X, axis=1, keepdims=True)
+        idx = DynamicPrismANNIndex(
+            auth_graph=g,
+            raw_vectors=X,
+            leaf_doc_ids=["doc_d", "doc_d", "doc_d", "doc_d"],
+            ancestor_lineages=[["A", "doc_d"] for _ in range(4)],
+            meaning_magnet_ids=["m0", "m0", "m0", "m0"],
+            M=4, m_bridge=2, ef_construction=16, ef_search=16, seed=23,
+        )
+        self.assertEqual(idx.search(X[0], "u", k=4).top_k_ids, [])
+
+        # Dynamically add B -> doc_d and grant B to u
+        idx.add_hierarchy_edge("B", "doc_d")
+        zt_g = g.grant_access("u", "B")
+        idx.sync()
+        self.assertEqual(g.lookup_resources_leaf("u"), {"doc_d"})
+        self.assertEqual(len(idx.search(X[0], "u", k=4, zed_token=zt_g).top_k_ids), 4)
+
+    def test_dynamic_dag_snapshot_consistency_fail_closed_and_fallback(self):
+        """Expired at_exact_snapshot & unsynced at_least_as_fresh fail closed or fall back safely to live leaf oracle."""
+        from src.modules.prism_ann_v3.dynamic_dag_ubp import (
+            DynamicMultiParentAuthGraph,
+            DynamicPrismANNIndex,
+            StaleOrMissingSnapshotError,
+        )
+
+        g = DynamicMultiParentAuthGraph(branching_factor=4, depth=2)
+        g.add_node("A", depth_level=0, is_leaf=False)
+        g.add_node("B", depth_level=0, is_leaf=False)
+        g.add_node("doc_1", depth_level=1, is_leaf=True)
+        g.add_hierarchy_edge("A", "doc_1")
+        g.grant_access("u", "A")
+        g.add_deny_exclusion("u", "B")
+
+        rng = np.random.default_rng(29)
+        X = rng.standard_normal((4, 16)).astype(np.float32)
+        X /= np.linalg.norm(X, axis=1, keepdims=True)
+        idx = DynamicPrismANNIndex(
+            auth_graph=g,
+            raw_vectors=X,
+            leaf_doc_ids=["doc_1", "doc_1", "doc_1", "doc_1"],
+            ancestor_lineages=[["A", "doc_1"] for _ in range(4)],
+            meaning_magnet_ids=["m0", "m0", "m0", "m0"],
+            M=4, m_bridge=2, ef_construction=16, ef_search=16, seed=29,
+        )
+        zt_initial = idx.sync().zed_token
+        zt_mut = idx.add_hierarchy_edge("B", "doc_1")
+
+        # Pre-mutation exact snapshot works before eviction, then fails closed after eviction
+        self.assertEqual(len(idx.search(X[0], "u", k=4, zed_token=zt_initial, consistency_mode="at_exact_snapshot").top_k_ids), 4)
+        evicted = idx.vcorpus.evict_snapshots_before(zt_mut)
+        self.assertGreaterEqual(evicted, 1)
+        with self.assertRaises(StaleOrMissingSnapshotError):
+            idx.search(X[0], "u", k=4, zed_token=zt_initial, consistency_mode="at_exact_snapshot", on_unavailable="fail_closed")
+
+        # Unsynced graph mutation with auto_sync=False: fail_closed refuses, safe_leaf_fallback returns exact live oracle!
+        g.remove_hierarchy_edge("B", "doc_1")
+        with self.assertRaises(StaleOrMissingSnapshotError):
+            idx.search(X[0], "u", k=4, consistency_mode="at_least_as_fresh", on_unavailable="fail_closed", auto_sync=False)
+        res_fb = idx.search(X[0], "u", k=4, consistency_mode="at_least_as_fresh", on_unavailable="safe_leaf_fallback", auto_sync=False)
+        self.assertEqual(len(res_fb.top_k_ids), 4)
+        # Future un-committed token always fails closed even with safe_leaf_fallback
+        with self.assertRaises(StaleOrMissingSnapshotError):
+            idx.search(X[0], "u", k=4, zed_token=g.zed_token + 99, consistency_mode="at_least_as_fresh", on_unavailable="safe_leaf_fallback")
 
 
 if __name__ == "__main__":

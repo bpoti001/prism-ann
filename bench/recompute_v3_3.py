@@ -86,10 +86,11 @@ def _eval_verdicts_v3_3(summary: Dict[str, Any]) -> Dict[str, Any]:
     )
 
     pr9b_ok = (
-        r9b["scenarios_total"] >= 8
+        r9b["scenarios_total"] >= 10
         and r9b["mask_mismatches"] == 0
         and r9b["search_mismatches"] == 0
         and r9b["check_permission_mismatches"] == 0
+        and r9b.get("fail_closed_refusals_verified", 0) >= 1
     )
 
     pr10_ok = r10["e2e_total_leaks"] == 0 and r10["ef_sweep_total_leaks"] == 0
@@ -124,6 +125,7 @@ def _eval_verdicts_v3_3(summary: Dict[str, Any]) -> Dict[str, Any]:
             "verdict": "supported" if pr9b_ok else "falsified",
             "scenarios_total": r9b["scenarios_total"],
             "mismatches": r9b["mask_mismatches"] + r9b["search_mismatches"],
+            "fail_closed_refusals_verified": r9b["fail_closed_refusals_verified"],
         },
         "PR10": {
             "verdict": "supported" if pr10_ok else "falsified",
@@ -174,6 +176,7 @@ def recompute_v3_3_summary(raw_path: str = DEFAULT_RAW_PATH) -> Dict[str, Any]:
         "mask_mismatches": int(sum(int(r["mask_mismatch"]) for r in r9b_recs)),
         "search_mismatches": int(sum(int(r["search_mismatch"]) for r in r9b_recs)),
         "check_permission_mismatches": int(sum(int(r["check_perm_mismatch"]) for r in r9b_recs)),
+        "fail_closed_refusals_verified": int(sum(1 for r in r9b_recs if r.get("fail_closed_refused"))),
         "scenarios": [
             {
                 "scenario": r["scenario"],
@@ -182,6 +185,11 @@ def recompute_v3_3_summary(raw_path: str = DEFAULT_RAW_PATH) -> Dict[str, Any]:
                 "mask_mismatch": int(r["mask_mismatch"]),
                 "search_mismatch": int(r["search_mismatch"]),
                 "check_perm_mismatch": int(r["check_perm_mismatch"]),
+                "write_zed_token": r.get("write_zed_token"),
+                "selected_read_revision": r.get("selected_read_revision"),
+                "indexed_posting_revision": r.get("indexed_posting_revision"),
+                "latency_ms": r.get("latency_ms"),
+                "fail_closed_refused": bool(r.get("fail_closed_refused", False)),
             }
             for r in r9b_recs
         ],

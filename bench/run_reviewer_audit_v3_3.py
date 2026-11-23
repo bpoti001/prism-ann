@@ -6,8 +6,10 @@ Pre-registered in `experiments/v3/PROTOCOL_v3_3.md`:
   R9a: 1,000 genuinely independent multi-parent DAGs (zero graph reuse) with dynamic
        post-index structural edge additions, surviving-path unlinks, final-path
        unlinks, deny removals, and grant revocations + re-grants (5,000 checkpoints).
-  R9b: 9-scenario live native SpiceDB v1.57.1 multi-parent mutation matrix checked
-       against LookupResources & CheckPermission at exact opaque ZedTokens.
+  R9b: 13-scenario live native SpiceDB v1.57.1 multi-parent & consistency matrix checked
+       against LookupResources & CheckPermission (logging write_zed_token,
+       selected_read_revision, indexed_posting_revision, oracle/compiled/search IDs,
+       latency_ms, plus expired-snapshot fail-closed & safe-fallback behavior).
   R10: Directly timed (unmodeled, single-timer) end-to-end same-query requests wrapping
        live SpiceDB auth + filter construction + in-timer SQ8 quantization + C++
        search/rerank, plus matched-recall efSearch sweep (32..512).
@@ -84,6 +86,7 @@ from src.modules.prism_ann_v3.ckernel_bridge import (  # noqa: E402
 from src.modules.prism_ann_v3.dynamic_dag_ubp import (  # noqa: E402
     DynamicMultiParentAuthGraph,
     DynamicPrismANNIndex,
+    StaleOrMissingSnapshotError,
     VersionedLineageCorpus,
 )
 from src.modules.prism_ann_v3.geometric_hhnsw import (  # noqa: E402
@@ -241,19 +244,24 @@ def run_r9a_independent_dag_mutations(logger: RawAuditLogger) -> None:
             vcorpus.sync_to_revision(g)
         _check_checkpoint("M1_add_denied_parent_edge")
 
-        # Mutation 2: Unlink one parent edge from a multi-parent leaf while preserving another active parent path
+        # Mutation 2: Both cross-parent unlink AND same-parent alternate path (P->C & P->X->C)
         leaf_target = f"doc_L{L}_0"
         parent_extra_ok = levels[1][0]
         parent_extra_alt = c_b
+        mid_node = f"mid_sameparent_{dag_id}"
+        g.add_node(mid_node, depth_level=max(1, L - 1), is_leaf=False)
         g.add_hierarchy_edge(parent_extra_ok, leaf_target)
         g.add_hierarchy_edge(parent_extra_alt, leaf_target)
+        g.add_hierarchy_edge(parent_extra_alt, mid_node)
+        g.add_hierarchy_edge(mid_node, leaf_target)
         g.grant_access(u, parent_extra_alt)
         vcorpus.sync_to_revision(g)
-        g.remove_hierarchy_edge(parent_extra_ok, leaf_target)  # other path(s) remain!
+        g.remove_hierarchy_edge(parent_extra_ok, leaf_target)  # cross-parent alternate remains
+        g.remove_hierarchy_edge(parent_extra_alt, leaf_target)  # same-parent alternate mid_node remains
         vcorpus.sync_to_revision(g)
         _check_checkpoint("M2_unlink_one_parent_surviving_path")
 
-        # Mutation 3: Unlink ALL remaining parents from leaf_target (final path removed!)
+        # Mutation 3: Unlink ALL remaining parents (including mid_node) from leaf_target
         for pid in list(g.parents.get(leaf_target, ())):
             g.remove_hierarchy_edge(pid, leaf_target)
         vcorpus.sync_to_revision(g)
@@ -292,9 +300,12 @@ def run_r9b_and_r11_live_spicedb(logger: RawAuditLogger) -> None:
         assert sp.client is not None
         rng = np.random.default_rng(911)
 
-        # Construct deterministic multi-parent test graph with 6 containers + 12 docs (64 chunks for HNSW + Mode 3)
+        # Construct deterministic multi-parent test graph with 7 containers + 12 docs (60 chunks)
         g = DynamicMultiParentAuthGraph(branching_factor=3, depth=3)
-        for cid, lvl in (("c_root", 0), ("c_A", 1), ("c_B", 1), ("c_deny", 1), ("c_subA", 2), ("c_subB", 2)):
+        for cid, lvl in (
+            ("c_root", 0), ("c_A", 1), ("c_B", 1), ("c_deny", 1),
+            ("c_subA", 2), ("c_subB", 2), ("c_midA", 2),
+        ):
             g.add_node(cid, depth_level=lvl, is_leaf=False)
         doc_ids = [f"doc_{i}" for i in range(12)]
         for d_id in doc_ids:
@@ -305,6 +316,7 @@ def run_r9b_and_r11_live_spicedb(logger: RawAuditLogger) -> None:
         g.add_hierarchy_edge("c_root", "c_deny")
         g.add_hierarchy_edge("c_A", "c_subA")
         g.add_hierarchy_edge("c_B", "c_subB")
+        g.add_hierarchy_edge("c_subA", "c_midA")
         # Multi-parent doc_0 shared under c_subA and c_subB
         g.add_hierarchy_edge("c_subA", "doc_0")
         g.add_hierarchy_edge("c_subB", "doc_0")
@@ -322,35 +334,68 @@ def run_r9b_and_r11_live_spicedb(logger: RawAuditLogger) -> None:
             n_guard=100, mode3_precision="f32", seed=11,
         )
 
-        # Helper to sync initial edges to live SpiceDB
         def _sync_sp_all() -> Any:
             return sp.load_hierarchy(g)
 
+        def _sp_revoke_rel(res_id: str, rel_name: str, principal_id: str) -> Any:
+            resp = sp.client.DeleteRelationships(
+                DeleteRelationshipsRequest(
+                    relationship_filter=RelationshipFilter(
+                        resource_type=_node_type(res_id),
+                        optional_resource_id=res_id,
+                        optional_relation=rel_name,
+                        optional_subject_filter=SubjectFilter(subject_type="user", optional_subject_id=principal_id),
+                    )
+                )
+            )
+            sp.last_zed_token = resp.deleted_at
+            return resp.deleted_at
+
         _sync_sp_all()
         u = "alice"
-        zt = sp.write_principal_policy(u, grants=["c_subA", "c_subB"], denies=[])
-        g.grant_access(u, "c_subA")
+        sp.write_principal_policy(u, grants=["c_subB"], denies=[])
         g.grant_access(u, "c_subB")
         idx.sync()
 
-        def _verify_scenario(name: str, zed_tok_sp, local_zt: Optional[int] = None, check_mode: str = "at_least_as_fresh") -> None:
+        def _verify_scenario(
+            name: str,
+            zed_tok_sp,
+            local_zt: Optional[int] = None,
+            check_mode: str = "at_least_as_fresh",
+            on_unavailable: str = "fail_closed",
+            auto_sync: bool = True,
+            extra_fields: Optional[Dict[str, Any]] = None,
+        ) -> None:
+            t_s0 = time.perf_counter_ns()
+            sp_mode = "at_exact_snapshot" if check_mode == "at_exact_snapshot" else "at_least_as_fresh"
             cons = (
                 Consistency(at_exact_snapshot=zed_tok_sp)
-                if check_mode == "exact"
+                if sp_mode == "at_exact_snapshot"
                 else Consistency(at_least_as_fresh=zed_tok_sp)
             )
             sp_docs = _spicedb_lookup_docs(sp.client, u, cons)
-            # Also verify individual CheckPermission for all 12 docs!
             chk_mismatches = 0
             for d_id in doc_ids:
                 has_p = _spicedb_check_permission(sp.client, d_id, u, cons)
                 if has_p != (d_id in sp_docs):
                     chk_mismatches += 1
 
-            # Verify compiled mask in VersionedLineageCorpus snapshot
-            snap = idx.vcorpus.get_snapshot(g, zed_token=local_zt)
-            t_pos, t_neg = resolve_ubp_tokens(snap.auth_snapshot, u)
-            b_acl = idx.vcorpus.compile_acl_bitmap_ubp(t_pos, t_neg, snapshot=snap)
+            prism_cons = "at_exact_snapshot" if check_mode == "at_exact_snapshot" else "at_least_as_fresh"
+            snap = idx.vcorpus.get_snapshot(
+                g,
+                zed_token=local_zt,
+                consistency_mode=prism_cons,
+                on_unavailable=on_unavailable,
+                auto_sync=auto_sync,
+            )
+            if snap is None:
+                b_acl = idx.vcorpus.compile_safe_leaf_fallback_bitmap(g, u)
+                indexed_rev: Dict[str, Any] = {"zed_token": None, "hierarchy_version": None, "fallback": "safe_leaf_fallback"}
+            else:
+                t_pos, t_neg = resolve_ubp_tokens(snap.auth_snapshot, u)
+                b_acl = idx.vcorpus.compile_acl_bitmap_ubp(t_pos, t_neg, snapshot=snap)
+                indexed_rev = {"zed_token": int(snap.zed_token), "hierarchy_version": int(snap.hierarchy_version)}
+
             starts, ends, _ = runs_to_range_arrays(b_acl)
             mask_ids: Set[int] = set()
             for s_i, e_i in zip(starts.tolist(), ends.tolist()):
@@ -358,89 +403,192 @@ def run_r9b_and_r11_live_spicedb(logger: RawAuditLogger) -> None:
             mask_docs = {idx.vcorpus.z_leaf_doc_ids[zid] for zid in mask_ids}
             mask_mm = int(mask_docs != sp_docs)
 
-            # Verify DynamicPrismANNIndex.search(k=60) returns identical doc set
-            res = idx.search(vecs[0], u, k=60, zed_token=local_zt)
+            res = idx.search(
+                vecs[0], u, k=60, zed_token=local_zt,
+                consistency_mode=prism_cons, on_unavailable=on_unavailable, auto_sync=auto_sync,
+            )
             search_docs = {idx.vcorpus.z_leaf_doc_ids[zid] for zid in res.top_k_ids}
             search_mm = int(search_docs != sp_docs)
+            lat_ms = (time.perf_counter_ns() - t_s0) / 1e6
 
-            logger.log("R9b_spicedb_matrix", {
+            rec: Dict[str, Any] = {
                 "scenario": name,
                 "spicedb_docs": len(sp_docs),
                 "index_docs": len(search_docs),
                 "mask_mismatch": mask_mm,
                 "search_mismatch": search_mm,
                 "check_perm_mismatch": chk_mismatches,
-            })
+                "write_zed_token": str(zed_tok_sp.token),
+                "selected_read_revision": {
+                    "consistency_mode": sp_mode,
+                    "spicedb_zed_token": str(zed_tok_sp.token),
+                    "requested_local_revision": int(local_zt) if local_zt is not None else int(g.zed_token),
+                },
+                "indexed_posting_revision": indexed_rev,
+                "oracle_doc_ids": sorted(sp_docs),
+                "compiled_candidate_doc_ids": sorted(mask_docs),
+                "returned_search_doc_ids": sorted(search_docs),
+                "latency_ms": round(lat_ms, 3),
+                "fail_closed_refused": False,
+            }
+            if extra_fields:
+                rec.update(extra_fields)
+            logger.log("R9b_spicedb_matrix", rec)
 
-        # Scenario 1: Unlink c_subA -> doc_0 while c_subB -> doc_0 survives (Finding 2)
+        # S1: A -> D <- B; grant through B (c_subB); remove A -> D (c_subA -> doc_0) -> doc_0 remains accessible
         zt1 = sp.delete_parent_edge("c_subA", "doc_0")
         idx.remove_hierarchy_edge("c_subA", "doc_0")
         _verify_scenario("S1_surviving_path_after_unlink", zt1)
 
-        # Scenario 2: Remove grant on c_subB and unlink remaining c_subB -> doc_0 (final path removed)
-        zt_unB = sp.delete_parent_edge("c_subB", "doc_0")
-        idx.remove_hierarchy_edge("c_subB", "doc_0")
-        _verify_scenario("S2_final_path_removed", zt_unB)
+        # S2: Same graph; grant ONLY through A (c_subA); remove A -> D -> doc_0 becomes inaccessible
+        sp.restore_parent_edge("c_subA", "doc_0")
+        idx.add_hierarchy_edge("c_subA", "doc_0")
+        _sp_revoke_rel("c_subB", "viewer", u)
+        sp.write_principal_policy(u, grants=["c_subA"], denies=[])
+        g.revoke_access(u, "c_subB")
+        g.grant_access(u, "c_subA")
+        idx.sync()
+        zt2 = sp.delete_parent_edge("c_subA", "doc_0")
+        idx.remove_hierarchy_edge("c_subA", "doc_0")
+        _verify_scenario("S2_grant_only_A_unlink_A", zt2)
 
-        # Scenario 3: Direct child grant on doc_0 + attach denied parent c_deny -> doc_0
-        zt_dg = sp.write_principal_policy(u, grants=["doc_0"], denies=["c_deny"])
+        # S3: A -> D; grant A; add B -> D (c_deny -> doc_0); deny B -> doc_0 excluded under deny-dominates
+        sp.restore_parent_edge("c_subA", "doc_0")
+        idx.add_hierarchy_edge("c_subA", "doc_0")
+        sp.write_principal_policy(u, grants=[], denies=["c_deny"])
+        g.add_deny_exclusion(u, "c_deny")
+        idx.sync()
+        zt3 = sp.restore_parent_edge("c_deny", "doc_0")
+        idx.add_hierarchy_edge("c_deny", "doc_0")
+        _verify_scenario("S3_add_denied_parent_B_to_D", zt3)
+        # Clean up c_deny -> doc_0 for S4
+        sp.delete_parent_edge("c_deny", "doc_0")
+        idx.remove_hierarchy_edge("c_deny", "doc_0")
+
+        # S4: A -> D (c_subA -> doc_2); revoke c_subA; add B -> D (c_subB -> doc_2); grant B -> doc_2 accessible w/ 0 stale omissions
+        _sp_revoke_rel("c_subA", "viewer", u)
+        g.revoke_access(u, "c_subA")
+        idx.sync()
+        sp.restore_parent_edge("c_subB", "doc_2")
+        idx.add_hierarchy_edge("c_subB", "doc_2")
+        zt4 = sp.write_principal_policy(u, grants=["c_subB"], denies=[])
+        g.grant_access(u, "c_subB")
+        idx.sync()
+        _verify_scenario("S4_add_granted_parent_B_to_D", zt4)
+        # Restore doc_2 single-parent under c_subA cleanly
+        sp.delete_parent_edge("c_subB", "doc_2")
+        idx.remove_hierarchy_edge("c_subB", "doc_2")
+
+        # S5: A -> D and A -> X -> D (c_subA -> doc_3 and c_subA -> c_midA -> doc_3) w/ upstream c_A grant; remove direct c_subA -> doc_3
+        sp.restore_parent_edge("c_midA", "doc_3")
+        idx.add_hierarchy_edge("c_midA", "doc_3")
+        _sp_revoke_rel("c_subB", "viewer", u)
+        g.revoke_access(u, "c_subB")
+        sp.write_principal_policy(u, grants=["c_A"], denies=[])
+        g.grant_access(u, "c_A")
+        idx.sync()
+        zt5 = sp.delete_parent_edge("c_subA", "doc_3")
+        idx.remove_hierarchy_edge("c_subA", "doc_3")
+        _verify_scenario("S5_same_parent_alternate_path_A_to_D_and_A_to_X_to_D", zt5)
+        # Restore direct c_subA -> doc_3 and switch grant to c_subA + c_subB for S6-S10 + R11
+        sp.restore_parent_edge("c_subA", "doc_3")
+        idx.add_hierarchy_edge("c_subA", "doc_3")
+        sp.delete_parent_edge("c_midA", "doc_3")
+        idx.remove_hierarchy_edge("c_midA", "doc_3")
+        _sp_revoke_rel("c_A", "viewer", u)
+        g.revoke_access(u, "c_A")
+        sp.write_principal_policy(u, grants=["c_subA", "c_subB"], denies=[])
+        g.grant_access(u, "c_subA")
+        g.grant_access(u, "c_subB")
+        idx.sync()
+
+        # S6a-S6c: Direct child grant + inherited deny match actual SpiceDB schema
+        zt_6a = sp.write_principal_policy(u, grants=["doc_0"], denies=["c_deny"])
         g.grant_access(u, "doc_0")
         g.add_deny_exclusion(u, "c_deny")
         idx.sync()
-        _verify_scenario("S3a_direct_child_grant", zt_dg)
+        _verify_scenario("S6a_direct_child_grant", zt_6a)
 
-        zt_dp = sp.restore_parent_edge("c_deny", "doc_0")
+        zt_6b = sp.restore_parent_edge("c_deny", "doc_0")
         idx.add_hierarchy_edge("c_deny", "doc_0")
-        _verify_scenario("S3b_deny_parent_added_to_direct_grant", zt_dp)
+        _verify_scenario("S6b_deny_parent_added_to_direct_grant", zt_6b)
 
-        zt_dp_rm = sp.delete_parent_edge("c_deny", "doc_0")
+        zt_6c = sp.delete_parent_edge("c_deny", "doc_0")
         idx.remove_hierarchy_edge("c_deny", "doc_0")
-        _verify_scenario("S3c_denied_parent_unlinked_restores_direct", zt_dp_rm)
+        _verify_scenario("S6c_denied_parent_unlinked_restores_direct", zt_6c)
 
-        # Scenario 4 & 5 (Finding 1 live against SpiceDB!): Index doc_1 under c_subA, add c_deny -> doc_1 post-index!
-        zt_add_deny = sp.restore_parent_edge("c_deny", "doc_1")
-        local_zt_before_deny_rm = idx.add_hierarchy_edge("c_deny", "doc_1")
-        _verify_scenario("S5_postindex_add_denied_parent_doc1", zt_add_deny)
-
-        # Scenario 6: Explicit deny removal on c_deny
-        resp_del_d = sp.client.DeleteRelationships(
-            DeleteRelationshipsRequest(
-                relationship_filter=RelationshipFilter(
-                    resource_type="container",
-                    optional_resource_id="c_deny",
-                    optional_relation="ethical_wall_deny",
-                    optional_subject_filter=SubjectFilter(subject_type="user", optional_subject_id=u),
-                )
-            )
-        )
-        zt_deny_rm = resp_del_d.deleted_at
+        # S7: Explicit deny on c_deny -> doc_1, then remove deny -> no false denials
+        sp.restore_parent_edge("c_deny", "doc_1")
+        idx.add_hierarchy_edge("c_deny", "doc_1")
+        zt7 = _sp_revoke_rel("c_deny", "ethical_wall_deny", u)
         g.remove_deny_exclusion(u, "c_deny")
         idx.sync()
-        _verify_scenario("S6_explicit_deny_removed", zt_deny_rm)
+        _verify_scenario("S7_explicit_deny_removed", zt7)
+        sp.delete_parent_edge("c_deny", "doc_1")
+        idx.remove_hierarchy_edge("c_deny", "doc_1")
 
-        # Scenario 7: Grant revocation + re-grant
-        resp_rev_g = sp.client.DeleteRelationships(
-            DeleteRelationshipsRequest(
-                relationship_filter=RelationshipFilter(
-                    resource_type="container",
-                    optional_resource_id="c_subA",
-                    optional_relation="viewer",
-                    optional_subject_filter=SubjectFilter(subject_type="user", optional_subject_id=u),
-                )
-            )
-        )
-        zt_rev_g = resp_rev_g.deleted_at
+        # S8a-S8b: Grant revocation + re-grant
+        zt_rev_g = _sp_revoke_rel("c_subA", "viewer", u)
         g.revoke_access(u, "c_subA")
         local_zt_pre_regrant = idx.sync().zed_token
-        _verify_scenario("S7a_grant_revoked", zt_rev_g)
+        _verify_scenario("S8a_grant_revoked", zt_rev_g)
 
-        zt_regrant = sp.write_principal_policy(u, grants=["c_subA"], denies=[])
+        zt_regrant = sp.write_principal_policy(u, grants=["c_subA", "c_subB"], denies=[])
         g.grant_access(u, "c_subA")
+        g.grant_access(u, "c_subB")
         local_zt_post_regrant = idx.sync().zed_token
-        _verify_scenario("S7b_grant_regranted", zt_regrant)
+        _verify_scenario("S8b_grant_regranted", zt_regrant)
 
-        # Scenario 8: Pre-mutation opaque SpiceDB ZedToken exact snapshot read after mutation!
-        _verify_scenario("S8_pre_mutation_exact_spicedb_snapshot", zt_rev_g, local_zt=local_zt_pre_regrant, check_mode="exact")
+        # S9: Pre-mutation real SpiceDB at_exact_snapshot read after regrant
+        _verify_scenario(
+            "S9_pre_mutation_exact_spicedb_snapshot",
+            zt_rev_g,
+            local_zt=local_zt_pre_regrant,
+            check_mode="at_exact_snapshot",
+        )
+
+        # S10: Expired snapshot fail-closed refusal + unsynced hierarchy safe_leaf_fallback vs live SpiceDB
+        idx.vcorpus.evict_snapshots_before(local_zt_post_regrant)
+        fail_closed_refused = False
+        try:
+            idx.search(
+                vecs[0],
+                u,
+                k=60,
+                zed_token=local_zt_pre_regrant,
+                consistency_mode="at_exact_snapshot",
+                on_unavailable="fail_closed",
+            )
+        except StaleOrMissingSnapshotError:
+            fail_closed_refused = True
+        if not fail_closed_refused:
+            raise AssertionError("Expected StaleOrMissingSnapshotError when querying evicted snapshot fail_closed!")
+
+        # Temporary unsynced hierarchy mutation: auto_sync=False must trigger fail_closed or safe_leaf_fallback cleanly
+        zt_s10 = sp.restore_parent_edge("c_deny", "doc_4")
+        g.add_hierarchy_edge("c_deny", "doc_4")  # advances g.hierarchy_version without syncing index
+        unsynced_refused = False
+        try:
+            idx.search(vecs[0], u, k=60, consistency_mode="at_least_as_fresh", on_unavailable="fail_closed", auto_sync=False)
+        except StaleOrMissingSnapshotError:
+            unsynced_refused = True
+        if not unsynced_refused:
+            raise AssertionError("Expected StaleOrMissingSnapshotError when auto_sync=False on stale hierarchy!")
+
+        _verify_scenario(
+            "S10_expired_snapshot_fail_closed_and_safe_fallback",
+            zt_s10,
+            local_zt=None,
+            check_mode="at_least_as_fresh",
+            on_unavailable="safe_leaf_fallback",
+            auto_sync=False,
+            extra_fields={"fail_closed_refused": fail_closed_refused and unsynced_refused},
+        )
+        # Clean up c_deny -> doc_4 & re-sync cleanly before R11
+        sp.delete_parent_edge("c_deny", "doc_4")
+        g.remove_hierarchy_edge("c_deny", "doc_4")
+        local_zt_post_regrant = idx.sync().zed_token
+        zt_regrant = sp.write_principal_policy(u, grants=["c_subA", "c_subB"], denies=[])
 
         # -------------------------------------------------------------------
         # R11: 8-Thread Concurrent Live SpiceDB Opaque ZedToken Reader Stress
@@ -478,7 +626,13 @@ def run_r9b_and_r11_live_spicedb(logger: RawAuditLogger) -> None:
                 sp_ms = (time.perf_counter_ns() - tr0) / 1e6
 
                 ti0 = time.perf_counter_ns()
-                res_s = idx.search(vecs[it % len(vecs)], u, k=60, zed_token=zt_loc)
+                res_s = idx.search(
+                    vecs[it % len(vecs)],
+                    u,
+                    k=60,
+                    zed_token=zt_loc,
+                    consistency_mode=("at_least_as_fresh" if is_post else "at_exact_snapshot"),
+                )
                 idx_ms = (time.perf_counter_ns() - ti0) / 1e6
 
                 hit_docs = {idx.vcorpus.z_leaf_doc_ids[zid] for zid in res_s.top_k_ids}

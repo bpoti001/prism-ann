@@ -37,6 +37,19 @@ from .geometric_hhnsw import GeometricBridgeConfig, GeometricHHNSW
 from .trimodal_v3 import TriModalPlannerV3, TriModalResultV3, runs_to_range_arrays
 
 
+__all__ = [
+    "StaleOrMissingSnapshotError",
+    "DynamicMultiParentAuthGraph",
+    "CorpusRevisionSnapshot",
+    "VersionedLineageCorpus",
+    "DynamicPrismANNIndex",
+]
+
+
+class StaleOrMissingSnapshotError(RuntimeError):
+    """Raised under fail-closed snapshot policies when no compatible revision is available."""
+
+
 class DynamicMultiParentAuthGraph(ZanzibarAuthGraph):
     """
     Zanzibar / SpiceDB ReBAC Multi-Parent DAG supporting exact structural mutations:
@@ -202,10 +215,20 @@ class VersionedLineageCorpus:
         self._lock = threading.RLock()
         self._snapshots: Dict[int, CorpusRevisionSnapshot] = {}
         self._latest_snapshot: Optional[CorpusRevisionSnapshot] = None
+        self._min_retained_zed_token: int = 0
         self.sync_to_revision(auth_graph)
 
     def _compute_token_bitmaps(self, auth_graph: DynamicMultiParentAuthGraph) -> Dict[str, RoaringRunBitmap]:
-        """Computes exact B_v(zeta) = Union_{r in LeafDesc(v)} doc_chunks(r) over current DAG."""
+        """
+        Computes exact reachability postings B_v(zeta) = {z_id : v in Anc_{G(zeta)}(doc(z_id))}
+        across the full upstream ancestor cone of every leaf document.
+
+        Why naive `B_{p1} <- B_{p1} \\ B_c` is insufficient on general DAGs:
+        if an alternate path `p1 -> x -> c` remains after removing `p1 -> c`, blind set
+        difference falsely deletes `c`'s chunks from `B_{p1}` and fails to propagate
+        reachability changes upward to ancestors `a in Anc(p1)`. Traversing exact
+        `auth_graph.parents` guarantees both surviving diamond paths and upstream propagation.
+        """
         token_to_ids: Dict[str, List[int]] = {}
         for doc_id, z_ids in self.doc_to_z_ids.items():
             visited: Set[str] = {doc_id}
@@ -246,15 +269,90 @@ class VersionedLineageCorpus:
             self._latest_snapshot = snap
             return snap
 
+    def evict_snapshots_before(self, min_zed_token: int) -> int:
+        """
+        Models SpiceDB GC / snapshot expiration windows by evicting historical snapshots
+        with `zt < min_zed_token` (preserving `_latest_snapshot` unless
+        `min_zed_token > _latest_snapshot.zed_token`). Returns count evicted.
+        """
+        with self._lock:
+            self._min_retained_zed_token = max(self._min_retained_zed_token, min_zed_token)
+            latest_zt = self._latest_snapshot.zed_token if self._latest_snapshot is not None else None
+            to_remove = [
+                zt
+                for zt in self._snapshots
+                if zt < min_zed_token and (latest_zt is None or zt != latest_zt or min_zed_token > latest_zt)
+            ]
+            for zt in to_remove:
+                self._snapshots.pop(zt, None)
+            if latest_zt is not None and min_zed_token > latest_zt:
+                self._latest_snapshot = None
+            return len(to_remove)
+
     def get_snapshot(
         self,
         auth_graph: DynamicMultiParentAuthGraph,
         zed_token: Optional[int] = None,
-    ) -> CorpusRevisionSnapshot:
+        consistency_mode: str = "at_least_as_fresh",
+        on_unavailable: str = "fail_closed",
+        auto_sync: bool = True,
+    ) -> Optional[CorpusRevisionSnapshot]:
+        if consistency_mode not in ("at_least_as_fresh", "at_exact_snapshot"):
+            raise ValueError(f"Unsupported consistency_mode: {consistency_mode}")
+        if on_unavailable not in ("fail_closed", "safe_leaf_fallback"):
+            raise ValueError(f"Unsupported on_unavailable policy: {on_unavailable}")
+
         with self._lock:
-            if zed_token is not None and zed_token in self._snapshots:
-                return self._snapshots[zed_token]
-            return self.sync_to_revision(auth_graph)
+            if consistency_mode == "at_exact_snapshot":
+                req_zt = auth_graph.zed_token if zed_token is None else zed_token
+                if req_zt in self._snapshots:
+                    return self._snapshots[req_zt]
+                if auto_sync and req_zt == auth_graph.zed_token and req_zt >= self._min_retained_zed_token:
+                    return self.sync_to_revision(auth_graph)
+                if on_unavailable == "fail_closed":
+                    raise StaleOrMissingSnapshotError(
+                        f"Exact snapshot zed_token={req_zt} is unavailable or expired."
+                    )
+                return None
+
+            # consistency_mode == "at_least_as_fresh"
+            min_zt = auth_graph.zed_token if zed_token is None else zed_token
+            if zed_token is not None and zed_token > auth_graph.zed_token:
+                raise StaleOrMissingSnapshotError(
+                    f"Requested zed_token={zed_token} exceeds current auth_graph.zed_token={auth_graph.zed_token}."
+                )
+
+            snap = self._latest_snapshot
+            compatible = (
+                snap is not None
+                and snap.zed_token >= min_zt
+                and snap.hierarchy_version == auth_graph.hierarchy_version
+            )
+            if compatible:
+                return snap
+
+            if auto_sync and (zed_token is None or zed_token <= auth_graph.zed_token):
+                return self.sync_to_revision(auth_graph)
+
+            if on_unavailable == "fail_closed":
+                cur_zt = snap.zed_token if snap is not None else None
+                cur_hv = snap.hierarchy_version if snap is not None else None
+                raise StaleOrMissingSnapshotError(
+                    f"No compatible snapshot for min_zed_token={min_zt}, hierarchy_version={auth_graph.hierarchy_version} "
+                    f"(latest={cur_zt}, latest_hv={cur_hv})."
+                )
+            return None
+
+    def compile_safe_leaf_fallback_bitmap(
+        self, auth_graph: DynamicMultiParentAuthGraph, principal_id: str
+    ) -> RoaringRunBitmap:
+        """Direct leaf-oracle bitmap compilation used when `on_unavailable='safe_leaf_fallback'`."""
+        allowed_docs = auth_graph.lookup_resources_leaf(principal_id)
+        z_ids: List[int] = []
+        for d_id in allowed_docs:
+            z_ids.extend(self.doc_to_z_ids.get(d_id, ()))
+        z_ids.sort()
+        return RoaringRunBitmap.from_sorted_ids(z_ids, self.z_corpus.N)
 
     def compile_acl_bitmap_ubp(
         self,
@@ -343,10 +441,22 @@ class DynamicPrismANNIndex:
         concept_ids: Optional[Set[str]] = None,
         k: int = 10,
         zed_token: Optional[int] = None,
+        consistency_mode: str = "at_least_as_fresh",
+        on_unavailable: str = "fail_closed",
+        auto_sync: bool = True,
     ) -> TriModalResultV3:
-        snap = self.vcorpus.get_snapshot(self.auth_graph, zed_token=zed_token)
-        tokens_pos, tokens_neg = resolve_ubp_tokens(snap.auth_snapshot, principal_id)
-        b_acl = self.vcorpus.compile_acl_bitmap_ubp(tokens_pos, tokens_neg, snapshot=snap)
+        snap = self.vcorpus.get_snapshot(
+            self.auth_graph,
+            zed_token=zed_token,
+            consistency_mode=consistency_mode,
+            on_unavailable=on_unavailable,
+            auto_sync=auto_sync,
+        )
+        if snap is None:
+            b_acl = self.vcorpus.compile_safe_leaf_fallback_bitmap(self.auth_graph, principal_id)
+        else:
+            tokens_pos, tokens_neg = resolve_ubp_tokens(snap.auth_snapshot, principal_id)
+            b_acl = self.vcorpus.compile_acl_bitmap_ubp(tokens_pos, tokens_neg, snapshot=snap)
         if concept_ids:
             b_ont = self.z_corpus.compile_ontology_bitmap(concept_ids)
             b_phi = b_ont.intersect(b_acl)
