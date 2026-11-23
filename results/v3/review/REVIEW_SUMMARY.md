@@ -63,11 +63,11 @@
 
 ### Phase 22 Second-Round External Reviewer Audit (`v3.2`, `R6`–`R8`, `6,821` Raw Records & Three-Tier Docs) Sign-Off
 
-- **Verified PDF**: `paper/prism_ann.pdf` & `prism_ann_paper.pdf` (12 pages, SHA-256 `64194536780cd9fb1a4b17144de64c8692406672206c1effd6954b20a7bb818b`)
+- **Verified PDF**: `paper/prism_ann.pdf` & `prism_ann_paper.pdf` (12 pages, SHA-256 `60bf030f3836f8cac6c084e5bd056074e363764a5076343d0c5c3e349d530c00`)
 - **Audit Scope**:
   - `FREEZE.md` (`5/5`), `FREEZE_v3.md` (`7/7`), and `FREEZE_v3_1.md` (`8/8`) all intact (`0` frozen files modified).
-  - Deterministic recomputation bit-for-bit `MATCH` across all three campaigns (`199,164` total raw records: `169,810` confirmatory `v3.0` + `22,533` `v3.1` audit + `6,821` `v3.2` audit).
-  - Formal separation of **Theorem 1** (Single-Parent Tree Cardinality Bound) and **Theorem 2** (Multi-Parent DAG Exact Set Equivalence under Deny-Dominates-Grant precedence, `0/5,000` mismatches in `R6`), scoped **Corollary 1** (`0` vector writes, $T_{\text{revoke}}$ decomposition, pre-/post-$\zeta_{\text{rev}}$ boundary), Two-Track fairness (`R7`, `PR7` falsified transparently on fragmented-$L_5$ sub-criterion), 5-Level Exact vs. Empirical Recall@10 taxonomy (`R8`, `PR8` falsified transparently on strict `99.0%` cutoff), Nov. 2026 citations (`RACORN` `arXiv:2607.00768v2` & `EMA` `arXiv:2606.00734v2`), and the Three-Tier Audience Documentation Suite (`docs/ONBOARDING_NEW_GRAD.md`, `docs/ARCHITECTURE_SENIOR_ENGINEER.md`, `docs/RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md`).
+  - Deterministic recomputation bit-for-bit `MATCH` across all three campaigns (`199,164` total raw records: `169,810` confirmatory `v3.0` + `22,533` `v3.1` audit + `6,821` `v3.2` audit) via `./reproduce_clean_machine.sh --verify`.
+  - Formal separation of **Theorem 1** (Single-Parent Tree Cardinality Bound) and **Theorem 2** (Multi-Parent DAG Exact Set Equivalence under Deny-Dominates-Grant precedence, `0/5,000` mismatches in `R6` + explicit DAG transitivity & `test_theorem2_adversarial_transitivity_and_zedtoken_snapshot_consistency`), scoped **Corollary 1** (`0` vector writes, $T_{\text{revoke}}$ decomposition, $\mathcal{S}(\zeta_{\text{req}})$ vs. $\mathcal{S}(\zeta_{\text{rev}})$ snapshot consistency), Two-Track fairness distinguishing the in-repo `racorn-1-fallback` C++ proxy (`R7`, `PR7` falsified transparently on fragmented-$L_5$ sub-criterion), 5-Level Exact vs. Empirical Recall@10 taxonomy highlighting adaptive `FP32` vs. `SQ8` Mode-3 crossover (`R8`, `PR8` falsified transparently on strict `99.0%` / `0.25 ms` cutoffs), Nov. 2026 citations (`RACORN` `arXiv:2607.00768v2` & `EMA` `arXiv:2606.00734v2`), and the Three-Tier Audience Documentation Suite (`docs/ONBOARDING_NEW_GRAD.md`, `docs/ARCHITECTURE_SENIOR_ENGINEER.md`, `docs/RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md`).
 - **Phase 22 Final Verdict**: **8.8 / 10 — APPROVED (0 Blockers Remaining)**.
 
 ---

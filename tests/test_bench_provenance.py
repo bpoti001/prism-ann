@@ -302,6 +302,63 @@ class TestFreezeAndAudits(unittest.TestCase):
         with redirect_stdout(io.StringIO()):
             self.assertTrue(rf.verify_governance())
 
+    def test_theorem2_adversarial_transitivity_and_zedtoken_snapshot_consistency(self):
+        """Adversarial verification of Theorem 2 reachability transitivity and Corollary 1 ZedToken monotonicity."""
+        from src.modules.prism_ann.ubp_resolver import ZanzibarAuthGraph
+
+        g = ZanzibarAuthGraph(branching_factor=4, depth=4)
+        for nid, lvl in (
+            ("root", 0),
+            ("lob_1", 1), ("lob_2", 1),
+            ("dept_1", 2), ("dept_2", 2), ("dept_shared", 2),
+            ("folder_clean", 3), ("folder_tainted", 3), ("folder_denied_via_d2", 3),
+        ):
+            g.add_node(nid, depth_level=lvl, is_leaf=False)
+        for doc, lvl in (("doc_ok", 4), ("doc_blocked_direct", 4), ("doc_blocked_transitive", 4)):
+            g.add_node(doc, depth_level=lvl, is_leaf=True)
+
+        # Build multi-parent DAG with transitive diamond path:
+        # root -> lob_1 -> dept_1 -> {folder_clean, folder_tainted, folder_denied_via_d2}
+        # root -> lob_2 -> dept_2 -> dept_shared -> folder_denied_via_d2 -> doc_blocked_transitive
+        g.add_hierarchy_edge("root", "lob_1")
+        g.add_hierarchy_edge("root", "lob_2")
+        g.add_hierarchy_edge("lob_1", "dept_1")
+        g.add_hierarchy_edge("lob_2", "dept_2")
+        g.add_hierarchy_edge("dept_2", "dept_shared")
+        g.add_hierarchy_edge("dept_1", "folder_clean")
+        g.add_hierarchy_edge("dept_1", "folder_tainted")
+        g.add_hierarchy_edge("dept_1", "folder_denied_via_d2")
+        g.add_hierarchy_edge("dept_shared", "folder_denied_via_d2")  # multi-parent diamond join
+        g.add_hierarchy_edge("folder_clean", "doc_ok")
+        g.add_hierarchy_edge("folder_tainted", "doc_blocked_direct")
+        g.add_hierarchy_edge("folder_denied_via_d2", "doc_blocked_transitive")
+
+        # Redundant positive grants (lob_1 AND descendant folder_denied_via_d2) + denies on lob_2 and doc_blocked_direct
+        z1 = g.grant_access("u_adv", "lob_1")
+        z2 = g.grant_access("u_adv", "folder_denied_via_d2")
+        z3 = g.add_deny_exclusion("u_adv", "lob_2")
+        z4 = g.add_deny_exclusion("u_adv", "doc_blocked_direct")
+        self.assertTrue(z1 < z2 < z3 < z4)
+
+        # Even though u_adv holds a direct positive grant on folder_denied_via_d2,
+        # lob_2 (DENY) -> dept_2 -> dept_shared -> folder_denied_via_d2 -> doc_blocked_transitive
+        # transitively denies doc_blocked_transitive under Deny-Dominates-Grant!
+        oracle_pre = g.lookup_resources_leaf("u_adv")
+        self.assertEqual(oracle_pre, {"doc_ok"})
+        ubp_pre = g.upward_boundary_prune("u_adv")
+        ubp_docs_pre = (g.get_descendants(ubp_pre.tokens_pos) - g.get_descendants(ubp_pre.tokens_neg)) & g.leaf_documents
+        self.assertEqual(ubp_docs_pre, oracle_pre)
+        self.assertEqual(ubp_pre.zed_token, z4)
+
+        # Now execute O(1) subtree unlink (Corollary 1) at ZedToken zeta_rev:
+        zeta_rev = g.remove_hierarchy_edge("dept_1", "folder_clean")
+        self.assertGreater(zeta_rev, ubp_pre.zed_token)
+        ubp_post = g.upward_boundary_prune("u_adv")
+        self.assertEqual(ubp_post.zed_token, zeta_rev)
+        ubp_docs_post = (g.get_descendants(ubp_post.tokens_pos) - g.get_descendants(ubp_post.tokens_neg)) & g.leaf_documents
+        self.assertEqual(ubp_docs_post, set())
+        self.assertEqual(g.lookup_resources_leaf("u_adv"), set())
+
 
 if __name__ == "__main__":
     unittest.main()
