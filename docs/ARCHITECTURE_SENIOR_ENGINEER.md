@@ -37,7 +37,7 @@
 
 ## 3. Graph Navigation (`ACORN-GLS v2`), Anti-Starvation & Stall Guard
 
-Inside `prism_search_hhnsw_gls` (`bench/prism_ckernel.cpp:583-850`):
+Inside `prism_search_hhnsw_gls` (`bench/prism_ckernel.cpp:516-838`):
 1. **O(N_cand / 64) Filter Setup & O(1) Epoch Visited Table:** Instead of memsetting a `523k` visited byte-array or rebuilding a `65 KB` bitset per query, `prism_ranges_set_bitset` / `prism_ranges_clear_bitset` mutate only `[s_r >> 6, e_r >> 6]` words; `visited_epoch[v] == current_epoch` resets via a single integer increment.
 2. **Local Survival Routing ($\hat{S}_{\text{loc}}(v) = |\mathcal{N}_1(v) \cap B_\Phi| / |\mathcal{N}_1(v)|$):**
    - `mode == 0` ($\hat{S}_{\text{loc}} \ge \tau_{\text{high}} = 0.55$): dense 1-hop fast-path, skipping bridges and 2-hop expansions (saves `3.11x–3.82x` distance evaluations at $r \ge 2.0$).

@@ -149,7 +149,7 @@ Evaluated in a frozen confirmatory run (`v3-confirmatory-001`, 169,810 raw recor
 ## 10. v3.2 Second-Round Research Audit Addendum (Phase 22 Sign-Off)
 
 - **Reviewed Revised Manuscript**: `/Users/tejap/memory_paper/paper/prism_ann.pdf` (`12` pages, IEEEtran conference format)
-- **Verified PDF SHA-256**: `c48a841794c5cb9959c71a4ee7d00e096d8cac2b26d7a47b4d16458585aed4a2`
+- **Verified PDF SHA-256**: `64194536780cd9fb1a4b17144de64c8692406672206c1effd6954b20a7bb818b`
 - **Second-Round Remediation & `v3.2` Verification**:
   - **Theoretical Tightening**: Theorem 1 split into **Theorem 1** (Single-Parent Tree Token Compression Bound) and **Theorem 2** (Multi-Parent DAG Exact Set Equivalence under Deny-Dominates-Grant Precedence) with separate standalone proofs; **Corollary 1** scoped strictly to `$0$` vector writes and `$O(1)$` edge deletion relative to `$N_{\text{chunks}}$` alongside decomposed end-to-end propagation `$T_{\text{revoke}}$` and pre-/post-`$\zeta_{\text{rev}}$` boundaries; Exact vs. Empirical Recall@10 scope clarified in Abstract, Proposition 4, Section V-G, and Section VI-C.
   - **Literature & Novelty Positioning**: Added Nov. 2026 baselines **RACORN** (`arXiv:2607.00768v2`) and **EMA** (`arXiv:2606.00734v2`) to Table I, Section VI-B, and References `[17]`, `[18]`.

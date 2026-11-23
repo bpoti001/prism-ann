@@ -1,4 +1,4 @@
-# Prism-ANN External Reviewer Audit & Hardening Report (`v3.1`)
+# Prism-ANN External Reviewer Audit & Hardening Report (`v3.1` + `v3.2`)
 
 **Repository:** [`bpoti001/prism-ann`](https://github.com/bpoti001/prism-ann)  
 **Paper PDF:** [`prism_ann_paper.pdf`](prism_ann_paper.pdf) (`12` pages)  
@@ -21,7 +21,7 @@ This document answers every technical challenge raised in the external systems r
 
 | Layer | Where to Verify in Repo | Audit Status |
 | :--- | :--- | :--- |
-| **Algorithmic Proofs & Theorems** | [`paper/prism_ann.tex`](paper/prism_ann.tex) (`§3`, Theorem 1, Corollary 1, Propositions 2–4) | Theorem 1 proves $\|T_{\text{UBP}}^+(u)\| \le k_0 + m(b-1)L$ and exact equivalence `0 FP / 0 FN`. |
+| **Algorithmic Proofs & Theorems** | [`paper/prism_ann.tex`](paper/prism_ann.tex) (`§3`, Theorems 1–2, Corollary 1, Propositions 2–4) | Theorem 1 proves $\|T_{\text{UBP}}^+(u)\| \le k_0 + m(b-1)L$ on trees and Theorem 2 proves exact DAG equivalence `0 FP / 0 FN`. |
 | **Native C++17 / ARM NEON Kernels** | [`bench/prism_ckernel.cpp`](bench/prism_ckernel.cpp) (`7/7` `FREEZE_v3`) & [`bench/prism_audit_kernel.cpp`](bench/prism_audit_kernel.cpp) (`8/8` `FREEZE_v3_1`) | SHA-256 frozen before running confirmatory & audit harnesses. |
 | **Frozen Confirmatory Run (`169,810` records)** | [`bench/harness_v3.py`](bench/harness_v3.py), [`results/v3/raw/`](results/v3/raw), [`bench/recompute_v3.py`](bench/recompute_v3.py) | `recompute_v3 --check` exits `0` (`MATCH`); `0` leaks across all `169,810` records; `11/11` predictions (`P1a`–`P5`) `SUPPORTED`. |
 | **Pre-Registered Reviewer-Audit Suite (`R1`–`R5`)** | [`PROTOCOL_v3_1.md`](experiments/v3/PROTOCOL_v3_1.md), [`bench/run_reviewer_audit_v3_1.py`](bench/run_reviewer_audit_v3_1.py), [`bench/recompute_v3_1.py`](bench/recompute_v3_1.py) | `22,533` raw records (clean tree `e39260a`, `0` reuse); `recompute_v3_1 --check` exits `0` (`MATCH`); `5/5` audit predictions (`PR1`–`PR5`) `SUPPORTED`. |
