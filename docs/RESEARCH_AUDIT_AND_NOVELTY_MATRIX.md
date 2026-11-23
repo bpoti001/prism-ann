@@ -178,13 +178,13 @@ Following [`PROTOCOL_v3_3.md`](../experiments/v3/PROTOCOL_v3_3.md) and [`src/mod
 
 ---
 
-### 4. Fourth-Round Atomic Snapshot & Unsynced-Mirror Audit (`v3.4`, `1,615` Records, Commit `36581bd`, `FREEZE_v3_4.md` `10/10`)
+### 4. Fourth-Round Atomic Snapshot & Unsynced-Mirror Audit (`v3.4`, `1,615` Records, Commit `afecb9d`, `FREEZE_v3_4.md` `10/10`)
 
 Following [`PROTOCOL_v3_4.md`](../experiments/v3/PROTOCOL_v3_4.md) and preserving all prior frozen manifests (`FREEZE.md`, `FREEZE_v3.md`, `FREEZE_v3_1.md`, `FREEZE_v3_3.md`) untouched, [`src/modules/prism_ann_v3/consistent_snapshot_index.py`](../src/modules/prism_ann_v3/consistent_snapshot_index.py) (research prototype) closes the `v3.3` snapshot-publication race and unsynced-mirror fallback gaps:
 
-- **`R12a` — Deterministic Race Injection (`PR12a: SUPPORTED`):** Injecting mutations after revision capture / before postings AND after postings / before state copy reproduces **`100/100` torn snapshots** on frozen `v3.3` `VersionedLineageCorpus`, whereas `v3.4` `AtomicVersionedLineageCorpus` records **`0/200` torn snapshots** (`100` double-injection + `100` concurrent out-of-order multi-publisher trials), `0` ordering regressions, and `0` public `search()` leaks.
-- **`R12b` — Live Native SpiceDB v1.57.1 Unsynced-Mirror Matrix (`13 / 13`, `PR12b: SUPPORTED`):** Across `13` external SpiceDB mutation / mirror-lag / eviction scenarios (`ConsistentDynamicPrismANNIndex`), records **`0` mask/search/`CheckPermission` mismatches**, **`5` verified `fail_closed` refusals**, and **`4` verified live `spicedb_leaf_fallback` executions** (querying live SpiceDB `LookupResources`, never a stale local mirror).
-- **`R12c` — Multi-Threaded Public `search()` Stress (`1,200` Reads, `PR12c: SUPPORTED`):** `4` writer/publisher + `4` reader threads running `1,200` concurrent public `search_with_metadata()` queries (`600` exact + `600` fresh, `0.032 ms` med / `1.090 ms` P99) across **`101` audited snapshots** yield **`0` torn snapshots, `0` ordering regressions, and `0` leaks**.
+- **`R12a` — Deterministic Race Injection (`24`-Chunk DAG, `PR12a: SUPPORTED`):** Injecting mutations after revision capture / before postings AND after postings / before state copy reproduces **`100/100` torn snapshots** on frozen `v3.3` `VersionedLineageCorpus`, whereas `v3.4` `AtomicVersionedLineageCorpus` records **`0/200` torn snapshots** (`100` double-injection + `100` concurrent out-of-order multi-publisher trials), `0` ordering regressions, and `0` public `search()` leaks.
+- **`R12b` — Live Native SpiceDB v1.57.1 Unsynced-Mirror Matrix (`40`-Chunk Corpus, `13 / 13`, `PR12b: SUPPORTED`):** Across `13` external SpiceDB mutation / mirror-lag / eviction scenarios (`ConsistentDynamicPrismANNIndex`; reporting `requested_external_zed_token` separately from SpiceDB `looked_up_at` evaluated revision or `"unknown"`), records **`0` mask/search/`CheckPermission` mismatches**, **`5` verified `fail_closed` refusals**, and **`4` verified live `spicedb_leaf_fallback` executions** (querying live SpiceDB `LookupResources`, never a stale local mirror).
+- **`R12c` — Multi-Threaded Public `search()` Stress (`24`-Chunk DAG, `1,200` Reads, `PR12c: SUPPORTED`):** `4` writer/publisher + `4` reader threads running `1,200` concurrent public `search_with_metadata()` queries (`600` exact + `600` fresh, `0.033 ms` med / `1.327 ms` P99) across **`101` audited snapshots** yield **`0` torn snapshots, `0` ordering regressions, and `0` leaks**.
 
 ---
 
