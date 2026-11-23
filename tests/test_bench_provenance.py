@@ -598,6 +598,166 @@ class TestFreezeAndAudits(unittest.TestCase):
         with self.assertRaises(StaleOrMissingSnapshotError):
             idx.search(X[0], "u", k=4, zed_token=g.zed_token + 99, consistency_mode="at_least_as_fresh", on_unavailable="safe_leaf_fallback")
 
+    def test_v3_4_atomic_snapshot_eliminates_sync_race_and_preserves_monotonic_order(self):
+        """R12a unit proof: frozen v3.3 tears under mid-sync mutations while v3.4 AtomicVersionedLineageCorpus stays 100% consistent."""
+        import threading
+        from src.modules.prism_ann_v3.consistent_snapshot_index import (
+            ConsistentDynamicPrismANNIndex,
+        )
+        from src.modules.prism_ann_v3.dynamic_dag_ubp import (
+            DynamicMultiParentAuthGraph,
+            VersionedLineageCorpus,
+        )
+
+        def _make_graph():
+            g = DynamicMultiParentAuthGraph(branching_factor=3, depth=2)
+            for cid in ("A", "B", "C"):
+                g.add_node(cid, depth_level=0, is_leaf=False)
+            for did in ("doc_0", "doc_1"):
+                g.add_node(did, depth_level=1, is_leaf=True)
+            g.add_hierarchy_edge("A", "doc_0")
+            g.add_hierarchy_edge("B", "doc_1")
+            g.grant_access("u", "A")
+            g.add_deny_exclusion("u", "C")
+            return g
+
+        rng = np.random.default_rng(1212)
+        X = rng.standard_normal((6, 16)).astype(np.float32)
+        X /= np.linalg.norm(X, axis=1, keepdims=True)
+        leaf_docs = ["doc_0", "doc_0", "doc_0", "doc_1", "doc_1", "doc_1"]
+
+        # 1. Confirm frozen v3.3 VersionedLineageCorpus tears under mid-sync mutations
+        class _Probe(VersionedLineageCorpus):
+            def _compute_token_bitmaps(self, auth_graph):
+                if getattr(self, "_armed", False):
+                    self._armed = False
+                    auth_graph.add_hierarchy_edge("C", "doc_0")
+                    bm = super()._compute_token_bitmaps(auth_graph)
+                    auth_graph.add_hierarchy_edge("A", "doc_1")
+                    return bm
+                return super()._compute_token_bitmaps(auth_graph)
+
+        g_old = _make_graph()
+        c_old = _Probe(g_old, X, leaf_doc_ids=leaf_docs)
+        g_old.add_hierarchy_edge("B", "doc_0")
+        c_old._armed = True
+        s_old = c_old.sync_to_revision(g_old)
+        self.assertNotEqual(s_old.zed_token, s_old.auth_snapshot.zed_token)
+
+        # 2. Confirm v3.4 AtomicVersionedLineageCorpus stays 100% consistent under identical double injection
+        g_new = _make_graph()
+        idx_new = ConsistentDynamicPrismANNIndex(
+            g_new, X, leaf_doc_ids=leaf_docs, M=4, m_bridge=2, ef_construction=16, ef_search=16, seed=12,
+        )
+        g_new.add_hierarchy_edge("B", "doc_0")
+        s_fix = idx_new.sync(
+            on_after_capture=lambda _z, _h: g_new.add_hierarchy_edge("C", "doc_0"),
+            on_after_postings=lambda _z, _h: g_new.add_hierarchy_edge("A", "doc_1"),
+        )
+        chk = idx_new.vcorpus.verify_snapshot_internal_consistency(s_fix)
+        self.assertTrue(chk["consistent"], f"Expected atomic snapshot consistency: {chk}")
+
+        # 3. Monotonic ordering: slower older publisher never overwrites newer _latest_snapshot
+        captured = threading.Event()
+        newer_done = threading.Event()
+        box = []
+
+        def _slow_pub():
+            box.append(
+                idx_new.sync(
+                    on_after_capture=lambda _z, _h: (captured.set(), newer_done.wait(timeout=5.0))
+                )
+            )
+
+        t = threading.Thread(target=_slow_pub)
+        t.start()
+        self.assertTrue(captured.wait(timeout=5.0))
+        g_new.grant_access("u", "B")
+        s_newer = idx_new.sync()
+        newer_done.set()
+        t.join(timeout=5.0)
+        self.assertEqual(idx_new.vcorpus._latest_snapshot.zed_token, s_newer.zed_token)
+        self.assertLess(box[0].zed_token, s_newer.zed_token)
+
+    def test_v3_4_opaque_external_zedtoken_lag_fail_closed_and_authoritative_fallback(self):
+        """R12b unit proof: un-ingested external ZedTokens fail closed or use authoritative external lookup, never stale mirror."""
+        from src.modules.prism_ann_v3.consistent_snapshot_index import (
+            ConsistentDynamicPrismANNIndex,
+            StaleOrMissingSnapshotError,
+        )
+        from src.modules.prism_ann_v3.dynamic_dag_ubp import DynamicMultiParentAuthGraph
+
+        g = DynamicMultiParentAuthGraph(branching_factor=3, depth=2)
+        g.add_node("A", depth_level=0, is_leaf=False)
+        g.add_node("doc_0", depth_level=1, is_leaf=True)
+        g.add_node("doc_1", depth_level=1, is_leaf=True)
+        g.add_hierarchy_edge("A", "doc_0")
+        g.add_hierarchy_edge("A", "doc_1")
+        g.grant_access("u", "A")
+
+        rng = np.random.default_rng(1213)
+        X = rng.standard_normal((4, 16)).astype(np.float32)
+        X /= np.linalg.norm(X, axis=1, keepdims=True)
+        leaf_docs = ["doc_0", "doc_0", "doc_1", "doc_1"]
+
+        # Simulated external SpiceDB state ahead of mirror (doc_1 revoked at ext_zt_1)
+        ext_state = {"ext_zt_0": {"doc_0", "doc_1"}, "ext_zt_1": {"doc_0"}}
+
+        def _mock_spicedb(principal: str, mode: str, ext_zt: str):
+            return set(ext_state[ext_zt]), ext_zt
+
+        idx = ConsistentDynamicPrismANNIndex(
+            g, X, leaf_doc_ids=leaf_docs,
+            initial_external_zed_token="ext_zt_0",
+            external_auth_lookup=_mock_spicedb,
+            M=4, m_bridge=2, ef_construction=16, ef_search=16, seed=13,
+        )
+
+        # Synced ext_zt_0 succeeds via fast UBP snapshot
+        r0 = idx.search_with_metadata(X[0], "u", k=4, external_zed_token="ext_zt_0", consistency_mode="at_exact_snapshot")
+        self.assertIsNone(r0.fallback_used)
+        self.assertEqual({idx.vcorpus.z_leaf_doc_ids[i] for i in r0.result.top_k_ids}, {"doc_0", "doc_1"})
+
+        # Mirror lags behind ext_zt_1 -> fail_closed MUST refuse!
+        with self.assertRaises(StaleOrMissingSnapshotError):
+            idx.search_with_metadata(X[0], "u", k=4, external_zed_token="ext_zt_1", consistency_mode="at_least_as_fresh", on_unavailable="fail_closed")
+
+        # Authoritative spicedb_leaf_fallback queries external provider (NOT stale mirror!) and excludes doc_1
+        r1 = idx.search_with_metadata(X[0], "u", k=4, external_zed_token="ext_zt_1", consistency_mode="at_least_as_fresh", on_unavailable="spicedb_leaf_fallback")
+        self.assertEqual(r1.fallback_used, "spicedb_leaf_fallback")
+        self.assertEqual({idx.vcorpus.z_leaf_doc_ids[i] for i in r1.result.top_k_ids}, {"doc_0"})
+
+        # Without an external provider, spicedb_leaf_fallback MUST fail closed rather than consulting stale local mirror
+        idx_no_ext = ConsistentDynamicPrismANNIndex(
+            g.snapshot_graph_copy(), X, leaf_doc_ids=leaf_docs,
+            initial_external_zed_token="ext_zt_0",
+            external_auth_lookup=None,
+            M=4, m_bridge=2, ef_construction=16, ef_search=16, seed=14,
+        )
+        with self.assertRaises(StaleOrMissingSnapshotError):
+            idx_no_ext.search_with_metadata(X[0], "u", k=4, external_zed_token="ext_zt_1", consistency_mode="at_least_as_fresh", on_unavailable="spicedb_leaf_fallback")
+
+    def test_v3_4_recompute_parity(self):
+        """Verify results/v3/reviewer_audit_v3_4.json matches recompute_v3_4.py & FREEZE_v3_4.md (10/10)."""
+        from bench.recompute import dumps_summary
+        from bench.recompute_v3_4 import freeze_v3_4_status, recompute_v3_4_summary
+
+        f34 = freeze_v3_4_status()
+        self.assertTrue(f34["match"], f"FREEZE_v3_4 mismatch: {f34}")
+        self.assertEqual(f34["n_files"], 10)
+        summary_path = os.path.join(REPO_ROOT, "results", "v3", "reviewer_audit_v3_4.json")
+        raw_path = os.path.join(REPO_ROOT, "results", "v3_4_audit", "raw", "v3_4_reviewer_audit.jsonl")
+        self.assertTrue(os.path.exists(summary_path))
+        self.assertTrue(os.path.exists(raw_path))
+        recomp = recompute_v3_4_summary(raw_path)
+        with open(summary_path, "r", encoding="utf-8") as f:
+            stored = f.read()
+        self.assertEqual(dumps_summary(recomp), stored)
+        self.assertFalse(recomp["git_dirty"])
+        self.assertEqual(recomp["verdicts"]["PR12a"]["verdict"], "supported")
+        self.assertEqual(recomp["verdicts"]["PR12b"]["verdict"], "supported")
+        self.assertEqual(recomp["verdicts"]["PR12c"]["verdict"], "supported")
+
 
 if __name__ == "__main__":
     unittest.main()
