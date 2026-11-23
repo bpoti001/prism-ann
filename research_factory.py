@@ -592,6 +592,7 @@ def verify_governance() -> bool:
         "FREEZE.md",
         "FREEZE_v3.md",
         "FREEZE_v3_1.md",
+        "FREEZE_v3_3.md",
         "REVIEWER_AUDIT_REPORT.md",
         "docs/ONBOARDING_NEW_GRAD.md",
         "docs/ARCHITECTURE_SENIOR_ENGINEER.md",
@@ -663,9 +664,9 @@ def verify_governance() -> bool:
 def audit_paper() -> bool:
     ok_gov = verify_governance()
     print("\n------------------------------------------------------------------")
-    print("  Running audit suite (v2 + v3 + v3.1 + v3.2 checks gate; v1 scripts are informational)")
+    print("  Running audit suite (v2 + v3 + v3.1 + v3.2 + v3.3 checks gate)")
     print("------------------------------------------------------------------")
-    # v2/v3/v3.1/v3.2 (ADR-0004, ADR-0005, ADR-0006) gating checks. Brakes 2/3 are presence +
+    # v2/v3/v3.1/v3.2/v3.3 (ADR-0004, ADR-0005, ADR-0006) gating checks. Brakes 2/3 are presence +
     # SHA-256 checks of reviews written by a fresh independent reviewer at review time.
     gating = [
         ("Prism-ANN v2 Provenance: recompute results/v2/summary.json from raw records",
@@ -676,8 +677,10 @@ def audit_paper() -> bool:
          [os.path.join("bench", "recompute_v3_1.py"), "--check", os.path.join("results", "v3", "reviewer_audit_v3_1.json")]),
         ("Prism-ANN v3.2 Second-Round Audit Provenance (6,821 raw records)",
          [os.path.join("bench", "recompute_v3_2.py"), "--check", os.path.join("results", "v3", "reviewer_audit_v3_2.json")]),
+        ("Prism-ANN v3.3 Dynamic-DAG & Direct E2E Audit Provenance (8,521 raw records)",
+         [os.path.join("bench", "recompute_v3_3.py"), "--check", os.path.join("results", "v3", "reviewer_audit_v3_3.json")]),
         ("Prism-ANN Blast Radius: Live UBP Zero-Leakage Proof", ["verify_blast_radius_ubp.py"]),
-        ("Prism-ANN v3/v3.1/v3.2 Brake 1: Raw-Record Provenance & Zero-Hallucination Sensor",
+        ("Prism-ANN v3/v3.1/v3.2/v3.3 Brake 1: Raw-Record Provenance & Zero-Hallucination Sensor",
          ["verify_prism_hallucinations.py"]),
         ("Prism-ANN v3 Brake 2: figure_review.md exists + covers all 12 v3_fig1..6 SHA-256 hashes",
          ["run_prism_paperviz_audit.py", "--version", "v3"]),
@@ -702,7 +705,7 @@ def audit_paper() -> bool:
                 else:
                     print(f"  (legacy script exited {res.returncode}; informational only)")
     print("\n==================================================================")
-    print(f"  AUDIT RESULT (v2/v3/v3.1/v3.2 gates): {'PASSED (EXIT 0)' if all_ok else 'FAILED (EXIT 1)'}")
+    print(f"  AUDIT RESULT (v2/v3/v3.1/v3.2/v3.3 gates): {'PASSED (EXIT 0)' if all_ok else 'FAILED (EXIT 1)'}")
     print("==================================================================")
     return all_ok
 

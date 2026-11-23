@@ -1,9 +1,9 @@
 project: "Prism-ANN: Co-Designed SpiceDB ReBAC Upward Boundary Pruning, Geometric Express Bridges, and Native SIMD Tri-Modal Filtered HNSW"
 domain: "Database Systems, Information Retrieval, Access Control in Vector Databases (VLDB / SIGMOD / SIGIR)"
 foundation_paper: "EngramRAG (arXiv:2609.32049)"
-status: "MILESTONE_6_PHASE_22_V3_2_COMPLETE_AND_APPROVED"
+status: "MILESTONE_6_V3_3_COMPLETE_AND_VERIFIED"
 current_loop: "MILESTONE_6_PHASE_22_COMPLETE"
-last_updated: "2026-11-23T09:47:00-06:00"
+last_updated: "2026-11-23T10:50:00-06:00"
 confirmatory_run:
   run_id: "v3-confirmatory-001"
   git_sha: "41868bbaf0b7354ee72aac16619e0562af297e7c"
@@ -19,7 +19,7 @@ confirmatory_run:
 
 reviewer_audit_v3_1:
   run_id: "v3.1-reviewer-audit-001"
-  git_sha: "e39260a9387d04628d306478fc566b7fc0cc2040"
+  git_sha: "e39260a3b6c22068c9479dd1d72de8af851cabdd"
   git_dirty: false
   freeze_v3_1_match: true
   freeze_v3_1_files: 8
@@ -39,6 +39,17 @@ reviewer_audit_v3_2:
   summary_path: "results/v3/reviewer_audit_v3_2.json"
   protocol_path: "experiments/v3/PROTOCOL_v3_2.md"
 
+reviewer_audit_v3_3:
+  run_id: "v3.3-reviewer-audit-001"
+  git_sha: "3c79298d2a52fa49f0c250fd660187a3f558db07"
+  git_dirty: false
+  freeze_v3_3_match: true
+  freeze_v3_3_files: 9
+  raw_records: 8521
+  raw_jsonl_path: "results/v3_3_audit/raw/v3_3_reviewer_audit.jsonl"
+  summary_path: "results/v3/reviewer_audit_v3_3.json"
+  protocol_path: "experiments/v3/PROTOCOL_v3_3.md"
+
 hypotheses:
   - id: "H1v3"
     governing_adr: "ADR-0001, ADR-0004, ADR-0005"
@@ -55,7 +66,7 @@ hypotheses:
     predictions:
       P2a: "supported (Quora v3-geom-M8: 78.29% at S=0.5% [+56.22 vs FAISS, +21.88 vs v2 ring-chord], 85.99% at S=1.0%)"
       P2b: "supported (v3-geom-M8 beats both upstream C++ acorn-1 and acorn-gamma g=4 across all S on both corpora at 0.143x extra L0 RAM)"
-      P2c: "supported (v3-full-guard-sq8: 100.00% R@10 at S<=1% on both corpora; 10.0x-30.8x faster than BLAS at S in {0.5%,1%}; 725x-2430x faster than pgvector/hnswlib at S=0.1%)"
+      P2c: "supported (v3-full-guard-sq8: 100.00% empirical R@10 at S<=1% on both corpora; 10.0x-30.8x faster than BLAS at S in {0.5%,1%}; 725x-2430x faster than pgvector/hnswlib at S=0.1%)"
     protocol_path: "experiments/v3/PROTOCOL_v3.md"
 
   - id: "H3v3"
@@ -85,21 +96,31 @@ hypotheses:
     governing_adr: "ADR-0001, ADR-0002, ADR-0003, ADR-0005, ADR-0006"
     mapped_theorem: "Theorem 1, Corollary 1, Propositions 2-4"
     predictions:
-      PR1: "supported (10,000 randomized hierarchy/deny trials: 0 FP, 0 FN, 0 Theorem 1 bound violations; max 168 <= bound 172)"
-      PR2: "supported (S=0.01% ultra-low selectivity: v3-geom-M8 73.73% Quora / 74.47% NQ vs ACORN-1 1.70% / 4.90%; v3-full-guard-sq8 100.00% in 0.036 ms, 0 leaks)"
-      PR3: "supported (2x2x2 Mode-3 component isolation under 64 MB cache eviction at S=1%: 23.62x total = 2.37x Z-order * 2.86x SQ8 * 3.49x ARM NEON vdotq_s32; warm cache 14.12x)"
-      PR4: "supported (Revocation scaling 1k..1.05M chunks flat 64.61-71.09 ms on PostgreSQL 17 SpiceDB; 16-thread ZedToken race: 0/18,412 post-zeta2 leaks across 36,881 concurrent queries)"
-      PR5: "supported (50k dynamic vector stream in 5x10k batches: 5.33-6.21 us/vec append, 0.068-0.219 ms delta scan, 55.66-63.48 ms C++ CSR remap, 100.00% R@10 pre/post compaction)"
+      PR1: "supported (10,000 hierarchy trials [5,000 std + 5,000 alternating]: 0 FP, 0 FN, 100.0% bound satisfaction; max 249 std / 164 alt)"
+      PR2: "supported (S=0.01%: v3-geom-M8 85.73% Quora [0.538ms] / 92.27% NQ [0.273ms] vs acorn-1 0.33%/0.40%; v3-full-guard-sq8 100.00% in 0.049ms/0.032ms, 0/1,200 leaks)"
+      PR3: "supported (6-way Mode-3 at S=1.0%: Cold LLC 29.40x [7.35x Z-order * 2.85x SQ8 * 7.46x NEON], cold scalar SQ8 0.7281ms; Warm 34.18x)"
+      PR4: "supported (PG17 revocation scaling 128->490,419 chunks flat 0.74-1.66ms, 0 vec writes; 4-thread 11,244 concurrent C++ local snapshot-swap queries: 0/6,039 post-swap leaks)"
+      PR5: "supported (500k->525k dynamic ingestion in 4 batches: 5.30-23.93 us/vec delta append, 1.30-2.36s compaction, 116.30-121.61ms C++ CSR remap)"
     protocol_path: "experiments/v3/PROTOCOL_v3_1.md"
 
   - id: "R6_R8_v3_2"
     governing_adr: "ADR-0001, ADR-0002, ADR-0003, ADR-0005, ADR-0006"
     mapped_theorem: "Theorem 1 (Tree Bound) & Theorem 2 (Multi-Parent DAG Exactness), Propositions 2-4"
     predictions:
-      PR6: "supported (5,000 multi-parent DAGs with mean 1,170.0 secondary parent edges/DAG & conflicting GRANT/DENY diamond inheritance: 0/5,000 mismatches [Theorem 2]; 243/5,000 [4.86%] exceed single-parent tree formula k0+m(b-1)L [max 135 vs 122], validating Theorem 1 vs Theorem 2 split)"
-      PR7: "falsified on fragmented-L5 sub-criterion (standard hierarchy: Track-1 v3-full-guard-sq8 0.0363-0.4527 ms beats exact-brute-force 0.5238-1.2784 ms by 2.8-14.4x; fragmented L5-only grants collapse Z-order contiguous speedup to 1.00-1.08x)"
-      PR8: "falsified on strict >=99.0% empirical cutoff at S>=0.1% (v3-full-guard-f32 achieves 100.00% Exact Recall@10 across all S; SQ8+M_rerank=64 achieves 100.00% mathematical guarantee at S=0.01% [N_cand=52<=64] and 98.17%-98.70% vs pure FP32 Mode 3 at S in [0.1%,1.0%])"
+      PR6: "supported (5,000 permission/deny/revocation trials across 36 generated multi-parent DAGs [mean 1,170.0 secondary edges]: 0/5,000 mismatches, max 387 tokens)"
+      PR7: "falsified on strict fragmented-L5 <=0.35ms / >=100x thresholds (0/1,500 leaks; Track 1 C++ + modeled Track 2 composite: v3-full-guard-f32 0.0206-0.4527ms & -sq8 0.0380-0.4344ms hit 100.0% at S<=1% [0.4344ms>0.35ms & 82.19x<100x at S=1%]; v3-geom-M8 71.4%-87.4% beats acorn-1 & racorn-1-fallback proxy)"
+      PR8: "falsified on strict <=0.25ms exact-FP32 cutoff at fragmented S=1.0% (M_rerank=64 100% guarantee at S=0.01% [n_cand<=48]; SQ8+M_rerank>=32 100.0% empirical R@10 at S<=1%; exact FP32 0.0035/0.0235/0.1964/0.3289ms > 0.25ms at S=1%)"
     protocol_path: "experiments/v3/PROTOCOL_v3_2.md"
+
+  - id: "R9_R11_v3_3"
+    governing_adr: "ADR-0001, ADR-0004, ADR-0005, ADR-0006"
+    mapped_theorem: "Theorem 2 (Multi-Parent DAG Exactness), Corollary 1 (ZedToken Snapshot Consistency)"
+    predictions:
+      PR9a: "supported (1,000 independent multi-parent DAGs, 5,000 dynamic structural-mutation checkpoints: 0 FP, 0 FN, 0 search hit leaks)"
+      PR9b: "supported (10/10 live native SpiceDB v1.57.1 multi-parent scenarios vs LookupResources & CheckPermission: 0 mismatches)"
+      PR10: "falsified on strict >=10x live-RPC cutoff at S=0.01% (0/1,750 total leaks; single-timer E2E incl. in-timer SQ8 quant: 6.20x-6.47x at S=0.01% [1.61-1.68ms vs 10.40ms LookupResources], 11.39x-89.10x at S>=0.1%; mirror 197.39x-522.40x; efSearch=32..512 sweep dominates S=0.5%)"
+      PR11: "supported (1,760 8-thread concurrent live SpiceDB reads pinned to real opaque at_exact_snapshot / at_least_as_fresh ZedTokens: 0 oracle mismatches, 0 post-revocation leaks)"
+    protocol_path: "experiments/v3/PROTOCOL_v3_3.md"
 
 trajectory:
   - iteration: 1
@@ -107,13 +128,16 @@ trajectory:
     result: "Milestone 3 v1 evaluation superseded under ADR-0004."
   - iteration: 2
     action: "V2_CONFIRMATORY_FROZEN_RUN"
-    result: "Milestone 4 v2-confirmatory-002 (62,410 records, 8/10 supported, P2b & P3b falsified; Phase 15 review 5.5/10 identified 4 concrete engineering gaps)."
+    result: "Milestone 4 v2-confirmatory-002 (62,410 records, 8/10 supported, P2b & P3b falsified; Phase 15 review 5.5/10)."
   - iteration: 3
     action: "V3_EXPLORATORY_DEV_AND_CONFIRMATORY_MULTI_CORPUS"
-    result: "Milestone 5 Phase 17 dev-split engineering (E1-E3) -> Phase 18 FREEZE_v3.md & PROTOCOL_v3.md -> Phase 19 v3-confirmatory-001 (169,810 records, 2 corpora, persistent Postgres SpiceDB, ACORN-1 & ACORN-gamma, 11/11 SUPPORTED) -> Phase 20 independent review (7.5/10 READY / ACCEPT)."
+    result: "Milestone 5 v3-confirmatory-001 (169,810 records, 2 corpora, persistent PG17 SpiceDB, ACORN-1 & ACORN-gamma, 11/11 SUPPORTED; Phase 20 review 7.5/10)."
   - iteration: 4
     action: "V3_1_FIRST_ROUND_EXTERNAL_REVIEWER_AUDIT"
-    result: "Milestone 6 Phase 21 FREEZE_v3_1.md (8/8) & PROTOCOL_v3_1.md -> v3.1-reviewer-audit-001 (22,533 raw records across R1-R5, 5/5 SUPPORTED, 0/18,412 post-revocation leaks across 36,881 concurrent queries) -> independent review (8.5/10 APPROVED)."
+    result: "v3.1-reviewer-audit-001 (22,533 records across R1-R5, 5/5 SUPPORTED; Phase 21 review 8.5/10)."
   - iteration: 5
     action: "V3_2_SECOND_ROUND_AUDIT_THEORY_SPLIT_AND_3TIER_DOCS"
-    result: "Milestone 6 Phase 22 PROTOCOL_v3_2.md -> v3.2-reviewer-audit-001 (6,821 raw records across R6-R8, PR6 supported, PR7/PR8 falsified transparently on strict fragmented-L5/99% cutoffs) -> Theorem 1/Theorem 2 split, RACORN & EMA (Nov. 2026) citations, 3-Tier Audience Documentation Suite -> independent review (8.8/10 APPROVED, 0 blockers)."
+    result: "v3.2-reviewer-audit-001 (6,821 records across R6-R8, PR6 supported, PR7/PR8 falsified transparently) + Theorem 1/2 split + 3-Tier Docs."
+  - iteration: 6
+    action: "V3_3_DYNAMIC_DAG_FIX_LIVE_ZEDTOKEN_AND_DIRECT_E2E_AUDIT"
+    result: "Added dynamic_dag_ubp.py (FREEZE_v3_3 9/9) resolving post-index edge additions & multi-parent unlinks; executed v3.3-reviewer-audit-001 (8,521 records: PR9a/PR9b/PR11 supported, PR10 transparently falsified at S=0.01% >=10x cutoff); reconciled cross-doc metrics & Amanbayev/Veda/RACORN/Curator/EMA citations."

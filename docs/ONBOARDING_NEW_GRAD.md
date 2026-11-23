@@ -5,7 +5,7 @@
 > **Looking for other perspectives in this repo?**
 > - **Fresh grad / Associate engineer:** You are here! Pair this reading guide with [`prism_ann_onboarding_explainer.mp4`](../prism_ann_onboarding_explainer.mp4).
 > - **Senior systems engineer / Architect:** See [`ARCHITECTURE_SENIOR_ENGINEER.md`](ARCHITECTURE_SENIOR_ENGINEER.md) for CSR memory layouts, C++/NEON kernels, `ZedToken` snapshot swaps, and memory/latency trade-offs.
-> - **Researcher / Reviewer:** See [`RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md`](RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md) and [`../paper/prism_ann.tex`](../paper/prism_ann.tex) for formal theorems (`Theorem 1A`, `Theorem 1B`), raw benchmarks, and literature positioning.
+> - **Researcher / Reviewer:** See [`RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md`](RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md) and [`../paper/prism_ann.tex`](../paper/prism_ann.tex) for formal theorems (`Theorem 1`, `Theorem 2`), raw benchmarks (`v3.0`–`v3.3`), and literature positioning (`Veda`, `RACORN`, `EMA`, `Curator`, `amanbayev2026gls`).
 
 ---
 
@@ -73,7 +73,7 @@ Instead of treating **SpiceDB permissions**, **HNSW graph navigation**, and **CP
 - When Alice queries, `P_UBP` walks top-down from her top grants (`Engineering`):
   - If a container subtree has **no `DENY` walls inside it**, we **stop immediately** and emit that single folder ID (`Engineering`) instead of 4,096 leaf files!
   - If a subtree *does* have a `DENY` wall nested underneath (we call that branch **tainted**), we only split down the path toward the `DENY` wall, emitting untainted sibling folders whole and subtracting the denied branch.
-- **Why revocations touch zero vectors:** When Alice loses access to `folder_3`, we only delete **one edge** in SpiceDB — we never modify the vector chunks' structural lineage on disk (`0` vector writes!). A causal timestamp (`ZedToken`) swaps the immutable snapshot atomically so concurrent searches never see partial revocations or stale "New Enemy" state.
+- **Why revocations touch zero vectors:** When Alice loses access to `folder_3`, we only delete **one edge** in SpiceDB — we never modify the vector chunks' structural lineage on disk (`0` vector writes!). A causal timestamp (`ZedToken`) swaps the immutable snapshot atomically so concurrent searches never see partial revocations or stale "New Enemy" state. *(Scope note: legacy `PrismANNIndex`/`PrismANNIndexV3` prototypes stamp lineages once at ingest for static folder trees/DAGs; when folder edges themselves are added or unlinked post-index in a multi-parent DAG, `DynamicMultiParentAuthGraph` + `VersionedLineageCorpus` in `src/modules/prism_ann_v3/dynamic_dag_ubp.py` update affected postings atomically per `ZedToken` revision without re-writing vectors.)*
 
 ### Solution 2: **Geometric Express Bridges (`H-HNSW v2`) + Adaptive Routing (`ACORN-GLS`)** — Fix Trap 2
 - **Core Intuition (Private Employee Shuttle Lanes):** Inside each folder container and each shared topic cluster (**Meaning Magnet**), Prism-ANN adds just **8 carefully chosen long/diverse semantic edges** per vector (`4` inside the same L3 folder, `2` across sibling folders under the same L2 container, and `2` connecting the same Meaning Magnet topic across folders).
@@ -139,3 +139,14 @@ User Alice asks: "What is our Q4 architecture roadmap?" (ZedToken zeta = 42)
 | **Z-Ordering** | Sorting chunk IDs physically in RAM by their `(Folder Lineage, Topic Magnet)` path so entire folders sit next to each other sequentially. |
 | **Roaring Bitmap (`CRoaring`)** | A high-speed compressed integer set format whose `RunContainer` stores a contiguous slice `[start, end)` in just 4 bytes! |
 | **SIMD / ARM NEON / SQ8** | Single Instruction Multiple Data CPU vector math (`vdotq_s32` on Apple Silicon) multiplying 64 8-bit quantized (`SQ8`) numbers at once over contiguous RAM before exact 32-bit float (`FP32`) reranking. |
+
+---
+
+## 6. 4-Part Accessible Video Series Storyboard (`12`-Document Walkthrough)
+
+When explaining Prism-ANN visually across engineering & stakeholder audiences, use this 4-video structure built around a concrete **12-document diagram (`D1..D12`)**:
+
+1. **Video 1 — The Problem (`60–90s`):** Why authorized vector search is hard when permissions live in a hierarchy (`SpiceDB`) and similarity lives in an embedding graph (`HNSW`). Shows how top nearest neighbors (`D9`, `D10`, `D8`) can all be forbidden to Alice while permitted docs (`D1..D7`) hide behind disjoint folders.
+2. **Video 2 — How Existing Methods Work (`90–120s`):** Side-by-side 12-document trace comparing leaf list enumeration (`LookupResources`), fixed-`ef` post-filtering (`FAISS IDSelector`), rejected-neighbor graph walks (`ACORN` / `RACORN` / `hnswlib`), and inline/partitioned ACL indexes (`pgvector UPDATE`, `HoneyBee`, `Curator`, `Veda`).
+3. **Video 3 — What Prism Proposes (`90–120s`):** Trace `P_UBP` halting at untainted folders (`Core`), subtracting `D8`, scanning Z-ordered contiguous intervals (exact `FP32` at $S \le 0.1\%$ or `SQ8` NEON at $S \ge 0.5\%$), traversing `H-HNSW v2` geometric bridges, and handling dynamic shared-parent (`Eng -> D6 <- ML`) mutations via `VersionedLineageCorpus` (`dynamic_dag_ubp.py`).
+4. **Video 4 — What Remains to Be Verified (`60–90s`):** Honest summary of falsified strict predictions (`PR7`, `PR8`, ultra-low `S=0.01%` live-RPC `PR10`), static vs. versioned hierarchy assumptions, empirical vs. mathematical `SQ8` recall bounds, and unrun upstream C++ baselines (`RACORN`, `EMA`, `Curator`, `Veda`) + billion-scale validation.

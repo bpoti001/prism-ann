@@ -11,7 +11,8 @@
 
 | Component | Implementation | Key Design Choice |
 | :--- | :--- | :--- |
-| **Authorization Cut (`P_UBP`)** | [`src/modules/prism_ann/ubp_resolver.py`](../src/modules/prism_ann/ubp_resolver.py) | Decouples immutable ingest-time `Anc(v_i)` prefixes from mutable SpiceDB `E^+`/`E^-` tuples; halts at untainted containers (`Algorithm 1`). |
+| **Authorization Cut (`P_UBP`)** | [`src/modules/prism_ann/ubp_resolver.py`](../src/modules/prism_ann/ubp_resolver.py) | Decouples static ingest-time `Anc(v_i)` prefixes from mutable SpiceDB `E^+`/`E^-` permission tuples; halts at untainted containers (`Algorithm 1`). Legacy facade assumes static container hierarchy. |
+| **Dynamic DAG + Atomic Lineage Revisions** | [`src/modules/prism_ann_v3/dynamic_dag_ubp.py`](../src/modules/prism_ann_v3/dynamic_dag_ubp.py) | `DynamicMultiParentAuthGraph` separates single-edge unlinks (`remove_hierarchy_edge`) from whole-subtree quarantine (`decommission_subtree`); `VersionedLineageCorpus` publishes immutable `CorpusRevisionSnapshot`s bound to `zed_token` (`FREEZE_v3_3.md` `9/9`). |
 | **Z-Ordered Layout & `CRoaring`** | [`src/modules/prism_ann/trimodal_planner.py`](../src/modules/prism_ann/trimodal_planner.py) | Sorts vector IDs lexicographically by `(Anc(v_i), tau_1(v_i))`; primary containers become single `[start, end)` `RunContainer` intervals. |
 | **H-HNSW v2 Geometric Bridges** | [`src/modules/prism_ann_v3/geometric_hhnsw.py`](../src/modules/prism_ann_v3/geometric_hhnsw.py) | Extracts upper-layer CSR + `2M=32` level-0 neighbors from FAISS `M=16` (`0` rebuild confusion) and appends `M_bridge=8` Vamana/RNG-diverse edges (`4` L3 folder, `2` L2 container, `2` Meaning Magnet). |
 | **Tri-Modal Planner & Stall Guard** | [`src/modules/prism_ann_v3/trimodal_v3.py`](../src/modules/prism_ann_v3/trimodal_v3.py) | Mode 1 (`1-hop`), Mode 2 (`ACORN-GLS` + 3-stage stall guard), Mode 3 (contiguous `SQ8`+`FP32` or exact `FP32` range scan). |
@@ -29,9 +30,10 @@
   - **Zero Extra Vector RAM (`v3-full-guard-f32`, `prism_mode3_scan_ranges_f32`):** Reuses the existing Z-ordered `FP32` corpus array directly (`+0 B/node` vector overhead; total index overhead remains `+1.91%`, mathematically exact top-$k$ over all $N_{\text{cand}}$ candidates).
   - **Bandwidth-Optimized Auxiliary `SQ8` (`v3-full-guard-sq8`, `prism_mode3_scan_ranges_sq8`):** Retains an auxiliary `N × d` `int8` copy alongside `FP32` vectors (`+384 B/node` = `+200.8 MB`, `+22.9%` over base HNSW; `+416 B/node` = **`+24.8%` combined**), accelerating large Mode-3 scans (`vdotq_s32`, 64 int8 MACs/iter) + top-`max(4k, 64)` exact `FP32` rerank (`vfmaq_f32`).
 
-### 2.2 Multi-Parent DAG Secondary Parents & Postings
+### 2.2 Multi-Parent DAG Secondary Parents & Dynamic Lineage Revisions
 - For canonical tree-structured organizational folders, each container token $g$ compiles to **1 contiguous `[start, end)` run** ($O(1)$ range descriptor).
-- For **multi-parent DAGs** (`Theorem 1B`), secondary parent containers $g_{\text{sec}}$ that cross canonical subtrees maintain explicit `CRoaring` descendant posting bitmaps $B_{g_{\text{sec}}}$ across disjoint runs (`O(#runs)` intervals), remaining directly consumable by both `prism_ranges_set_bitset` and `prism_mode3_scan_ranges_{f32,sq8}` with zero false positives/negatives.
+- For **multi-parent DAGs** (**Theorem 2**), secondary parent containers $g_{\text{sec}}$ that cross canonical subtrees maintain explicit `CRoaring` descendant posting bitmaps $B_{g_{\text{sec}}}$ across disjoint runs (`O(#runs)` intervals), remaining directly consumable by both `prism_ranges_set_bitset` and `prism_mode3_scan_ranges_{f32,sq8}` with zero false positives/negatives.
+- **Dynamic Edge Additions & Multi-Parent Unlinks (`DynamicMultiParentAuthGraph` + `VersionedLineageCorpus`):** Never map single-edge structural unlink (`remove_hierarchy_edge(p, c)`) to global child blacklisting (which breaks surviving shared parents `B -> C`). Instead, mutate exact graph edges and atomically publish a frozen `CorpusRevisionSnapshot` recomputing affected transitive postings (`0` vector-index writes), pinned atomically alongside SpiceDB's opaque `ZedToken` (`R9a` `0` FP/FN across `1,000` independent DAGs/`5,000` mutations; `R9b` `10/10` live SpiceDB scenarios). Direct E2E timing (`R10`) also shows exact `FP32` beats in-timer `SQ8` quantization+scan at $S \le 0.1\%$ in mirror mode (`0.0422/0.0788 ms` vs `0.0527/0.0909 ms`), reversing at $S \ge 0.5\%$.
 
 ---
 
@@ -53,10 +55,10 @@ Inside `prism_search_hhnsw_gls` (`bench/prism_ckernel.cpp:516-838`):
 
 ## 4. Concurrency, Revocation Consistency & Dynamic Writes
 
-### 4.1 `ZedToken` Snapshot Isolation on Revocation (`R4a`/`R4b`)
+### 4.1 `ZedToken` Snapshot Isolation on Revocation (`R4a`/`R4b` + Live `R11`)
 - **Edge Revocation Path:**
   $$T_{\text{revoke}} = T_{\text{PG-commit}} + T_{\text{mirror-prop}} + T_{\text{UBP-compile}} + T_{\text{atomic-swap}}$$
-  The vector index receives **`0` writes**. In `R4b` (`11,244` live concurrent C++ reader traversals across 4 threads), queries starting before $t_{\text{swap}}$ finish safely on immutable snapshot $\zeta=1$ (`4` crossed cutoff without torn reads), `0` post-swap queries read $\zeta=1$, and `0 / 6,039` post-$\zeta_{\text{rev}}$ queries leaked any revoked chunk.
+  The vector index receives **`0` writes**. In `R4b` (`11,244` live concurrent C++ reader traversals across 4 threads using local integer snapshot versions), queries starting before $t_{\text{swap}}$ finish safely on immutable snapshot $\zeta=1$ (`4` crossed cutoff without torn reads), `0` post-swap queries read $\zeta=1$, and `0 / 6,039` post-$\zeta_{\text{rev}}$ queries leaked any revoked chunk. Extending this to live native SpiceDB v1.57.1 `R11` (`8` threads, `1,760` queries using opaque serialized `ZedToken`s: `427` pre-revocation `at_exact_snapshot`, `1,333` post-revocation `at_least_as_fresh`, `1.437 ms` SpiceDB median RPC, `0.111 ms` index median search) yielded `0` oracle mismatches, `0` post-revocation leaks, and `0` stale errors.
 - **Scale Invariance:** Deleting a single container edge covering `128 → 490,419` chunks on persistent PG17 SpiceDB stays flat (`0.74–1.66 ms` median, `0` vector writes).
 
 ### 4.2 Dynamic Document Writes (`R5`)

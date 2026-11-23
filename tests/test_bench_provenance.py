@@ -359,6 +359,114 @@ class TestFreezeAndAudits(unittest.TestCase):
         self.assertEqual(ubp_docs_post, set())
         self.assertEqual(g.lookup_resources_leaf("u_adv"), set())
 
+    def test_dynamic_dag_priority_finding_1_postindex_add_edge_with_deny(self):
+        """Priority Finding 1: Post-index add_hierarchy_edge(B, D) with deny on B must leak 0 docs."""
+        from src.modules.prism_ann_v3.dynamic_dag_ubp import (
+            DynamicMultiParentAuthGraph,
+            DynamicPrismANNIndex,
+        )
+
+        g = DynamicMultiParentAuthGraph(branching_factor=4, depth=2)
+        g.add_node("A", depth_level=0, is_leaf=False)
+        g.add_node("B", depth_level=0, is_leaf=False)
+        g.add_node("D", depth_level=1, is_leaf=True)
+        g.add_hierarchy_edge("A", "D")
+        g.grant_access("u", "A")
+        g.add_deny_exclusion("u", "B")
+
+        rng = np.random.default_rng(7)
+        X = rng.standard_normal((4, 16)).astype(np.float32)
+        X /= np.linalg.norm(X, axis=1, keepdims=True)
+        idx = DynamicPrismANNIndex(
+            auth_graph=g,
+            raw_vectors=X,
+            leaf_doc_ids=["D", "D", "D", "D"],
+            ancestor_lineages=[["A", "D"] for _ in range(4)],
+            meaning_magnet_ids=["m0", "m0", "m0", "m0"],
+            M=4,
+            m_bridge=2,
+            ef_construction=16,
+            ef_search=16,
+            seed=7,
+        )
+        # Before adding edge B -> D, user u sees D
+        res_pre = idx.search(X[0], principal_id="u", k=4)
+        self.assertEqual(len(res_pre.top_k_ids), 4)
+
+        # Dynamically add denied parent B -> D after index construction
+        zt_after = idx.add_hierarchy_edge("B", "D")
+        self.assertEqual(g.lookup_resources_leaf("u"), set())
+        res_post = idx.search(X[0], principal_id="u", k=4, zed_token=zt_after)
+        self.assertEqual(res_post.top_k_ids, [])
+
+    def test_dynamic_dag_priority_finding_2_shared_child_unlink_preserves_surviving_path(self):
+        """Priority Finding 2: Unlinking A->C on A->C<-B preserves access via B->C; snapshot pins isolate pre-unlink reads."""
+        from src.modules.prism_ann_v3.dynamic_dag_ubp import (
+            DynamicMultiParentAuthGraph,
+            DynamicPrismANNIndex,
+        )
+
+        g = DynamicMultiParentAuthGraph(branching_factor=4, depth=2)
+        for nid in ("A", "B"):
+            g.add_node(nid, depth_level=0, is_leaf=False)
+        g.add_node("C", depth_level=1, is_leaf=True)
+        g.add_hierarchy_edge("A", "C")
+        g.add_hierarchy_edge("B", "C")
+        g.grant_access("u", "B")
+
+        rng = np.random.default_rng(11)
+        X = rng.standard_normal((4, 16)).astype(np.float32)
+        X /= np.linalg.norm(X, axis=1, keepdims=True)
+        idx = DynamicPrismANNIndex(
+            auth_graph=g,
+            raw_vectors=X,
+            leaf_doc_ids=["C", "C", "C", "C"],
+            ancestor_lineages=[["A", "B", "C"] for _ in range(4)],
+            meaning_magnet_ids=["m0", "m0", "m0", "m0"],
+            M=4,
+            m_bridge=2,
+            ef_construction=16,
+            ef_search=16,
+            seed=11,
+        )
+        zt_pre = g.zed_token
+
+        # Unlink A -> C; B -> C survives, so C must remain accessible
+        zt_unlink = idx.remove_hierarchy_edge("A", "C")
+        self.assertEqual(g.lookup_resources_leaf("u"), {"C"})
+        res_unlink = idx.search(X[0], principal_id="u", k=4, zed_token=zt_unlink)
+        self.assertEqual(len(res_unlink.top_k_ids), 4)
+
+        # Grant only on A (revoking B): after A->C unlink, u at zt_pre saw A->C if A granted,
+        # and after zt_unlink no path through A reaches C.
+        g.revoke_access("u", "B")
+        zt_grant_a = g.grant_access("u", "A")
+        idx.sync()
+        self.assertEqual(g.lookup_resources_leaf("u"), set())
+        self.assertEqual(idx.search(X[0], principal_id="u", k=4, zed_token=zt_grant_a).top_k_ids, [])
+
+        # Whole-subtree quarantine (decommission_subtree) excludes C across all parents
+        g.grant_access("u", "B")
+        zt_regrant_b = idx.sync().zed_token
+        self.assertEqual(len(idx.search(X[0], principal_id="u", k=4, zed_token=zt_regrant_b).top_k_ids), 4)
+        zt_decomm = idx.decommission_subtree("C")
+        self.assertEqual(g.lookup_resources_leaf("u"), set())
+        self.assertEqual(idx.search(X[0], principal_id="u", k=4, zed_token=zt_decomm).top_k_ids, [])
+        # Historical ZedToken pinned before decommission retains pre-decommission view
+        self.assertEqual(len(idx.search(X[0], principal_id="u", k=4, zed_token=zt_regrant_b).top_k_ids), 4)
+
+    def test_freeze_v3_3_and_recompute_v3_3_parity(self):
+        from bench.recompute_v3_3 import freeze_v3_3_status, recompute_v3_3_summary
+
+        fz = freeze_v3_3_status()
+        self.assertTrue(fz["match"], fz["mismatches"])
+        self.assertEqual(fz["n_files"], 9)
+        committed_path = os.path.join(REPO_ROOT, "results", "v3", "reviewer_audit_v3_3.json")
+        raw_path = os.path.join(REPO_ROOT, "results", "v3_3_audit", "raw", "v3_3_reviewer_audit.jsonl")
+        with open(committed_path, "r", encoding="utf-8") as f:
+            committed = f.read()
+        self.assertEqual(recompute.dumps_summary(recompute_v3_3_summary(raw_path)), committed)
+
 
 if __name__ == "__main__":
     unittest.main()

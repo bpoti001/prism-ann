@@ -1,25 +1,26 @@
-# Prism-ANN Research Audit, Theoretical Review, & Literature Novelty Matrix (`v3.2`)
+# Prism-ANN Research Audit, Theoretical Review, & Literature Novelty Matrix (`v3.2` + `v3.3`)
 
 > **Three-Audience Documentation Set:**
 > - **New-Grad / Associate Engineer:** [`ONBOARDING_NEW_GRAD.md`](ONBOARDING_NEW_GRAD.md) (RAG & HNSW basics, analogies, end-to-end query trace).
 > - **Senior Engineer / Architect:** [`ARCHITECTURE_SENIOR_ENGINEER.md`](ARCHITECTURE_SENIOR_ENGINEER.md) (CSR/Z-order layout, C++17 & NEON kernels, `ZedToken` snapshots, delta ingestion/compaction).
-> - **Researcher / Reviewer (this document):** Formal theorem-by-theorem audit (Findings A–F), full FANNS/ReBAC novelty matrix (`RACORN`, `EMA`, `Curator`, etc.), additive `v3.2` empirical tables (`R6`–`R8`), and manuscript change map.
+> - **Researcher / Reviewer (this document):** Formal theorem-by-theorem audit (Findings A–F), full FANNS/ReBAC novelty matrix (`Veda`, `RACORN`, `EMA`, `Curator`, etc.), additive `v3.2` (`R6`–`R8`) and `v3.3` (`R9a`–`R11`) empirical tables, and manuscript change map.
 
 **Primary Evidence Sources:**
 - **Formal Paper:** [`paper/prism_ann.tex`](../paper/prism_ann.tex) → [`prism_ann_paper.pdf`](../prism_ann_paper.pdf) (`12` pages)
 - **Frozen Confirmatory (`v3-confirmatory-001`, commit `41868bb`, `169,810` records):** [`results/v3/summary.json`](../results/v3/summary.json) (`11/11` `SUPPORTED`)
 - **First-Round Audit (`v3.1`, commit `e39260a`, `22,533` records):** [`results/v3/reviewer_audit_v3_1.json`](../results/v3/reviewer_audit_v3_1.json) (`5/5` `PR1`–`PR5` `SUPPORTED`)
-- **Second-Round Audit (`v3.2`, commit `a435bab`, `6,821` records):** [`results/v3/reviewer_audit_v3_2.json`](../results/v3/reviewer_audit_v3_2.json) (`PR6: SUPPORTED`; `PR7` & `PR8`: honestly `FALSIFIED` on strict fragmented-depth-5 latency cutoffs, while confirming `0` leaks and exact/empirical recall behavior)
+- **Second-Round Audit (`v3.2`, commit `a435bab`, `6,821` records):** [`results/v3/reviewer_audit_v3_2.json`](../results/v3/reviewer_audit_v3_2.json) (`PR6: SUPPORTED` across `36` DAGs; `PR7` & `PR8`: honestly `FALSIFIED` on strict fragmented-depth-5 latency cutoffs with modeled Track 2)
+- **Third-Round Audit (`v3.3`, commit `3c79298`, `8,521` records, `FREEZE_v3_3.md` `9/9`):** [`results/v3/reviewer_audit_v3_3.json`](../results/v3/reviewer_audit_v3_3.json) (`PR9a`, `PR9b`, `PR11: SUPPORTED`; `PR10: FALSIFIED` at $S=0.01\%$ live RPC `6.20×–6.47× < 10×` while achieving `11.39×–89.10×` for $S \ge 0.1\%$ and `197×–522×` mirror speedup)
 
 ---
 
 ## Part I — Theorem-by-Theorem Mathematical Audit (Findings A–E)
 
-### 1. Finding A — Splitting Theorem 1 into Theorem 1A (Tree Bound) and Theorem 1B (Multi-Parent DAG Exactness)
+### 1. Finding A — Splitting Theorem 1 (Tree Bound) and Theorem 2 (Dynamic Multi-Parent DAG Exactness)
 
-In the earlier draft (`v3.1`), Theorem 1 combined the cardinality compression bound $|T_{\mathrm{UBP}}^+(u)| \le k_0 + m(b-1)L$ and exact set equivalence on multi-parent DAGs inside one theorem block, with only a prose scope note explaining DAG generalizations. To eliminate any ambiguity between tree assumptions and multi-parent DAG guarantees, the revised manuscript splits Theorem 1 cleanly into:
+In the earlier draft (`v3.1`), a single Theorem combined the cardinality compression bound $|T_{\mathrm{UBP}}^+(u)| \le k_0 + m(b-1)L$ and exact set equivalence on multi-parent DAGs. Aligning identically with [`paper/prism_ann.tex`](../paper/prism_ann.tex), we separate **Theorem 1** (single-parent tree cardinality bound) and **Theorem 2** (multi-parent DAG exact set equivalence):
 
-#### **Theorem 1A (Single-Parent Tree Token Compression Bound)**
+#### **Theorem 1 (Single-Parent Tree Token Compression Bound)**
 - **Assumptions:** $\mathcal{G}_{\mathrm{auth}} = (U \cup G \cup R, E^+ \cup E^-)$ has a **single-parent rooted tree** hierarchy over $G \cup R$ of maximum depth $L$ and maximum branching factor $b$; principal $u$ holds $k_0 = |G_0^+(u)|$ minimal positive root grants and $m = |V^-(u)|$ explicit `DENY` / revoked-subtree exclusions.
 - **Claim:** Algorithm 1 ($\mathcal{P}_{\mathrm{UBP}}$) emits positive tokens $T_{\mathrm{UBP}}^+(u)$ satisfying
   $$|T_{\mathrm{UBP}}^+(u)| \le k_0 + m \cdot (b - 1) \cdot L.$$
@@ -27,14 +28,15 @@ In the earlier draft (`v3.1`), Theorem 1 combined the cardinality compression bo
   - Base case ($m=0$): $G_{\mathrm{taint}}(u) = \emptyset$, so Algorithm 1 halts on $G_0^+(u)$ with $|T_{\mathrm{UBP}}^+(u)| = k_0$.
   - Inductive step ($m \ge 1$): In a single-parent tree, each denied/unlinked node $z \in V^-(u)$ at depth $\le L$ has a unique path to the root, contributing at most $L$ strict ancestors intersecting $\operatorname{Desc}(G_0^+(u))$, so $|G_{\mathrm{taint}}(u)| \le mL$. Expanding one tainted container $x \in G_{\mathrm{taint}}(u)$ pops $1$ node and considers at most $b$ children, at least one of which lies on the path to $z$ (either tainted or in $D^-(u)$) and is therefore **not** emitted into $T_{\mathrm{UBP}}^+(u)$, adding at most $(b-1)$ net tokens. Summing over $\le mL$ expansions gives $k_0 + m(b-1)L$.
   - **Tightness:** Achieved when $k_0 = 1$ root grant is split along $m$ disjoint root-to-leaf paths sharing only the root, yielding $1 + m(b-1)L - (m-1) = \Theta(m b L)$ while still collapsing $\Theta(b^L)$ leaf documents exponentially.
-  - **Scope Limitation:** On an arbitrary **multi-parent DAG** with shared diamond parents, a denied node $z$ has $\ge 1$ parent path, so $|G_{\mathrm{taint}}(u)|$ can exceed $mL$; thus Theorem 1A's cardinality formula strictly requires the single-parent tree assumption, whereas exactness (Theorem 1B) holds unconditionally on multi-parent DAGs.
+  - **Scope Limitation:** On an arbitrary **multi-parent DAG** with shared diamond parents, a denied node $z$ has $\ge 1$ parent path, so $|G_{\mathrm{taint}}(u)|$ can exceed $mL$; thus Theorem 1's cardinality formula strictly requires the single-parent tree assumption, whereas exactness (**Theorem 2**) holds on multi-parent DAGs whenever postings match the queried authorization revision.
 
-#### **Theorem 1B (Multi-Parent DAG Exact Set Equivalence under Deny-Dominates-Grant Precedence)**
+#### **Theorem 2 (Multi-Parent DAG Exact Set Equivalence under Deny-Dominates-Grant Precedence & Atomic Lineage Revisions)**
 - **Assumptions:** Let $\mathcal{G}_{\mathrm{auth}} = (U \cup G \cup R, E^+ \cup E^-)$ be **any finite acyclic graph (multi-parent DAG)** under Zanzibar *deny-dominates-grant* precedence:
   $$r \in D_{\mathrm{auth}}(u, \zeta) \iff \big(\exists g \in G^+(u): g \in \operatorname{Anc}(r)\big) \;\land\; \big(\neg \exists d \in V^-(u): d \in \operatorname{Anc}(r)\big),$$
-  where $\operatorname{Anc}(r)$ is the transitive ancestor set of leaf $r$ in $\mathcal{G}_{\mathrm{auth}}$, and every node $v \in G \cup R$ maintains its inverted descendant chunk posting bitmap $B_v = \{i \in \{1,\dots,N\} : v \in \operatorname{Anc}(r(v_i))\}$ (where `v ∈ Anc(r)` is invariant on static edges and dynamically masked by $\operatorname{RevokedSubtrees}$ in `V^-(u)`).
+  where $\operatorname{Anc}(r)$ is the transitive ancestor set of leaf $r$ at authorization revision $\zeta$, and every node $v \in G \cup R$ maintains its inverted descendant chunk posting bitmap $B_v(\zeta) = \{i \in \{1,\dots,N\} : v \in \operatorname{Anc}_\zeta(r(v_i))\}$.
+  - *Implementation Scope Distinction (Priority Findings 1 & 2):* Legacy v2/v3 prototypes (`PrismANNIndex`, `PrismANNIndexV3`) stamp `Anc(r)` only once at index construction and previously mapped `remove_hierarchy_edge(p, c)` to a global `RevokedSubtrees` mask; they are therefore restricted to **static-hierarchy** deployments (where only grants/denies mutate). For **dynamic hierarchy mutations** (post-index edge additions creating hidden deny paths, and shared-child `A -> C <- B` unlinks), `DynamicMultiParentAuthGraph` + `VersionedLineageCorpus` (`src/modules/prism_ann_v3/dynamic_dag_ubp.py`, `FREEZE_v3_3.md` `9/9`) maintain exact parent sets and atomically publish a `CorpusRevisionSnapshot` paired with `zeta` (`0` vector writes).
 - **Claim:**
-  $$B_{\mathrm{acl}}(u) := \Big(\bigcup_{t \in T_{\mathrm{UBP}}^+(u)} B_t\Big) \setminus \Big(\bigcup_{z \in T_{\mathrm{UBP}}^-(u)} B_z\Big) = \bigcup_{r \in D_{\mathrm{auth}}(u, \zeta)} B_r \qquad (0\text{ FP},\; 0\text{ FN}).$$
+  $$B_{\mathrm{acl}}(u, \zeta) := \Big(\bigcup_{t \in T_{\mathrm{UBP}}^+(u,\zeta)} B_t(\zeta)\Big) \setminus \Big(\bigcup_{z \in T_{\mathrm{UBP}}^-(u,\zeta)} B_z(\zeta)\Big) = \bigcup_{r \in D_{\mathrm{auth}}(u, \zeta)} B_r(\zeta) \qquad (0\text{ FP},\; 0\text{ FN}).$$
 - **Formal Proof (Why Multi-Parent DAGs Work Without Leakage):**
   1. **Zero False Negatives ($r \in D_{\mathrm{auth}}(u, \zeta) \implies \forall i \in B_r,\; i \in B_{\mathrm{acl}}(u)$):**
      - Since $r \in D_{\mathrm{auth}}(u,\zeta)$, no node in $V^-(u)$ belongs to $\operatorname{Anc}(r)$; hence for all $z \in T_{\mathrm{UBP}}^-(u) = V^-(u) \cup (D^-(u) \cap \text{visited})$, we have $z \notin \operatorname{Anc}(r)$, so $B_r \cap B_z = \emptyset$ and subtraction removes **no** chunk of $r$.
@@ -45,9 +47,11 @@ In the earlier draft (`v3.1`), Theorem 1 combined the cardinality compression bo
        - *Case (i) $t = d$ or $t \in \operatorname{Desc}(d)$:* Then $t \in D^-(u)$, contradicting Algorithm 1 Line 10 (which excises $D^-(u)$ rather than emitting to $T_{\mathrm{UBP}}^+$).
        - *Case (ii) $d \in \operatorname{StrictDesc}(t)$:* Since $t$ is reachable from $G_0^+(u)$, $d \in \operatorname{Desc}(G_0^+(u)) \cap \operatorname{StrictDesc}(t)$, so $t \in G_{\mathrm{taint}}(u)$ by Definition 2—contradicting $t \notin G_{\mathrm{taint}}(u)$ when Algorithm 1 emitted $t$.
        - *Case (iii) $t$ and $d$ lie on incomparable multi-parent branches joining above or at $r$:* Because $d \in \operatorname{Anc}(r)$, the invariant $B_d = \{j : d \in \operatorname{Anc}(r(v_j))\}$ guarantees $i \in B_d$. Since $V^-(u) \subseteq T_{\mathrm{UBP}}^-(u)$, $B_d$ is explicitly subtracted in $B_{\mathrm{acl}}(u)$, yielding $i \notin B_{\mathrm{acl}}(u)$—contradiction. (This Case (iii) diamond-parent cancellation is why posting bitmaps *must* index all transitive DAG ancestors $\operatorname{Anc}(r)$ rather than a single tree prefix!)
-- **Empirical Verification (`R1` + `R6`):**
-  - `R1` (`10,000` trees + alternating `GRANT ↔ DENY`): `0 / 10,000` mismatches (`100.0%` Theorem 1A bound satisfaction).
-  - `R6` (`5,000` randomized multi-parent DAGs with `min_secondary_parents = 672`, `mean_secondary_edges = 1,170.0`, median `20` / max `387` `T_UBP+` tokens): **`0 / 5,000` mismatches (`0` false positives, `0` false negatives)**.
+- **Empirical Verification (`R1`, `R6`, `R9a`, `R9b`):**
+  - `R1` (`10,000` trees + alternating `GRANT ↔ DENY`): `0 / 10,000` mismatches (`100.0%` Theorem 1 bound satisfaction).
+  - `R6` (`5,000` permission trials across `36` generated multi-parent DAGs—`3` initial + `33` replacements—with `min_secondary_parents = 672`, `mean_secondary_edges = 1,170.0`, median `20.0` / max `387` `T_UBP+` tokens): **`0 / 5,000` mismatches (`0` FP, `0` FN)** under static DAG hierarchy edges.
+  - `R9a` (`1,000` strictly independent dynamic DAGs—`0` reuse—across `5,000` post-index structural edge additions, shared-child unlinks, deny removals, grant flips, & quarantines): **`0 / 5,000` FP, `0` FN, `0` search leaks**.
+  - `R9b` (`10 / 10` live native SpiceDB v1.57.1 dynamic edge & shared-parent scenarios): **`0` mask mismatches, `0` search mismatches, `0` `CheckPermission` mismatches**.
 
 ---
 
@@ -57,10 +61,7 @@ To satisfy reviewer scrutiny on what is strictly $O(1)$ versus end-to-end propag
 - **Graph & Vector Write Complexity:** Deleting an authorization edge $(p, g)$ covering $D_{\mathrm{rev}}$ documents ($N_{\mathrm{chunks}}$ chunks) performs **$0$ vector-store writes** and **$O(1)$ graph-edge deletion** in SpiceDB relative to $N_{\mathrm{chunks}}$ (as opposed to $\Theta(N_{\mathrm{chunks}})$ heap/HNSW/WAL updates in inline-ACL relational tables like `pgvector` `UPDATE`, measured at `179.4 s` for `153,600` rows in `H4v3`).
 - **End-to-End Revocation Latency Decomposition:**
   $$T_{\mathrm{revoke}} = T_{\mathrm{PG\text{-}commit}} + T_{\mathrm{mirror\text{-}prop}} + T_{\mathrm{UBP\text{-}compile}} + T_{\mathrm{atomic\text{-}swap}}.$$
-  In `R4a` (persistent PostgreSQL 17 SpiceDB single-edge subtree deletions from `128` to `490,419` chunks), total end-to-end median latency remains flat at **`0.74–1.66 ms`** with `0` vector writes. In `R4b` (`131,072`-chunk live PG17 revocation under 4 concurrent C++ reader threads executing `11,244` queries), Postgres SpiceDB `DeleteRelationships` commits in **`6.82 ms`** (`T_PG-commit`) and the in-memory `UBP + CRoaring` atomic snapshot swap completes in **`0.091 ms` (`91 µs`)**.
-- **Pre-$\zeta_{\mathrm{rev}}$ vs. Post-$\zeta_{\mathrm{rev}}$ Security Boundary:**
-  - *Before swap ($t < t_{\mathrm{swap}}$, requests carrying $\zeta < \zeta_{\mathrm{rev}}$ or already in-flight at cutoff):* `4` in-flight queries crossed `t_swap` on an immutable `zeta=1` `CRoaring`/epoch snapshot without torn reads or crashes (bounded staleness equal to the causal propagation window).
-  - *After swap ($\zeta \ge \zeta_{\mathrm{rev}}$):* Every newly issued query binds to the post-revocation `ZedToken`; across `6,039` post-swap queries in `R4b`, **`0 / 6,039` leaked any revoked chunk** (`0` started after `t_swap` on `zeta=1`).
+  In `R4a` (persistent PostgreSQL 17 SpiceDB single-edge subtree deletions from `128` to `490,419` chunks), total end-to-end median latency remains flat at **`0.74–1.66 ms`** with `0` vector writes. In `R4b` (`131,072`-chunk live PG17 revocation under 4 concurrent C++ reader threads executing `11,244` queries with local integer snapshots), Postgres SpiceDB `DeleteRelationships` commits in **`6.82 ms`** (`T_PG-commit`) and the in-memory `UBP + CRoaring` atomic snapshot swap completes in **`0.091 ms` (`91 µs`)** (`0/6,039` post-swap leaks). Extending to live opaque SpiceDB `ZedToken` reads in `R11` (`8` threads, `1,760` queries: `427` pre-rev `at_exact_snapshot` + `1,333` post-rev `at_least_as_fresh`, `1.437 ms` SpiceDB med RPC, `0.111 ms` index med search) achieves **`0` oracle mismatches, `0` post-rev leaks, and `0` stale errors**.
 
 ---
 
@@ -70,7 +71,7 @@ The paper now distinguishes mathematically guaranteed exactness from empirically
 
 | Level | Regime / Kernel | Guarantee Type | Exact Condition | Empirical Evidence (`v3`, `v3.1`, `v3.2`) |
 | :---: | :--- | :--- | :--- | :--- |
-| **L1** | Auth Set Compilation $B_{\mathrm{acl}}(u)$ | **Mathematical Exactness** (Thm 1B) | Always ($0$ FP, $0$ FN vs.\ `LookupResources`) | `0/1,200` (`H1`), `0/10,000` (`R1`), `0/5,000` (`R6`), `0/1,500` (`R7`) |
+| **L1** | Auth Set Compilation $B_{\mathrm{acl}}(u, \zeta)$ | **Mathematical Exactness** (Thm 2) | Always ($0$ FP, $0$ FN vs.\ `LookupResources` given matching rev $\zeta$) | `0/1,200` (`H1`), `0/10,000` (`R1`), `0/5,000` (`R6`), `0/1,500` (`R7`), `0/5,000` (`R9a`), `10/10` (`R9b`), `0/1,760` (`R11`) |
 | **L2** | Mode 3 Exact `FP32` (`prism_mode3_scan_ranges_f32`) | **Mathematical Top-$k$ Exactness** | Exact IP over all $N_{\mathrm{cand}}$ authorized IDs (`0` extra vector RAM) | `100.00%` R@10 across $S \in \{0.01\%, 0.1\%, 0.5\%, 1.0\%\}$ (`R7`/`R8`, `0.0035–0.453 ms`) |
 | **L3** | Mode 3 `SQ8` + Top-$M_{\mathrm{rerank}}$ `FP32` when $N_{\mathrm{cand}} \le M_{\mathrm{rerank}}$ | **Mathematical Top-$k$ Exactness** | All $N_{\mathrm{cand}}$ candidates pass into exact `FP32` reranker | `100.0%` of queries at $S=0.01\%$ (`n_cand_max = 48 <= 64`, `R8`) |
 | **L4** | Mode 3 `SQ8` + Top-$64$ `FP32` when $N_{\mathrm{cand}} > 64$ ($0.1\% \le S \le 1\%$) | **Empirical High-Probability** | Top-10 true neighbors remain inside top-64 `SQ8` shortlist | `100.00%` R@10 across Quora, NQ (`H2`), `R8` (`M_rerank >= 32` hits `100.0%`; `M=10` drops to `97.0%–98.0%`) |
@@ -89,31 +90,34 @@ The paper now distinguishes mathematically guaranteed exactness from empirically
 | **SeRF / UNIFY** | SIGMOD / VLDB '24 | 1D numeric range $[a,b]$ | No | $O(1)$ range interval | Compressed segment HNSW | $+80\%$--$140\%$ | $+80\%$--$140\%$ | N/A (1D immutable attribute) |
 | **ACORN-1 / ACORN-$\gamma$** | SIGMOD '24 | Arbitrary predicate map | External only | $O(N)$ bitset/byte map | 2-hop / $\gamma$-expanded L0 (`M_beta`) | `0` (`ACORN-1`) / $+224\text{ B/n}$ (`γ=4`) | $+224\text{ B/n}$ (`γ=4`) | External map or index rebuild |
 | **UNG / SIEVE** | SIGMOD '24 / VLDB '25 | Static label set / Hasse DAG | No | Static label lattice | Label-navigable / workload sub-indexes | Moderate--$2\times$ | Moderate--$2\times$ | Offline rebuild |
-| **FANNBench** | VLDB '25 (`arXiv:2507.21989`) | Evaluation framework ($r=S_{\text{loc}}/S$) | No (taxonomy) | Benchmark framework | Benchmarks correlation $r$ | N/A | N/A | N/A |
+| **FANNBench / GLS Metric** | `VLDB '25` (`arXiv:2507.21989`) / Amanbayev et al. (`arXiv:2602.11443`) | Evaluation benchmark / Global-Local Selectivity $r=S_{\text{loc}}/S$ | No (taxonomy/metric) | Benchmark + correlation metric | Evaluates/quantifies query-filter correlation $r$ | N/A | N/A | N/A |
 | **HoneyBee** | arXiv '25 (`2505.01538`) | Flat Role-Based (RBAC) | No (monotonic) | $O(|\text{Roles}|)$ | Role-partitioned sub-indexes | Replicated sub-indexes | Replicated sub-indexes | Partition updates |
+| **Veda / EffVeda** | `arXiv:2605.01342` (2026) | Attribute-filtered HNSW (flat predicates) | External predicate | Dynamic attribute filter | Adaptive entry + constrained candidate pruning | Attribute routing metadata | Attribute routing metadata | Incremental doc predicate update |
 | **Policy-Aware Vector Search** | SeQureDB '26 (`2606.19803`) | Fine-Grained AC Vision | Conceptual | Position paper | Identifies FGAC trilemma | N/A | N/A | N/A |
 | **Curator** | SIGMOD '26 (`2601.01291`) | Low-selectivity tenant/tag | No | Per-tenant prefix/bitset | Shared-graph tenant routing trees | Per-tenant tree metadata | Per-tenant tree metadata | Per-document tenant bit update |
 | **EMA** | Nov '26 (`arXiv:2606.00734v2`) | General attributes + dynamic updates | External predicate | Dynamic attribute map | Dynamic multi-granularity maintenance | Attribute-index metadata | Attribute-index metadata | Incremental node/attribute update |
-| **RACORN** | Nov '26 (`arXiv:2607.00768v2`) | Predicate-agnostic ($S \ll 1\%$) | External predicate | $O(N)$ byte/bitmap | Fallback to rejected 1-hop neighbors | `0` (`RACORN-1`) | `0` (`RACORN-1`) | External bitmap only |
-| **Prism-ANN v3 (`v3-geom-M8` / `-f32`)** | **This Work** | **Hierarchical ReBAC $\times$ Ontology** | **Yes ($\mathcal{P}_{\text{UBP}}$ Cut)** | **$\le k_0 + m(b-1)L$ (Thm 1A)** | **Container+Magnet Bridges + GLS / FP32 Scan** | **`+32 B/n` (`+1.91%`)** | **`+32 B/n` (`+1.91%`, `0` vec copy)** | **$0$ vec writes ($O(1)$ edge)** |
-| **Prism-ANN v3 (`v3-full-guard-sq8`)** | **This Work** | **Hierarchical ReBAC $\times$ Ontology** | **Yes ($\mathcal{P}_{\text{UBP}}$ Cut)** | **$\le k_0 + m(b-1)L$ (Thm 1A)** | **Bridges + GLS + NEON SQ8 Guard** | **`+32 B/n` (`+1.91%`)** | **`+416 B/n` (`+24.8%` w/ SQ8)** | **$0$ vec writes ($O(1)$ edge)** |
+| **RACORN** | Nov '26 (`arXiv:2607.00768v2`, `github.com/naver/racorn`) | Predicate-agnostic ($S \ll 1\%$) | External predicate | $O(N)$ byte/bitmap | Fallback to rejected 1-hop neighbors | `0` (`RACORN-1`) | `0` (`RACORN-1`) | External bitmap only |
+| **Prism-ANN v3 (`v3-geom-M8` / `-f32`)** | **This Work** | **Hierarchical ReBAC $\times$ Ontology** | **Yes ($\mathcal{P}_{\text{UBP}}$ Cut)** | **$\le k_0 + m(b-1)L$ (Thm 1)** | **Container+Magnet Bridges + GLS / FP32 Scan** | **`+32 B/n` (`+1.91%`)** | **`+32 B/n` (`+1.91%`, `0` vec copy)** | **$0$ vec writes ($O(1)$ edge)** |
+| **Prism-ANN v3 (`v3-full-guard-sq8`)** | **This Work** | **Hierarchical ReBAC $\times$ Ontology** | **Yes ($\mathcal{P}_{\text{UBP}}$ Cut)** | **$\le k_0 + m(b-1)L$ (Thm 1)** | **Bridges + GLS + NEON SQ8 Guard** | **`+32 B/n` (`+1.91%`)** | **`+416 B/n` (`+24.8%` w/ SQ8)** | **$0$ vec writes ($O(1)$ edge)** |
 
 **Concrete Novelty Differentiation:**
-1. **Vs. `RACORN` (`arXiv:2607.00768v2`):** `RACORN` fixes `ACORN-1`'s zero-degree frontier collapse when $S \ll 1\%$ by allowing traversal through rejected neighbors without expanding memory overhead, **assuming predicates live in an already-materialized bitset**. On hierarchical ReBAC, `RACORN` neither compresses $\Theta(b^L)$ SpiceDB `LookupResources` enumeration (`79–98 ms` in `Track 2`) nor injects semantic container/magnet express shortcuts (`v3-geom-M8` beats `racorn-1-fallback` by `+28.0` to `+81.4` Recall@10 pts across $S \in [0.01\%, 1.0\%]$ in `R7`).
-2. **Vs. `EMA` (`arXiv:2606.00734v2`):** `EMA` targets general attribute filtering with dynamic vector/attribute mutations, updating inline attribute structures per mutated document. `Prism-ANN` targets hierarchical ReBAC with subtractive `DENY`s where container-level revocations would otherwise rewrite $\Theta(N_{\text{chunks}})$ attribute indexes, achieving $0$ index writes via $\mathcal{P}_{\text{UBP}}$ and dynamic Z-order delta compaction (`R4`, `R5`).
-3. **Vs. `Curator` (`SIGMOD 2026`):** `Curator` embeds per-tenant prefix routing trees inside a shared index for low-selectivity tenants, whereas `Prism-ANN` handles arbitrary multi-level Zanzibar DAG hierarchies with subtractive exclusions (`Theorem 1B`), Meaning Magnet cross-cuts, and Z-order `CRoaring` NEON range scanning.
+1. **Vs. `RACORN` (`arXiv:2607.00768v2`, `github.com/naver/racorn`):** `RACORN` fixes `ACORN-1`'s zero-degree frontier collapse when $S \ll 1\%$ by allowing traversal through rejected neighbors without expanding memory overhead, **assuming predicates live in an already-materialized bitset**. On hierarchical ReBAC, `RACORN` neither compresses $\Theta(b^L)$ SpiceDB `LookupResources` enumeration (`79–98 ms` in `R7` modeled Track 2) nor injects semantic container/magnet express shortcuts (`v3-geom-M8` beats our in-repo `racorn-1-fallback` C++ proxy by `+28.0` to `+81.4` Recall@10 pts across $S \in [0.01\%, 1.0\%]$ in `R7`).
+2. **Vs. `Veda` (`arXiv:2605.01342`) & `EMA` (`arXiv:2606.00734v2`):** `Veda` and `EMA` optimize flat/general attribute-filtered HNSW with adaptive candidate pruning and dynamic document/attribute updates, **assuming predicates live in inline document metadata**. `Prism-ANN` targets hierarchical ReBAC with subtractive `DENY`s where container-level revocations or multi-parent DAG edge changes would rewrite $\Theta(N_{\text{chunks}})$ attribute indexes, achieving $0$ index writes via $\mathcal{P}_{\text{UBP}}$, atomic `CorpusRevisionSnapshot` lineage pins (`R9a`–`R9b`), and async Z-order delta compaction (`R4`, `R5`).
+3. **Vs. `Curator` (`SIGMOD 2026`):** `Curator` embeds per-tenant prefix routing trees inside a shared index for low-selectivity tenants, whereas `Prism-ANN` handles arbitrary multi-level dynamic Zanzibar DAG hierarchies with subtractive exclusions (**Theorem 2**), Meaning Magnet cross-cuts, and Z-order `CRoaring` NEON range scanning.
 
 ---
 
 ### 2. Second-Round Additive Benchmark Results (`v3.2`, `6,821` Records, Commit `a435bab`)
 
-#### `R6` — Multi-Parent DAG Fuzzing (`PR6: SUPPORTED`)
-| Topology | DAG Trials | Min / Mean Secondary Edges | Mismatches vs.\ Oracle | Median / Max `\|T_UBP+\|` | Verdict |
-| :---: | :---: | :---: | :---: | :---: | :---: |
-| `(b=4, L=5)` | `1,667` | — | **`0`** | — | Verified |
-| `(b=6, L=4)` | `1,666` | — | **`0`** | — | Verified |
-| `(b=8, L=4)` | `1,667` | — | **`0`** | — | Verified |
-| **Total Combined** | **`5,000`** | **`672` / `1,170.0`** | **`0 / 5,000` (`0` FP, `0` FN)** | **`20.0` / `387`** | **`PR6: SUPPORTED`** |
+#### `R6` — Multi-Parent DAG Fuzzing (`PR6: SUPPORTED` — `5,000` permission trials across `36` generated DAGs)
+*Scope disclosure: `R6` generated `3` initial DAGs plus `33` topology replacements (`36` unique DAGs total) and exercised `GRANT`/`DENY` permission mutations rather than post-index hierarchy edge deletions; see `R9a`/`R9b` below for `1,000` strictly independent DAGs under dynamic structural edge mutations.*
+
+| Topology | Permission Trials | Generated DAGs | Min / Mean Secondary Edges | Mismatches vs.\ Oracle | Median / Max `\|T_UBP+\|` | Verdict |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| `(b=4, L=5)` | `1,667` | `12` | — | **`0`** | — | Verified |
+| `(b=6, L=4)` | `1,666` | `12` | — | **`0`** | — | Verified |
+| `(b=8, L=4)` | `1,667` | `12` | — | **`0`** | — | Verified |
+| **Total Combined** | **`5,000`** | **`36` (`3` init + `33` repl)** | **`672` / `1,170.0`** | **`0 / 5,000` (`0` FP, `0` FN)** | **`20.0` / `387`** | **`PR6: SUPPORTED`** |
 
 #### `R7` — Two-Track Fair Benchmark + `RACORN-1` & Zero-RAM `FP32` (`PR7: FALSIFIED` on strict `<=0.35 ms` / `>=100x` fragmented-L5 thresholds)
 *Full BEIR Quora (`N=522,931`, `L=5, b=8`, `50` queries/cell, `0 / 1,500` total authorization leaks). Track 1 excludes all filter/permission materialization from all systems; Track 2 models end-to-end latency using `filter_compile_med_ms` (`~0.74–0.95 ms` FAISS/ACORN, `~2.32–2.39 ms` RACORN byte map, `~0.13–0.54 ms` UBP ranges) + the fixed `H1v3` broad-principal (`>= 1,000` docs) PG17 SpiceDB `T_auth` constants (`98.30 ms` `LookupResources` vs.\ `3.49 ms` PG `ReadRelationships+UBP` or `0.353 ms` local mirror `UBP`; for smaller `1–512` doc grants, measured `H1_postgres` `LookupResources` ranges `4.84–27.46 ms`). Here `racorn-1-fallback` is an in-repo C++ proxy matching RACORN's rejected-neighbor traversal fallback on the shared `M=16` HNSW graph; at `S=5.0%` (`N_cand > N_guard`), all three `v3-*` modes execute identical HNSW traversal with `-f32`/`-sq8` benefiting from sequential L1/L2 cache warmth.*
@@ -149,14 +153,33 @@ The paper now distinguishes mathematically guaranteed exactness from empirically
 | **`0.5%`** | `2,616.2` / `2,624` | `0.0%` (empirical) | `97.13%` | `100.00%` | `100.00%` (`0.0569 ms`) | `100.00%` | `100.00%` (`0.1964 ms`) |
 | **`1.0%`** | `5,234.6` / `5,248` | `0.0%` (empirical) | `97.38%` | `100.00%` | `100.00%` (`0.0780 ms`) | `100.00%` | `100.00%` (`0.3289 ms`) |
 
-- **Design Takeaway (`R8`):** At $S \le 0.1\%$, exact `FP32` Mode 3 (`0.0035–0.0235 ms`) is both **mathematically exact** and faster than `SQ8` while requiring **`0` extra vector RAM**. For $S \in [0.5\%, 1.0\%]$ (`5,235` scattered runs at `L=5`), `SQ8 + M_rerank >= 32` holds `100.00%` empirical R@10 (`4.22×` faster than `FP32` at `S=1%`), whereas `M=10` loses `2.0%–3.0%` recall due to `SQ8` quantization boundary flips.
+- **Design Takeaway (`R8`):** At $S \le 0.1\%$, exact `FP32` Mode 3 (`0.0035–0.0235 ms`) is both **mathematically exact** and faster than `SQ8` while requiring **`0` extra vector RAM**. For $S \in [0.5\%, 1.0\%]$ (`5,235` scattered runs at `L=5`), `SQ8 + M_rerank >= 32` holds `100.00%` empirical R@10 (`4.22×` faster than `FP32` at `S=1%`), whereas `M=10` loses `2.0%–3.0%` recall due to `SQ8` quantization boundary flips. Note also that `R7`/`R8` quantized `SQ8` queries once outside the Track-1 kernel loop; `R10` below measures `SQ8` query quantization inside the unbroken end-to-end query timer.
 
 ---
 
-## Part III — Manuscript Change Map (`v3.1` $\to$ `v3.2`)
+### 3. Third-Round Security & Direct E2E Audit (`v3.3`, `8,521` Records, Commit `3c79298`, `FREEZE_v3_3.md` `9/9`)
 
-1. **Abstract & §III-C (`paper/prism_ann.tex`):** Clarified that `100.00%` Recall@10 at $S \le 1\%$ for `v3-full-guard-sq8` is *empirically observed* (mathematically guaranteed whenever $N_{\text{cand}} \le 64$ or via zero-extra-vector-RAM `prism_mode3_scan_ranges_f32`).
-2. **Theorem 1 $\to$ Theorem 1 & Theorem 2 (`paper/prism_ann.tex` §III-A):** Separated Single-Parent Tree Token Compression Bound (`Theorem 1`) from Multi-Parent DAG Exact Set Equivalence under Deny-Dominates-Grant Precedence (`Theorem 2`), each with an explicit standalone proof.
-3. **Scoped Corollary 1 (`paper/prism_ann.tex` §III-A):** Scoped $0$ vector writes and $O(1)$ authorization-edge mutation relative to $N_{\text{chunks}}$, decomposing end-to-end $T_{\mathrm{revoke}}$ (`6.82 ms` PG17 commit + `0.091 ms` atomic snapshot swap in `R4b`) and separating pre-$\zeta_{\mathrm{rev}}$ vs.\ post-$\zeta_{\mathrm{rev}}$ guarantees.
-4. **Section V-G (`sec:eval_audit`):** Adopted explicit `64 MB cache-thrashing sweep` wording in `R3`, and added the `v3.2` (`R6`–`R8`) audit findings (including transparent reporting of fragmented depth-5 `R7` Track 1/Track 2 latencies against `RACORN-1` and `FP32` Mode 3).
-5. **Table I, Section VI-B & Bibliography:** Added **`RACORN`** (`arXiv:2607.00768v2`, Nov.\ 2026) and **`EMA`** (`arXiv:2606.00734v2`, Nov.\ 2026) alongside `Curator`, `ACORN`, `HoneyBee`, `FANNBench`, and `SeQureDB '26`.
+Following [`PROTOCOL_v3_3.md`](../experiments/v3/PROTOCOL_v3_3.md) and [`src/modules/prism_ann_v3/dynamic_dag_ubp.py`](../src/modules/prism_ann_v3/dynamic_dag_ubp.py):
+
+#### `R9a` — `1,000` Independent Dynamic Multi-Parent DAGs (`5,000` Dynamic Mutations, `PR9a: SUPPORTED`)
+- `1,000` strictly fresh randomized multi-parent DAGs (`0` reuse; `min_secondary_edges = 105`, `mean_secondary_edges = 486.0`) exercised across `5,000` sequential structural & permission mutations (`M1` post-index edge additions creating hidden deny/grant paths, `M2` shared-child `A -> C <- B` unlinks, `M3` deny removals, `M4` permission flips, `M5` explicit container quarantines) using `DynamicMultiParentAuthGraph` + `VersionedLineageCorpus`: **`0 / 5,000` false positives, `0` false negatives, `0` end-to-end search leaks**.
+
+#### `R9b` — Live Native SpiceDB v1.57.1 Dynamic DAG Semantics (`PR9b: SUPPORTED`)
+- `10 / 10` end-to-end live native SpiceDB v1.57.1 schema-matching scenarios (`add_hierarchy_edge` w/ hidden deny, shared-child `remove_hierarchy_edge` unlink preserving surviving grant, `decommission_subtree` quarantine, multi-diamond deny/unlinks): **`0` UBP mask mismatches, `0` index search mismatches, `0` SpiceDB `CheckPermission` mismatches**.
+
+#### `R10` — Direct Unbroken End-to-End Timing + `efSearch={32..512}` Sweep (`750` + `1,000` Queries, `0` Leaks; `PR10: FALSIFIED` at $S=0.01\%$ live RPC)
+- **Measurement Discipline:** Every query runs a single unbroken `perf_counter_ns()` timer covering live SpiceDB RPC (`LookupResources` vs. `ReadRelationships+UBP`) or local mirror, UBP evaluation, filter bitset/range compilation, **in-timer `SQ8` query quantization**, and native C++ traversal (`522,931`-vec BEIR Quora, `L=5, b=8`).
+- **Pre-registered `>= 10x` Live-RPC Speedup Verdict (`PR10`):** **`FALSIFIED` at $S=0.01\%$** (`v3-full-guard-f32` `1.6788 ms` = `6.20×`, `v3-full-guard-sq8` `1.6067 ms` = `6.47×` vs. `faiss` `10.4027 ms`, because when only `~3` leaf docs are authorized live SpiceDB `LookupResources` returns in `~10.4 ms`), while passing `>= 10x` at all $S \ge 0.1\%$: `11.49×`/`11.39×` ($S=0.1\%$), `18.00×`/`17.40×` ($0.5\%$), `26.34×`/`28.64×` ($1.0\%$), and `78.47×`/`89.10×` ($5.0\%$). Mirror-mode E2E speedups span `197.39×–489.48×` ($S \le 1\%$; `522.40×` at $S=5\%$, `0.0422–0.4093 ms` vs `10.40–213.82 ms`).
+- **Exact `FP32` vs. In-Timer `SQ8` Crossover (Mirror Mode):** Exact `FP32` (`0.0422 ms` at `S=0.01%`, `0.0788 ms` at `0.1%`, `0` extra vector RAM) beats in-timer `SQ8` quantization+scan (`0.0527 ms`, `0.0909 ms`), reversing at $S=0.5\%$ (`0.1528 ms` `FP32` vs `0.1118 ms` `SQ8`) and $S=1.0\%$ (`0.2338 ms` vs `0.1143 ms`).
+- **`efSearch={32,64,128,256,512}` Curve (`1,000` queries):** At $S=0.5\%$, `v3-geom-M8` achieves `52.8% / 74.0% / 92.8% / 95.6% / 98.0%` R@10 (`0.815–1.857 ms`) vs. `faiss` `18.4%–69.6%` (`2.149–3.350 ms`) and `acorn-1` `9.6%–67.2%` (`1.383–7.730 ms`). At clustered $S=5.0\%$ (`4` L2 subtrees), `v3-geom-M8` trades recall at low `ef` (`22.4% / 33.6% / 58.0% / 80.8% / 90.8%` vs. `faiss` `65.6%–98.8%`).
+
+#### `R11` — 8-Thread Live Native SpiceDB Opaque-`ZedToken` Concurrent Revocation (`1,760` Queries, `PR11: SUPPORTED`)
+- `8` concurrent worker threads execute live SpiceDB v1.57.1 `ReadRelationships` + `LookupSubjects` paired with `at_exact_snapshot` (`427` pre-revocation queries) and `at_least_as_fresh` (`1,333` post-revocation queries) across a live revocation commit (`1.437 ms` SpiceDB med RPC, `0.111 ms` index med search): **`0` oracle mismatches, `0` post-revocation leaks, `0` stale-snapshot errors**.
+
+---
+
+## Part III — Manuscript Change Map (`v3.2` $\to$ `v3.3`)
+
+1. **Dynamic Multi-Parent DAG Semantics (`src/modules/prism_ann_v3/dynamic_dag_ubp.py`, `FREEZE_v3_3.md` `9/9`):** Resolved Priority Findings 1 & 2 via `DynamicMultiParentAuthGraph` + `VersionedLineageCorpus`, restricting legacy `PrismANNIndex` / `PrismANNIndexV3` to static-hierarchy deployments while proving `0` FP/FN across `R9a` (`1,000` independent DAGs / `5,000` mutations) and `R9b` (`10/10` live SpiceDB scenarios).
+2. **Literature Attribution & Complete Novelty Set:** Cited **`amanbayev2026gls`** (`arXiv:2602.11443`) for proposing Global-Local Selectivity $r = S_{\text{loc}}/S$ (`iff2025fannbench` for FANNBench), added **`veda2026`** (`arXiv:2605.01342`) in Table I & §VI-B, and explicitly linked `github.com/naver/racorn` alongside `racorn-1-fallback`.
+3. **Section V-G (`sec:eval_audit`) & Table V (`D10`–`D12`):** Disclosed `R6` (`36` generated DAGs across `5,000` trials) and `R7` (modeled Track 2 w/ out-of-timer `SQ8` quantization), and added `v3.3` (`R9a`–`R11`) direct E2E timing (`6.20×–89.10×` live RPC, `197×–522×` mirror, honest `PR10` falsification at $S=0.01\%$) and opaque-`ZedToken` `R11` verification.

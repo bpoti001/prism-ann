@@ -357,6 +357,132 @@ def verify() -> bool:
             check(tex_tok in tex, f"paper/prism_ann.tex contains v3.2 {label} ({tex_tok})",
                   f"paper/prism_ann.tex missing v3.2 {label}: {tex_tok}")
 
+    print("\n[9/9] Checking v3.3 Dynamic DAGs, Direct E2E Timing, Opaque ZedToken Concurrency, & Cross-Doc Parity...")
+    from bench.recompute_v3_3 import (
+        recompute_v3_3_summary as _recompute_v3_3,
+        freeze_v3_3_status as _freeze_v3_3,
+    )
+
+    f33 = _freeze_v3_3()
+    check(
+        f33.get("match") is True and f33.get("n_files") == 9,
+        f"FREEZE_v3_3.md {f33.get('n_files')}/9 SHA-256 intact (incl. dynamic_dag_ubp.py)",
+        f"FREEZE_v3_3 mismatch: {f33}",
+    )
+
+    audit33_path = _Path("results/v3/reviewer_audit_v3_3.json")
+    raw_v33_path = _Path("results/v3_3_audit/raw/v3_3_reviewer_audit.jsonl")
+    check(
+        audit33_path.exists() and raw_v33_path.exists(),
+        "v3.3 reviewer audit JSON and raw JSONL exist",
+        "Missing v3.3 reviewer audit JSON or JSONL",
+    )
+    if audit33_path.exists() and raw_v33_path.exists():
+        audit33_txt = audit33_path.read_text(encoding="utf-8")
+        a33 = _json.loads(audit33_txt)
+        recomp_v33 = _recompute_v3_3(str(raw_v33_path))
+        check(
+            _dumps_summary(recomp_v33) == audit33_txt,
+            "results/v3/reviewer_audit_v3_3.json matches deterministic recompute_v3_3.py bit-for-bit",
+            "reviewer_audit_v3_3.json differs from recompute_v3_3.py",
+        )
+        check(a33.get("raw_records_total") == 8521, "v3.3 raw JSONL total == 8521", f"Expected 8521, got {a33.get('raw_records_total')}")
+        check(a33.get("git_dirty") is False, "v3.3 audit ran on clean git tree (git_dirty == False)", f"v3.3 git_dirty={a33.get('git_dirty')}")
+        check(a33.get("freeze_v3_3_match") is True and a33.get("freeze_v3_3_files") == 9,
+              "v3.3 FREEZE_v3_3 match 9/9", f"v3.3 freeze mismatch: {a33.get('freeze_v3_3_match')}")
+
+        v33 = a33["verdicts"]
+        check(
+            v33["PR9a"]["verdict"] == "supported"
+            and v33["PR9b"]["verdict"] == "supported"
+            and v33["PR10"]["verdict"] == "falsified"
+            and v33["PR11"]["verdict"] == "supported",
+            "v3.3 verdicts verified transparent (PR9a=supported, PR9b=supported, PR10=falsified, PR11=supported)",
+            f"Unexpected v3.3 verdicts: {v33}",
+        )
+
+        r9a = a33["R9a_independent_dag_dynamic_mutations"]
+        r9b = a33["R9b_live_spicedb_mutation_matrix"]
+        r10 = a33["R10_direct_e2e_and_ef_sweep"]
+        r11 = a33["R11_live_spicedb_zedtoken_concurrency"]
+        check(
+            r9a["independent_dags"] == 1000
+            and r9a["total_mutation_checkpoints"] == 5000
+            and r9a["false_positives"] == 0
+            and r9a["false_negatives"] == 0
+            and r9a["search_hit_leaks"] == 0,
+            "v3.3 R9a: 0 FP / 0 FN / 0 leaks across 1,000 independent DAGs & 5,000 dynamic mutations",
+            f"R9a failure: {r9a}",
+        )
+        check(
+            r9b["scenarios_total"] == 10
+            and r9b["mask_mismatches"] == 0
+            and r9b["search_mismatches"] == 0
+            and r9b["check_permission_mismatches"] == 0,
+            "v3.3 R9b: 10/10 live SpiceDB dynamic mutation scenarios matched",
+            f"R9b failure: {r9b}",
+        )
+        check(
+            r11["concurrent_reads_total"] == 1760
+            and r11["oracle_mismatches"] == 0
+            and r11["post_revocation_leaks"] == 0
+            and r11["snapshot_stale_reads_after_post_pin"] == 0,
+            "v3.3 R11: 0/1,760 8-thread live SpiceDB opaque-ZedToken leaks",
+            f"R11 failure: {r11}",
+        )
+
+        report_txt = _Path("REVIEWER_AUDIT_REPORT.md").read_text(encoding="utf-8")
+        nov_txt = _Path("docs/RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md").read_text(encoding="utf-8")
+        survey_txt = _Path("literature/survey.md").read_text(encoding="utf-8")
+        for cite_key, arxiv_id in (("amanbayev2026gls", "2602.11443"), ("veda2026", "2605.01342")):
+            check(
+                cite_key in cited and arxiv_id in tex and cite_key in survey_txt and arxiv_id in survey_txt,
+                f"Citation parity verified for {cite_key} (arXiv:{arxiv_id}) in prism_ann.tex and survey.md",
+                f"Missing {cite_key} / arXiv:{arxiv_id} parity",
+            )
+
+        r10_s0001_sq8 = r10["direct_e2e_by_S"]["0.0001"]["systems"]["v3-full-guard-sq8"]
+        r10_s05_sq8 = r10["direct_e2e_by_S"]["0.05"]["systems"]["v3-full-guard-sq8"]
+        r10_s0001_f32 = r10["direct_e2e_by_S"]["0.0001"]["systems"]["v3-full-guard-f32"]
+        r10_s01_sq8 = r10["direct_e2e_by_S"]["0.01"]["systems"]["v3-full-guard-sq8"]
+        v33_checks = [
+            ("v3.3 total records", "8,521", "8{,}521"),
+            ("R9a 1,000 DAGs", "1,000", "1{,}000"),
+            ("R9a 5,000 mutations", "5,000", "5{,}000"),
+            ("R9b 10/10 scenarios", "10 / 10", "10/10"),
+            ("R10 live-RPC S=0.01% f32 speedup", f"{r10_s0001_f32['speedup_live_rpc_vs_faiss']:.2f}", f"{r10_s0001_f32['speedup_live_rpc_vs_faiss']:.2f}"),
+            ("R10 live-RPC S=5.0% sq8 speedup", f"{r10_s05_sq8['speedup_live_rpc_vs_faiss']:.2f}", f"{r10_s05_sq8['speedup_live_rpc_vs_faiss']:.2f}"),
+            ("R10 mirror S=0.01% sq8 speedup", f"{r10_s0001_sq8['speedup_mirror_vs_faiss']:.2f}", f"{r10_s0001_sq8['speedup_mirror_vs_faiss']:.2f}"),
+            ("R10 mirror S=1.0% sq8 speedup", f"{r10_s01_sq8['speedup_mirror_vs_faiss']:.2f}", f"{r10_s01_sq8['speedup_mirror_vs_faiss']:.2f}"),
+            ("R10 mirror S=5.0% sq8 speedup", f"{r10_s05_sq8['speedup_mirror_vs_faiss']:.2f}", f"{r10_s05_sq8['speedup_mirror_vs_faiss']:.2f}"),
+            ("R11 total reads", "1,760", "1{,}760"),
+            ("R11 SpiceDB med rpc", f"{r11['spicedb_median_rpc_ms']:.3f}", f"{r11['spicedb_median_rpc_ms']:.3f}"),
+            ("R11 index med search", f"{r11['index_median_search_ms']:.3f}", f"{r11['index_median_search_ms']:.3f}"),
+        ]
+        for label, md_tok, tex_tok in v33_checks:
+            check(md_tok in report_txt, f"REVIEWER_AUDIT_REPORT.md contains v3.3 {label} ({md_tok})",
+                  f"REVIEWER_AUDIT_REPORT.md missing v3.3 {label}: {md_tok}")
+            check(md_tok in nov_txt, f"RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md contains v3.3 {label} ({md_tok})",
+                  f"RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md missing v3.3 {label}: {md_tok}")
+            check(tex_tok in tex, f"paper/prism_ann.tex contains v3.3 {label} ({tex_tok})",
+                  f"paper/prism_ann.tex missing v3.3 {label}: {tex_tok}")
+
+        stale_patterns = ("23.62", "36,881", "36{,}881", "0/18,412", "0 / 18,412", "98.17%")
+        cross_docs = [
+            ".planning/STATE.md",
+            "findings.md",
+            "research-state.yaml",
+            "README.md",
+            "REVIEWER_AUDIT_REPORT.md",
+            "docs/RESEARCH_AUDIT_AND_NOVELTY_MATRIX.md",
+            "docs/adr/0006-external-reviewer-audit-multiparent-dag-and-two-track-fairness.md",
+            "paper/prism_ann.tex",
+        ]
+        for dp in cross_docs:
+            dtxt = _Path(dp).read_text(encoding="utf-8")
+            for bad in stale_patterns:
+                check(bad not in dtxt, f"Zero stale drifted token '{bad}' in {dp}", f"Stale token '{bad}' found in {dp}!")
+
     print(f"\nSUMMARY: {passed} checks passed, {len(errors)} errors.")
     return len(errors) == 0
 
